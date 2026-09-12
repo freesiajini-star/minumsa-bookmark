@@ -1000,7 +1000,7 @@
                                     height:55px;
                                     margin-top:28px;
                                     position:relative;
-                                    top:60px;
+                                    top:0;
                                     background:#A61D4B;
                                 "
                             ></div>
@@ -3152,10 +3152,94 @@
                    제목의 폰트/크기/가로 위치는 기존 값을 그대로 사용.
                 ------------------------------------------------- */
 
-                drawTextElement(
-                    ctx,
-                    previewBookTitle
+                /* -------------------------------------------------
+                   앞표지 제목:
+                   위 색띠의 아래쪽과 아래 색띠의 위쪽 사이
+                   새 Y 중앙에 제목을 맞춘다.
+                ------------------------------------------------- */
+
+                const titleAreaRect =
+                    getExportRect(
+                        document.getElementById(
+                            'frontTitleArea'
+                        )
+                    );
+
+                const movedTopBarRect =
+                    getExportRect(
+                        topBar
+                    );
+
+                const currentBottomBarRect =
+                    getExportRect(
+                        bottomBar
+                    );
+
+                const titleStyle =
+                    getComputedStyle(
+                        previewBookTitle
+                    );
+
+                const titleText =
+                    previewBookTitle.textContent.trim();
+
+                const titleFontSize =
+                    parseFloat(
+                        titleStyle.fontSize
+                    );
+
+                /*
+                 * 실제 두 색띠 사이의 중앙 Y.
+                 */
+                const titleCenterY =
+                    (
+                        movedTopBarRect.y +
+                        movedTopBarRect.height +
+                        currentBottomBarRect.y
+                    ) / 2;
+
+                ctx.save();
+
+                ctx.font =
+                    canvasFontFromElement(
+                        previewBookTitle
+                    );
+
+                ctx.fillStyle =
+                    getElementColor(
+                        previewBookTitle
+                    );
+
+                ctx.textAlign =
+                    'left';
+
+                ctx.textBaseline =
+                    'alphabetic';
+
+                const titleMetrics =
+                    ctx.measureText(
+                        titleText
+                    );
+
+                const ascent =
+                    titleMetrics.actualBoundingBoxAscent ||
+                    titleFontSize * 0.75;
+
+                const descent =
+                    titleMetrics.actualBoundingBoxDescent ||
+                    titleFontSize * 0.25;
+
+                const titleBaselineY =
+                    titleCenterY +
+                    (ascent - descent) / 2;
+
+                ctx.fillText(
+                    titleText,
+                    titleAreaRect.x,
+                    titleBaselineY
                 );
+
+                ctx.restore();
 
 
                 /* =================================================
