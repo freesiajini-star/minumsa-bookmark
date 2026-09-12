@@ -29,60 +29,158 @@
             font-family: 'Noto Sans KR', sans-serif;
         }
 
+
+        /* =========================================================
+           실제 출력 규격
+        ========================================================= */
+
         :root {
             --canvas-w: 1080px;
             --canvas-h: 1720px;
+
             --spine-w: 97px;
             --front-w: 983px;
+
             --image-h: 774px;
             --transparent-h: 946px;
+
             --main-color: #A61D4B;
         }
+
+
+        /* =========================================================
+           실제 디자인
+        ========================================================= */
 
         .book-canvas {
             width: 1080px;
             height: 1720px;
+
             position: relative;
+
             display: flex;
+
             background: transparent;
+
             overflow: hidden;
         }
+
+
+        /* =========================================================
+           미리보기
+        ========================================================= */
 
         .preview-frame {
             width: 502px;
             height: 800px;
+
             position: relative;
+
             overflow: hidden;
+
             flex-shrink: 0;
+
             background:
                 repeating-conic-gradient(
                     #f1f5f9 0% 25%,
                     #ffffff 0% 50%
-                ) 50% / 16px 16px;
+                )
+                50% / 16px 16px;
+
             border-radius: 14px;
         }
+
 
         .preview-frame .book-canvas {
             transform: scale(0.465);
             transform-origin: top left;
         }
 
-        .spine-vertical {
-            writing-mode: vertical-rl;
-            text-orientation: upright;
-            white-space: nowrap !important;
-            word-break: keep-all !important;
-            overflow: visible;
-            display: block;
+
+        /* =========================================================
+           책등 세로 제목
+
+           writing-mode를 사용하지 않는다.
+           html2canvas에서도 깨지지 않도록
+           글자 하나하나를 실제 세로로 배치한다.
+        ========================================================= */
+
+        .spine-title-columns {
+            position: absolute;
+
+            top: 35px;
+            left: 0;
+
+            width: 96px;
+            height: 610px;
+
+            display: flex;
+
+            flex-direction: row-reverse;
+
+            justify-content: center;
+
+            align-items: flex-start;
+
+            gap: 3px;
+
+            overflow: hidden;
+        }
+
+
+        .spine-title-column {
+            width: 43px;
+            height: 570px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: flex-start;
+
+            overflow: hidden;
+
             flex-shrink: 0;
         }
 
-        .minumsa-logo {
+
+        .spine-title-char {
             display: block;
-            object-fit: contain;
-            object-position: center;
+
+            width: 43px;
+
+            height: 64px;
+
+            line-height: 64px;
+
+            text-align: center;
+
+            color: #ffffff;
+
+            font-family: 'Gowun Batang', serif;
+
+            font-size: 64px;
+
+            font-weight: 700;
+
+            letter-spacing: 0;
+
             flex-shrink: 0;
         }
+
+
+        .minumsa-logo {
+            display: block;
+
+            object-fit: contain;
+
+            object-position: center;
+
+            flex-shrink: 0;
+        }
+
 
         .color-chip {
             transition: transform 0.15s ease;
@@ -91,6 +189,57 @@
         .color-chip.selected {
             transform: scale(1.1);
         }
+
+
+        /* =========================================================
+           앞표지 제목 영역
+        ========================================================= */
+
+        .front-title-area {
+            width: 700px;
+
+            height: 110px;
+
+            margin-top: 28px;
+
+            margin-bottom: 29px;
+
+            display: flex;
+
+            align-items: center;
+
+            overflow: hidden;
+        }
+
+
+        #previewBookTitle {
+            width: 700px;
+
+            margin: 0;
+
+            padding: 0;
+
+            font-family: 'Gowun Batang', serif;
+
+            font-size: 83px;
+
+            line-height: 1;
+
+            font-weight: 700;
+
+            letter-spacing: -0.055em;
+
+            color: #111111;
+
+            word-break: keep-all;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-align: left;
+        }
+
     </style>
 </head>
 
@@ -115,22 +264,27 @@
 
         <div class="space-y-4">
 
+
             <h1 class="text-2xl font-bold text-slate-800">
                 📚 봉산삼오전집 투명 책갈피
             </h1>
+
 
             <p class="text-xs text-slate-500">
                 스냅스 포토카드 54:86 · 1080×1720px · 투명 PNG
             </p>
 
 
-            <!-- 이미지 -->
+            <!-- =====================================================
+                 이미지
+            ====================================================== -->
 
             <div>
 
                 <label class="block text-sm font-semibold text-slate-700 mb-1">
                     상단 일러스트 이미지
                 </label>
+
 
                 <input
                     type="file"
@@ -144,6 +298,7 @@
                            hover:file:bg-indigo-100 cursor-pointer"
                 >
 
+
                 <p class="text-[11px] text-slate-400 mt-1">
                     ※ JPG · PNG · WEBP · AVIF 지원
                     · 앞표지 상단 45% 영역
@@ -152,15 +307,20 @@
             </div>
 
 
-            <!-- 번호 / 인물 -->
+
+            <!-- =====================================================
+                 번호 / 인물
+            ====================================================== -->
 
             <div class="grid grid-cols-2 gap-3">
+
 
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         전집 번호
                     </label>
+
 
                     <input
                         type="number"
@@ -174,11 +334,13 @@
                 </div>
 
 
+
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         책등 인물
                     </label>
+
 
                     <select
                         id="authorImageSelect"
@@ -186,11 +348,25 @@
                                outline-none bg-white text-sm"
                     >
 
-                        <option value="Jane.png">제인 오스틴</option>
-                        <option value="Hankang.png">한강 작가</option>
-                        <option value="Sejong.png">세종대왕</option>
-                        <option value="Shakespeare.png">셰익스피어</option>
-                        <option value="Hwang.png">황석영 작가</option>
+                        <option value="Jane.png">
+                            제인 오스틴
+                        </option>
+
+                        <option value="Hankang.png">
+                            한강 작가
+                        </option>
+
+                        <option value="Sejong.png">
+                            세종대왕
+                        </option>
+
+                        <option value="Shakespeare.png">
+                            셰익스피어
+                        </option>
+
+                        <option value="Hwang.png">
+                            황석영 작가
+                        </option>
 
                     </select>
 
@@ -199,15 +375,20 @@
             </div>
 
 
-            <!-- 제목 -->
+
+            <!-- =====================================================
+                 제목
+            ====================================================== -->
 
             <div class="grid grid-cols-2 gap-3">
+
 
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         책 제목
                     </label>
+
 
                     <input
                         type="text"
@@ -220,11 +401,13 @@
                 </div>
 
 
+
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         영문 원제
                     </label>
+
 
                     <input
                         type="text"
@@ -238,15 +421,20 @@
             </div>
 
 
-            <!-- 저자 / 역자 -->
+
+            <!-- =====================================================
+                 저자 / 역자
+            ====================================================== -->
 
             <div class="grid grid-cols-2 gap-3">
+
 
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         저자명
                     </label>
+
 
                     <input
                         type="text"
@@ -258,11 +446,13 @@
                 </div>
 
 
+
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
                         역자명
                     </label>
+
 
                     <input
                         type="text"
@@ -276,7 +466,10 @@
             </div>
 
 
-            <!-- 색상 -->
+
+            <!-- =====================================================
+                 색상
+            ====================================================== -->
 
             <div>
 
@@ -284,7 +477,9 @@
                     책등 & 띠 컬러
                 </label>
 
+
                 <div class="flex flex-wrap gap-2.5">
+
 
                     <button
                         type="button"
@@ -295,6 +490,7 @@
                         data-color="#A61D4B"
                     ></button>
 
+
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -302,6 +498,7 @@
                         style="background:#1E3A8A"
                         data-color="#1E3A8A"
                     ></button>
+
 
                     <button
                         type="button"
@@ -311,6 +508,7 @@
                         data-color="#065F46"
                     ></button>
 
+
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -318,6 +516,7 @@
                         style="background:#581C87"
                         data-color="#581C87"
                     ></button>
+
 
                     <button
                         type="button"
@@ -327,6 +526,7 @@
                         data-color="#B45309"
                     ></button>
 
+
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -334,6 +534,7 @@
                         style="background:#111827"
                         data-color="#111827"
                     ></button>
+
 
                     <button
                         type="button"
@@ -343,6 +544,7 @@
                         data-color="#0369A1"
                     ></button>
 
+
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -350,6 +552,7 @@
                         style="background:#9A3412"
                         data-color="#9A3412"
                     ></button>
+
 
                     <button
                         type="button"
@@ -359,11 +562,13 @@
                         data-color="#4D7C0F"
                     ></button>
 
+
                 </div>
 
             </div>
 
         </div>
+
 
 
         <button
@@ -378,6 +583,7 @@
     </div>
 
 
+
     <!-- =============================================================
          미리보기
     ============================================================== -->
@@ -386,6 +592,7 @@
         class="p-6 md:p-8 bg-slate-50 flex flex-col
                items-center justify-start overflow-auto"
     >
+
 
         <p class="text-xs font-medium text-slate-400 mb-3">
             실시간 미리보기 · 54:86 · 사진 45%
@@ -396,6 +603,7 @@
             id="previewFrame"
             class="preview-frame"
         >
+
 
             <div
                 id="captureArea"
@@ -439,6 +647,9 @@
                         "
                     >
 
+
+                        <!-- 번호 -->
+
                         <div
                             class="font-sans-kr"
                             style="
@@ -451,9 +662,16 @@
                                 white-space:nowrap;
                             "
                         >
-                            <span id="previewSeriesNo">088</span>
+
+                            <span id="previewSeriesNo">
+                                088
+                            </span>
+
                         </div>
 
+
+
+                        <!-- 봉산삼오전집 -->
 
                         <div
                             class="font-sans-kr"
@@ -467,15 +685,23 @@
                                 white-space:nowrap;
                             "
                         >
+
                             <span>봉산</span><br>
                             <span>삼오</span><br>
                             <span>전집</span>
+
                         </div>
 
                     </div>
 
 
-                    <!-- 작가 사진 -->
+
+                    <!-- =================================================
+                         작가 사진
+
+                         원본 비율 유지.
+                         영역보다 큰 부분만 crop.
+                    ================================================== -->
 
                     <div
                         style="
@@ -498,11 +724,13 @@
                                 width:100%;
                                 height:100%;
                                 object-fit:cover;
+                                object-position:center center;
                                 filter:grayscale(100%) contrast(115%);
                             "
                         >
 
                     </div>
+
 
 
                     <!-- 책등 컬러 -->
@@ -522,79 +750,40 @@
 
 
                         <!-- =================================================
-                             책등 제목 영역
+                             책등 제목
 
-                             35px ~ 645px
-
-                             긴 제목이면 여기 안에서만
-                             2열로 바뀐다.
+                             실제 글자 하나하나를 세로로 배치
+                             writing-mode 사용 안 함
                         ================================================== -->
 
                         <div
-                            id="spineTitleBox"
-                            style="
-                                position:absolute;
-                                top:35px;
-                                left:0;
-                                width:96px;
-                                height:610px;
-                                display:flex;
-                                flex-direction:row;
-                                justify-content:center;
-                                align-items:flex-start;
-                                gap:3px;
-                                overflow:hidden;
-                            "
+                            id="spineTitleColumns"
+                            class="spine-title-columns"
                         >
 
-                            <!-- 첫 번째 제목 열 -->
+                            <!-- 오른쪽 열 -->
 
-                            <span
-                                id="previewSpineTitle"
-                                class="spine-vertical font-batang"
-                                style="
-                                    color:#ffffff;
-                                    font-size:64px;
-                                    font-weight:700;
-                                    line-height:1;
-                                    letter-spacing:0;
-                                    white-space:nowrap !important;
-                                    width:auto;
-                                    height:auto;
-                                    overflow:visible;
-                                "
-                            >
-                                오만과 편견
-                            </span>
+                            <div
+                                id="spineTitleColumn1"
+                                class="spine-title-column"
+                            ></div>
 
 
-                            <!-- 두 번째 제목 열 -->
+                            <!-- 왼쪽 열 -->
 
-                            <span
-                                id="previewSpineTitle2"
-                                class="spine-vertical font-batang"
-                                style="
-                                    display:none;
-                                    color:#ffffff;
-                                    font-size:40px;
-                                    font-weight:700;
-                                    line-height:1;
-                                    letter-spacing:0;
-                                    white-space:nowrap !important;
-                                    width:auto;
-                                    height:auto;
-                                    overflow:hidden;
-                                "
-                            ></span>
+                            <div
+                                id="spineTitleColumn2"
+                                class="spine-title-column"
+                            ></div>
 
                         </div>
+
 
 
                         <!-- =================================================
                              책등 저자
 
-                             ★ 제목과 완전히 독립
-                             ★ 항상 700px에서 시작
+                             제목과 완전히 독립
                         ================================================== -->
 
                         <div
@@ -614,14 +803,16 @@
 
                             <span
                                 id="previewSpineAuthor"
-                                class="spine-vertical font-sans-kr"
+                                class="font-sans-kr"
                                 style="
                                     color:#ffffff;
                                     font-size:34px;
                                     font-weight:500;
                                     line-height:1;
                                     letter-spacing:0;
-                                    white-space:nowrap !important;
+                                    white-space:nowrap;
+                                    writing-mode:vertical-rl;
+                                    text-orientation:upright;
                                 "
                             >
                                 제인 오스틴
@@ -630,6 +821,7 @@
                         </div>
 
                     </div>
+
 
 
                     <!-- 책등 하단 -->
@@ -664,6 +856,7 @@
                 </div>
 
 
+
                 <!-- =================================================
                      앞표지
                 ================================================== -->
@@ -680,7 +873,13 @@
                 >
 
 
-                    <!-- 앞표지 이미지 -->
+                    <!-- =================================================
+                         앞표지 이미지
+
+                         원본 비율 유지.
+                         틀보다 큰 부분은 crop.
+                         절대로 찌그러뜨리지 않는다.
+                    ================================================== -->
 
                     <div
                         style="
@@ -703,8 +902,10 @@
                                 width:100%;
                                 height:100%;
                                 object-fit:cover;
+                                object-position:center center;
                             "
                         >
+
 
                         <div
                             id="imagePlaceholder"
@@ -724,6 +925,7 @@
                         </div>
 
                     </div>
+
 
 
                     <!-- 앞표지 하단 -->
@@ -775,6 +977,7 @@
                             </div>
 
 
+
                             <!-- 위 색띠 -->
 
                             <div
@@ -788,27 +991,27 @@
                             ></div>
 
 
-                            <!-- 책 제목 -->
+
+                            <!-- =================================================
+                                 책 제목
+
+                                 고정 110px 영역.
+                                 제목을 이 영역의 정중앙에 배치.
+                            ================================================== -->
 
                             <div
-                                id="previewBookTitle"
-                                class="font-batang"
-                                style="
-                                    width:700px;
-                                    margin-top:28px;
-                                    margin-bottom:29px;
-                                    font-size:83px;
-                                    line-height:1;
-                                    font-weight:700;
-                                    letter-spacing:-0.055em;
-                                    color:#111111;
-                                    word-break:keep-all;
-                                    white-space:nowrap;
-                                    overflow:hidden;
-                                "
+                                class="front-title-area"
+                                id="frontTitleArea"
                             >
-                                오만과 편견
+
+                                <div
+                                    id="previewBookTitle"
+                                >
+                                    오만과 편견
+                                </div>
+
                             </div>
+
 
 
                             <!-- 아래 색띠 -->
@@ -842,6 +1045,7 @@
                                 </span>
 
                             </div>
+
 
 
                             <!-- 저자 / 역자 -->
@@ -887,6 +1091,7 @@
                         </div>
 
 
+
                         <!-- 앞표지 민음사 -->
 
                         <div
@@ -911,13 +1116,17 @@
 
                         </div>
 
+
                     </div>
 
                 </div>
 
 
+
                 <!-- =================================================
                      경계선
+
+                     딱 하나의 1px 검은 선
                 ================================================== -->
 
                 <div
@@ -985,15 +1194,6 @@
     const previewSubSeriesNo =
         document.getElementById('previewSubSeriesNo');
 
-    const previewSpineTitle =
-        document.getElementById('previewSpineTitle');
-
-    const previewSpineTitle2 =
-        document.getElementById('previewSpineTitle2');
-
-    const previewSpineAuthor =
-        document.getElementById('previewSpineAuthor');
-
     const previewBookTitle =
         document.getElementById('previewBookTitle');
 
@@ -1039,6 +1239,15 @@
     const captureArea =
         document.getElementById('captureArea');
 
+    const spineTitleColumns =
+        document.getElementById('spineTitleColumns');
+
+    const spineTitleColumn1 =
+        document.getElementById('spineTitleColumn1');
+
+    const spineTitleColumn2 =
+        document.getElementById('spineTitleColumn2');
+
 
 
     /* =============================================================
@@ -1069,6 +1278,7 @@
             Math.min(number, 999)
         ).padStart(3, '0');
     }
+
 
 
     function updateSeriesNumber() {
@@ -1111,17 +1321,29 @@
 
     /* =============================================================
        앞표지 제목 크기
+
+       제목 영역은 700×110으로 고정.
+       제목은 영역의 세로 중앙.
     ============================================================= */
 
     function fitTitleAndBars() {
 
-        const MAX_WIDTH = 700;
-        const MIN_FONT_SIZE = 42;
-        const NORMAL_FONT_SIZE = 83;
+        const MAX_WIDTH =
+            700;
+
+        const NORMAL_FONT_SIZE =
+            83;
+
+        const MIN_FONT_SIZE =
+            42;
+
 
         let fontSize =
             NORMAL_FONT_SIZE;
 
+
+        previewBookTitle.style.fontSize =
+            fontSize + 'px';
 
         previewBookTitle.style.whiteSpace =
             'nowrap';
@@ -1129,25 +1351,25 @@
         previewBookTitle.style.display =
             'block';
 
-        previewBookTitle.style.webkitLineClamp =
-            'unset';
-
-        previewBookTitle.style.width =
-            MAX_WIDTH + 'px';
-
-        previewBookTitle.style.fontSize =
-            fontSize + 'px';
-
         previewBookTitle.style.lineHeight =
             '1';
+
+        previewBookTitle.style.height =
+            'auto';
 
         previewBookTitle.style.overflow =
             'hidden';
 
 
+        /* ---------------------------------------------------------
+           우선 한 줄에서 최대한 크게
+        --------------------------------------------------------- */
+
         while (
-            previewBookTitle.scrollWidth > MAX_WIDTH &&
-            fontSize > MIN_FONT_SIZE
+            previewBookTitle.scrollWidth >
+                MAX_WIDTH &&
+            fontSize >
+                MIN_FONT_SIZE
         ) {
 
             fontSize -= 1;
@@ -1157,8 +1379,13 @@
         }
 
 
+        /* ---------------------------------------------------------
+           그래도 안 들어가면 2줄
+        --------------------------------------------------------- */
+
         if (
-            previewBookTitle.scrollWidth > MAX_WIDTH
+            previewBookTitle.scrollWidth >
+            MAX_WIDTH
         ) {
 
             previewBookTitle.style.whiteSpace =
@@ -1174,10 +1401,10 @@
                 '2';
 
             previewBookTitle.style.lineHeight =
-                '0.88';
+                '0.9';
 
-            previewBookTitle.style.width =
-                MAX_WIDTH + 'px';
+            previewBookTitle.style.height =
+                '100%';
 
             previewBookTitle.style.overflow =
                 'hidden';
@@ -1195,8 +1422,15 @@
 
             previewBookTitle.style.lineHeight =
                 '1';
+
+            previewBookTitle.style.height =
+                'auto';
         }
 
+
+        /* ---------------------------------------------------------
+           색띠 길이
+        --------------------------------------------------------- */
 
         const titleWidth =
             Math.min(
@@ -1236,15 +1470,88 @@
 
 
     /* =============================================================
-       책등 제목 자동 배치
+       책등 제목 글자 생성
+    ============================================================= */
 
-       ★ 핵심 수정 버전 ★
+    function makeSpineCharacters(
+        container,
+        text,
+        fontSize
+    ) {
 
-       1. 먼저 64px 1열로 검사
-       2. offsetHeight가 610px 이하이면 1열
-       3. 610px 초과이면 즉시 2열
-       4. 2열에서는 각 열을 최대 570px 안에 맞춤
-       5. 저자는 700px 고정
+        container.innerHTML =
+            '';
+
+
+        const chars =
+            Array.from(
+                text
+            );
+
+
+        chars.forEach(
+            function(char) {
+
+                const span =
+                    document.createElement(
+                        'span'
+                    );
+
+
+                span.className =
+                    'spine-title-char';
+
+
+                span.textContent =
+                    char === ' '
+                        ? '\u00A0'
+                        : char;
+
+
+                span.style.fontSize =
+                    fontSize + 'px';
+
+
+                span.style.height =
+                    fontSize + 'px';
+
+
+                span.style.lineHeight =
+                    fontSize + 'px';
+
+
+                container.appendChild(
+                    span
+                );
+
+            }
+        );
+
+    }
+
+
+
+    /* =============================================================
+       책등 제목
+
+       ★ writing-mode를 사용하지 않음 ★
+
+       1열:
+       글자 하나
+       글자 하나
+       글자 하나
+       ...
+
+       긴 제목:
+       오른쪽 열
+       글자
+       글자
+       글자
+
+       왼쪽 열
+       글자
+       글자
+       글자
     ============================================================= */
 
     function fitSpineTitle() {
@@ -1254,104 +1561,117 @@
             '오만과 편견';
 
 
-        const TITLE_AREA_HEIGHT =
-            610;
-
-        const TWO_COLUMN_HEIGHT =
+        const MAX_ONE_COLUMN_HEIGHT =
             570;
 
-        const AUTHOR_TOP =
-            700;
+        const MAX_TWO_COLUMN_HEIGHT =
+            570;
 
-        const ONE_COLUMN_FONT =
+        const MAX_FONT =
             64;
 
-        const TWO_COLUMN_MAX_FONT =
-            40;
-
         const MIN_FONT =
-            20;
+            24;
 
 
         /* ---------------------------------------------------------
-           초기화
+           우선 1열 64px
         --------------------------------------------------------- */
 
-        previewSpineTitle.style.display =
-            'block';
-
-        previewSpineTitle2.style.display =
-            'none';
-
-        previewSpineTitle.textContent =
-            title;
-
-        previewSpineTitle2.textContent =
-            '';
+        let fontSize =
+            MAX_FONT;
 
 
-        previewSpineTitle.style.fontSize =
-            ONE_COLUMN_FONT + 'px';
-
-        previewSpineTitle.style.width =
-            'auto';
-
-        previewSpineTitle.style.height =
-            'auto';
-
-        previewSpineTitle.style.maxHeight =
-            'none';
-
-        previewSpineTitle.style.overflow =
-            'visible';
+        let charCount =
+            Array.from(title).length;
 
 
-        /* ---------------------------------------------------------
-           1열 제목 검사
+        /*
+         * 글자 하나의 높이는 fontSize와 동일하게 사용한다.
+         */
 
-           중요:
-           getBoundingClientRect() 사용 금지.
-           previewFrame의 scale 영향을 받기 때문.
-           offsetHeight를 사용한다.
-        --------------------------------------------------------- */
-
-        let oneFont =
-            ONE_COLUMN_FONT;
+        let oneColumnHeight =
+            charCount * fontSize;
 
 
         while (
-            previewSpineTitle.offsetHeight >
-                TITLE_AREA_HEIGHT &&
-            oneFont > MIN_FONT
+            oneColumnHeight >
+                MAX_ONE_COLUMN_HEIGHT &&
+            fontSize >
+                MIN_FONT
         ) {
 
-            oneFont -= 1;
+            fontSize -= 1;
 
-            previewSpineTitle.style.fontSize =
-                oneFont + 'px';
+            oneColumnHeight =
+                charCount * fontSize;
         }
 
 
         /* ---------------------------------------------------------
-           1열로 충분하면 그대로 끝
+           1열로 들어가는 경우
         --------------------------------------------------------- */
 
         if (
-            previewSpineTitle.offsetHeight <=
-            TITLE_AREA_HEIGHT
+            oneColumnHeight <=
+            MAX_ONE_COLUMN_HEIGHT
         ) {
 
-            spineAuthorBox.style.top =
-                AUTHOR_TOP + 'px';
+            makeSpineCharacters(
+                spineTitleColumn1,
+                title,
+                fontSize
+            );
+
+
+            spineTitleColumn2.innerHTML =
+                '';
+
+
+            spineTitleColumn2.style.display =
+                'none';
+
+
+            spineTitleColumn1.style.display =
+                'flex';
+
+
+            spineTitleColumn1.style.width =
+                '43px';
+
+
+            spineTitleColumns.style.flexDirection =
+                'row';
+
 
             return;
         }
 
 
+
         /* =========================================================
-           여기부터는 긴 제목
-           → 무조건 2열
+           긴 제목 → 2열
         ========================================================= */
+
+
+        spineTitleColumn1.style.display =
+            'flex';
+
+        spineTitleColumn2.style.display =
+            'flex';
+
+
+        spineTitleColumns.style.flexDirection =
+            'row-reverse';
+
+
+        /*
+         * 2열에서는 최대한 큰 글자를 사용하되
+         * 각 열이 570px 안에 들어가도록 한다.
+         */
+
+        let twoFont =
+            64;
 
 
         const chars =
@@ -1359,226 +1679,95 @@
 
 
         /*
-         * 공백이 있는 제목은 가능한 한
-         * 단어 단위로 먼저 나눈다.
+         * 먼저 균등하게 나눈다.
          */
 
-        let first = '';
-        let second = '';
-
-
-        const words =
-            title.split(' ');
-
-
-        if (words.length > 1) {
-
-            let firstWords = [];
-            let secondWords = [];
-
-            let firstLength = 0;
-
-            const totalLength =
-                chars.length;
-
-
-            for (
-                let i = 0;
-                i < words.length;
-                i++
-            ) {
-
-                const word =
-                    words[i];
-
-                const nextLength =
-                    firstLength +
-                    word.length +
-                    (firstWords.length > 0 ? 1 : 0);
-
-
-                if (
-                    nextLength <=
-                    Math.ceil(totalLength / 2)
-                ) {
-
-                    firstWords.push(word);
-
-                    firstLength =
-                        nextLength;
-
-                } else {
-
-                    secondWords.push(word);
-
-                }
-
-            }
-
-
-            first =
-                firstWords.join(' ');
-
-            second =
-                secondWords.join(' ');
-
-
-            /*
-             * 한쪽이 비어버리는 경우에는
-             * 글자 기준으로 다시 나눈다.
-             */
-
-            if (
-                !first ||
-                !second
-            ) {
-
-                const splitIndex =
-                    Math.ceil(
-                        chars.length / 2
-                    );
-
-                first =
-                    chars
-                        .slice(0, splitIndex)
-                        .join('');
-
-                second =
-                    chars
-                        .slice(splitIndex)
-                        .join('');
-            }
-
-        } else {
-
-            const splitIndex =
-                Math.ceil(
-                    chars.length / 2
-                );
-
-            first =
-                chars
-                    .slice(0, splitIndex)
-                    .join('');
-
-            second =
-                chars
-                    .slice(splitIndex)
-                    .join('');
-        }
-
-
-        previewSpineTitle.textContent =
-            first;
-
-        previewSpineTitle2.textContent =
-            second;
-
-
-        /* ---------------------------------------------------------
-           2열 스타일
-        --------------------------------------------------------- */
-
-        previewSpineTitle.style.display =
-            'block';
-
-        previewSpineTitle2.style.display =
-            'block';
-
-
-        previewSpineTitle.style.width =
-            '43px';
-
-        previewSpineTitle2.style.width =
-            '43px';
-
-
-        previewSpineTitle.style.height =
-            TWO_COLUMN_HEIGHT + 'px';
-
-        previewSpineTitle2.style.height =
-            TWO_COLUMN_HEIGHT + 'px';
-
-
-        previewSpineTitle.style.overflow =
-            'hidden';
-
-        previewSpineTitle2.style.overflow =
-            'hidden';
-
-
-        /*
-         * 2열은 두 열 모두 같은 크기를 사용한다.
-         */
-
-        let twoFont =
-            TWO_COLUMN_MAX_FONT;
-
-
-        previewSpineTitle.style.fontSize =
-            twoFont + 'px';
-
-        previewSpineTitle2.style.fontSize =
-            twoFont + 'px';
-
-
-        /* ---------------------------------------------------------
-           실제 높이를 보고 둘 다 들어갈 때까지 축소
-        --------------------------------------------------------- */
-
-        while (
-            (
-                previewSpineTitle.scrollHeight >
-                TWO_COLUMN_HEIGHT ||
-
-                previewSpineTitle2.scrollHeight >
-                TWO_COLUMN_HEIGHT
-            ) &&
-            twoFont > MIN_FONT
-        ) {
-
-            twoFont -= 1;
-
-            previewSpineTitle.style.fontSize =
-                twoFont + 'px';
-
-            previewSpineTitle2.style.fontSize =
-                twoFont + 'px';
-        }
-
-
-        /* ---------------------------------------------------------
-           두 열을 책등 안에 배치
-
-           writing-mode:vertical-rl 이므로
-           row-reverse를 사용하여 자연스러운
-           세로 제목 순서를 만든다.
-        --------------------------------------------------------- */
-
-        const titleBox =
-            document.getElementById(
-                'spineTitleBox'
+        let splitIndex =
+            Math.ceil(
+                chars.length / 2
             );
 
 
-        titleBox.style.flexDirection =
-            'row-reverse';
+        let firstChars =
+            chars.slice(
+                0,
+                splitIndex
+            );
+
+        let secondChars =
+            chars.slice(
+                splitIndex
+            );
 
 
-        titleBox.style.justifyContent =
-            'center';
+        /*
+         * 두 열 중 긴 쪽의 글자 수를 기준으로
+         * 폰트 크기를 결정한다.
+         */
+
+        let longestCount =
+            Math.max(
+                firstChars.length,
+                secondChars.length
+            );
 
 
-        titleBox.style.gap =
-            '3px';
+        while (
+            longestCount * twoFont >
+                MAX_TWO_COLUMN_HEIGHT &&
+            twoFont >
+                MIN_FONT
+        ) {
+
+            twoFont -= 1;
+        }
 
 
         /* ---------------------------------------------------------
-           저자는 제목과 완전히 독립
+           실제 생성
         --------------------------------------------------------- */
 
+        makeSpineCharacters(
+            spineTitleColumn1,
+            firstChars.join(''),
+            twoFont
+        );
+
+
+        makeSpineCharacters(
+            spineTitleColumn2,
+            secondChars.join(''),
+            twoFont
+        );
+
+
+        spineTitleColumn1.style.width =
+            '43px';
+
+        spineTitleColumn2.style.width =
+            '43px';
+
+
+        spineTitleColumn1.style.height =
+            MAX_TWO_COLUMN_HEIGHT + 'px';
+
+        spineTitleColumn2.style.height =
+            MAX_TWO_COLUMN_HEIGHT + 'px';
+
+    }
+
+
+
+    /* =============================================================
+       책등 저자
+
+       위치 고정
+    ============================================================= */
+
+    function fitSpineAuthor() {
+
         spineAuthorBox.style.top =
-            AUTHOR_TOP + 'px';
+            '700px';
 
     }
 
@@ -1599,12 +1788,6 @@
 
             previewBookTitle.textContent =
                 value;
-
-            previewSpineTitle.textContent =
-                value;
-
-            previewSpineTitle2.textContent =
-                '';
 
 
             fitTitleAndBars();
@@ -1675,7 +1858,9 @@
 
     /* =============================================================
        이미지 업로드
-       AVIF 포함
+
+       원본 비율 유지
+       crop 방식
     ============================================================= */
 
     imageInput.addEventListener(
@@ -1733,6 +1918,7 @@
             chip.addEventListener(
                 'click',
                 function() {
+
 
                     colorChips.forEach(
                         function(c) {
@@ -1838,6 +2024,18 @@
 
     /* =============================================================
        PNG 다운로드
+
+       ★ 중요 ★
+
+       미리보기의 0.465배 화면을 캡처하지 않는다.
+
+       실제 1080×1720 canvas를 그대로 캡처한다.
+
+       그래서:
+       - 세로쓰기 깨짐 방지
+       - 이미지 찌그러짐 방지
+       - 제목 위치 틀어짐 방지
+       - 미리보기와 실제 디자인 구조 동일
     ============================================================= */
 
     downloadBtn.addEventListener(
@@ -1847,11 +2045,17 @@
             downloadBtn.disabled =
                 true;
 
+
             downloadBtn.textContent =
                 '✨ PNG 생성 중...';
 
 
             try {
+
+
+                /* -------------------------------------------------
+                   번호
+                ------------------------------------------------- */
 
                 const fileNumber =
                     formatSeriesNo(
@@ -1866,23 +2070,32 @@
                     fileNumber;
 
 
+
+                /* -------------------------------------------------
+                   폰트
+                ------------------------------------------------- */
+
                 if (document.fonts) {
+
                     await document.fonts.ready;
+
                 }
 
+
+
+                /* -------------------------------------------------
+                   이미지
+                ------------------------------------------------- */
 
                 await waitForImages(
                     captureArea
                 );
 
 
-                /*
-                 * 제목 레이아웃을 다운로드 직전에
-                 * 다시 계산하지 않는다.
-                 *
-                 * 화면에 보이는 상태 그대로 저장한다.
-                 */
 
+                /* -------------------------------------------------
+                   렌더링 안정화
+                ------------------------------------------------- */
 
                 await new Promise(
                     function(resolve) {
@@ -1901,69 +2114,52 @@
                 );
 
 
-                const previewWidth =
-                    502;
 
-                const previewHeight =
-                    800;
+                /* -------------------------------------------------
+                   실제 캔버스 캡처
 
+                   transform을 사용한 미리보기 프레임이 아니라
+                   실제 1080×1720 디자인을 캡처한다.
+                ------------------------------------------------- */
 
-                const oldBackground =
-                    previewFrame.style.background;
-
-                const oldBorderRadius =
-                    previewFrame.style.borderRadius;
-
-
-                previewFrame.style.background =
-                    'transparent';
-
-                previewFrame.style.borderRadius =
-                    '0';
-
-
-                const previewCanvas =
+                const exportCanvas =
                     await html2canvas(
-                        previewFrame,
+                        captureArea,
                         {
 
-                            width:
-                                previewWidth,
+                            width:1080,
 
-                            height:
-                                previewHeight,
+                            height:1720,
 
-                            scale:
-                                4,
+                            scale:1,
 
-                            backgroundColor:
-                                null,
+                            backgroundColor:null,
 
-                            useCORS:
-                                true,
+                            useCORS:true,
 
-                            allowTaint:
-                                false,
+                            allowTaint:false,
 
-                            imageTimeout:
-                                0,
+                            imageTimeout:0,
 
-                            logging:
-                                false,
+                            logging:false,
 
-                            removeContainer:
-                                true
+                            removeContainer:true,
+
+                            scrollX:0,
+
+                            scrollY:0
 
                         }
                     );
 
 
-                previewFrame.style.background =
-                    oldBackground;
 
-                previewFrame.style.borderRadius =
-                    oldBorderRadius;
+                /* -------------------------------------------------
+                   최종 PNG 캔버스
 
+                   혹시 html2canvas가 미세하게 다른 크기를
+                   반환하더라도 최종 규격은 항상 1080×1720
+                ------------------------------------------------- */
 
                 const finalCanvas =
                     document.createElement(
@@ -1993,17 +2189,22 @@
 
 
                 ctx.drawImage(
-                    previewCanvas,
+                    exportCanvas,
                     0,
                     0,
-                    previewCanvas.width,
-                    previewCanvas.height,
+                    exportCanvas.width,
+                    exportCanvas.height,
                     0,
                     0,
                     1080,
                     1720
                 );
 
+
+
+                /* -------------------------------------------------
+                   PNG Blob
+                ------------------------------------------------- */
 
                 const blob =
                     await new Promise(
@@ -2027,6 +2228,14 @@
                 }
 
 
+
+                /* -------------------------------------------------
+                   파일명
+
+                   예:
+                   북커버_020.png
+                ------------------------------------------------- */
+
                 const fileName =
                     '북커버_' +
                     fileNumber +
@@ -2046,13 +2255,16 @@
                 link.href =
                     url;
 
+
                 link.download =
                     fileName;
+
 
                 link.setAttribute(
                     'download',
                     fileName
                 );
+
 
                 link.style.display =
                     'none';
@@ -2104,6 +2316,7 @@
                 downloadBtn.disabled =
                     false;
 
+
                 downloadBtn.textContent =
                     '✨ 고화질 투명 PNG 다운로드';
 
@@ -2121,7 +2334,9 @@
     async function initialize() {
 
         if (document.fonts) {
+
             await document.fonts.ready;
+
         }
 
 
@@ -2130,6 +2345,8 @@
         fitTitleAndBars();
 
         fitSpineTitle();
+
+        fitSpineAuthor();
 
     }
 
