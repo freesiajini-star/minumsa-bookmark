@@ -976,12 +976,20 @@
                                     font-weight:700;
                                     color:#111111;
                                     white-space:nowrap;
+                                    display:flex;
+                                    align-items:baseline;
+                                    justify-content:flex-start;
                                 "
                             >
 
-                                봉산삼오전집
+                                <span id="previewSubSeriesName">
+                                    봉산삼오전집
+                                </span>
 
-                                <span id="previewSubSeriesNo">
+                                <span
+                                    id="previewSubSeriesNo"
+                                    style="margin-left:20px;"
+                                >
                                     088
                                 </span>
 
@@ -1207,6 +1215,9 @@
 
     const previewBookTitle =
         document.getElementById('previewBookTitle');
+
+    const frontTitleArea =
+        document.getElementById('frontTitleArea');
 
     const previewEngTitle =
         document.getElementById('previewEngTitle');
@@ -2316,7 +2327,8 @@
 
     function drawTextElement(
         ctx,
-        element
+        element,
+        verticalCenterElement = null
     ) {
 
         if (!element) {
@@ -2638,6 +2650,49 @@
         );
 
 
+        let verticalCenterShift = 0;
+
+        if (
+            verticalCenterElement &&
+            lineGroups.length
+        ) {
+            const areaRect =
+                getExportRect(
+                    verticalCenterElement
+                );
+
+            const firstLine =
+                lineGroups[0];
+
+            const lastLine =
+                lineGroups[lineGroups.length - 1];
+
+            const blockTop =
+                firstLine.top;
+
+            const blockBottom =
+                lastLine.top +
+                Math.max.apply(
+                    null,
+                    lastLine.chars.map(
+                        function(item) {
+                            return item.height;
+                        }
+                    )
+                );
+
+            const blockCenter =
+                (blockTop + blockBottom) / 2;
+
+            const areaCenter =
+                areaRect.y +
+                areaRect.height / 2;
+
+            verticalCenterShift =
+                areaCenter - blockCenter;
+        }
+
+
         for (const line of lineGroups) {
 
             if (!line.chars.length) {
@@ -2715,6 +2770,7 @@
                 lineText,
                 x,
                 y +
+                verticalCenterShift +
                 Math.min(
                     lineHeight * 0.82,
                     fontSize * 0.82
@@ -3051,17 +3107,19 @@
                 spineHeaderTexts.forEach(
                     function(element) {
 
-                        const textSpan =
-                            element.querySelector(
+                        const textSpans =
+                            element.querySelectorAll(
                                 ':scope > span'
                             );
 
-                        if (textSpan) {
-                            drawTextElement(
-                                ctx,
-                                textSpan
-                            );
-                        }
+                        textSpans.forEach(
+                            function(span) {
+                                drawTextElement(
+                                    ctx,
+                                    span
+                                );
+                            }
+                        );
 
                     }
                 );
@@ -3123,30 +3181,26 @@
 
 
                 const frontSeriesName =
-                    frontSeries.querySelector(
-                        ':scope > span:first-child'
+                    document.getElementById(
+                        'previewSubSeriesName'
                     );
 
                 const frontSeriesNumber =
-                    frontSeries.querySelector(
-                        '#previewSubSeriesNo'
+                    document.getElementById(
+                        'previewSubSeriesNo'
                     );
 
 
-                if (frontSeriesName) {
-                    drawTextElement(
-                        ctx,
-                        frontSeriesName
-                    );
-                }
+                drawTextElement(
+                    ctx,
+                    frontSeriesName
+                );
 
 
-                if (frontSeriesNumber) {
-                    drawTextElement(
-                        ctx,
-                        frontSeriesNumber
-                    );
-                }
+                drawTextElement(
+                    ctx,
+                    frontSeriesNumber
+                );
 
 
 
@@ -3170,7 +3224,8 @@
 
                 drawTextElement(
                     ctx,
-                    previewBookTitle
+                    previewBookTitle,
+                    frontTitleArea
                 );
 
 
