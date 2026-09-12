@@ -215,7 +215,7 @@
 
             margin-bottom: 29px;
 
-            transform:translateY(-40px);
+            transform:translateY(40px);
 
             display: flex;
 
@@ -3158,6 +3158,13 @@
 
                 if (frontTitleArea) {
 
+                    /*
+                     * 제목은 '상단 색띠의 아래쪽'과
+                     * '하단 색띠의 위쪽' 사이의 정확한 Y 중앙에 놓는다.
+                     * 상단 색띠는 이번에 20px만 위로 이동했으므로
+                     * 그 실제 위치를 기준으로 다시 계산한다.
+                     */
+
                     const topBarRect =
                         getExportRect(
                             topBar
@@ -3168,11 +3175,6 @@
                             bottomBar
                         );
 
-                    const titleRect =
-                        getExportRect(
-                            previewBookTitle
-                        );
-
                     const titleStyle =
                         getComputedStyle(
                             previewBookTitle
@@ -3180,6 +3182,13 @@
 
                     const titleText =
                         previewBookTitle.textContent.trim();
+
+                    const centerY =
+                        (
+                            topBarRect.y +
+                            topBarRect.height +
+                            bottomBarRect.y
+                        ) / 2;
 
                     ctx.save();
 
@@ -3196,27 +3205,14 @@
                     ctx.textAlign =
                         'left';
 
-                    ctx.textBaseline =
-                        'alphabetic';
+                    const metrics =
+                        ctx.measureText(
+                            titleText
+                        );
 
                     const fontSize =
                         parseFloat(
                             titleStyle.fontSize
-                        );
-
-                    /*
-                     * 두 색띠 사이 공간의 중심.
-                     */
-                    const betweenBarsCenterY =
-                        (
-                            topBarRect.y +
-                            topBarRect.height +
-                            bottomBarRect.y
-                        ) / 2;
-
-                    const metrics =
-                        ctx.measureText(
-                            titleText
                         );
 
                     const ascent =
@@ -3228,21 +3224,22 @@
                         fontSize * 0.25;
 
                     const baselineY =
-                        betweenBarsCenterY +
+                        centerY +
                         (ascent - descent) / 2;
 
-                    /*
-                     * 기존 제목의 가로 시작 위치는 그대로 유지.
-                     */
+                    ctx.textBaseline =
+                        'alphabetic';
+
                     ctx.fillText(
                         titleText,
-                        titleRect.x,
+                        getExportRect(
+                            frontTitleArea
+                        ).x,
                         baselineY
                     );
 
                     ctx.restore();
                 }
-
 
 
                 /* =================================================
