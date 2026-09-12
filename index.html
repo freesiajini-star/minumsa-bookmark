@@ -3141,22 +3141,9 @@
                 /* =================================================
                    9. 앞표지 제목
 
-                   현재 화면에서 실제 줄바꿈된 위치를
-                   그대로 읽어서 그린다.
+                   현재 두 색띠 사이의 실제 중앙 Y에 제목을 배치한다.
+                   제목의 폰트/크기/가로 위치는 기존 값을 유지.
                 ================================================= */
-
-                /* -------------------------------------------------
-                   앞표지 제목:
-                   위 색띠의 아래 끝과 아래 색띠의 위 끝 사이의
-                   정확한 정중앙에 제목을 배치한다.
-                   제목의 폰트/크기/가로 위치는 기존 값을 그대로 사용.
-                ------------------------------------------------- */
-
-                /* -------------------------------------------------
-                   앞표지 제목:
-                   위 색띠의 아래쪽과 아래 색띠의 위쪽 사이
-                   새 Y 중앙에 제목을 맞춘다.
-                ------------------------------------------------- */
 
                 const titleAreaRect =
                     getExportRect(
@@ -3165,12 +3152,12 @@
                         )
                     );
 
-                const movedTopBarRect =
+                const topBarRect =
                     getExportRect(
                         topBar
                     );
 
-                const currentBottomBarRect =
+                const bottomBarRect =
                     getExportRect(
                         bottomBar
                     );
@@ -3183,19 +3170,19 @@
                 const titleText =
                     previewBookTitle.textContent.trim();
 
-                const titleFontSize =
+                const fontSize =
                     parseFloat(
                         titleStyle.fontSize
                     );
 
                 /*
-                 * 실제 두 색띠 사이의 중앙 Y.
+                 * 위 색띠의 아래쪽과 아래 색띠의 위쪽 사이의 정확한 중앙.
                  */
-                const titleCenterY =
+                const centerY =
                     (
-                        movedTopBarRect.y +
-                        movedTopBarRect.height +
-                        currentBottomBarRect.y
+                        topBarRect.y +
+                        topBarRect.height +
+                        bottomBarRect.y
                     ) / 2;
 
                 ctx.save();
@@ -3216,27 +3203,24 @@
                 ctx.textBaseline =
                     'alphabetic';
 
-                const titleMetrics =
+                const metrics =
                     ctx.measureText(
                         titleText
                     );
 
                 const ascent =
-                    titleMetrics.actualBoundingBoxAscent ||
-                    titleFontSize * 0.75;
+                    metrics.actualBoundingBoxAscent ||
+                    fontSize * 0.75;
 
                 const descent =
-                    titleMetrics.actualBoundingBoxDescent ||
-                    titleFontSize * 0.25;
-
-                const titleBaselineY =
-                    titleCenterY +
-                    (ascent - descent) / 2;
+                    metrics.actualBoundingBoxDescent ||
+                    fontSize * 0.25;
 
                 ctx.fillText(
                     titleText,
                     titleAreaRect.x,
-                    titleBaselineY
+                    centerY +
+                    (ascent - descent) / 2
                 );
 
                 ctx.restore();
