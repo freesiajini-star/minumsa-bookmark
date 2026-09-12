@@ -10,14 +10,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-
-
-        /* =========================================================
-           기본
-        ========================================================= */
 
         * {
             box-sizing: border-box;
@@ -35,72 +29,43 @@
             font-family: 'Noto Sans KR', sans-serif;
         }
 
-
-        /* =========================================================
-           실제 출력 규격
-
-           스냅스 포토카드
-           54 : 86
-
-           1080 × 1720 px
-        ========================================================= */
-
         :root {
-
             --canvas-w: 1080px;
             --canvas-h: 1720px;
 
-            /* 책등 */
             --spine-w: 97px;
-
-            /* 앞표지 */
             --front-w: 983px;
 
-            /* 앞표지 사진 45% */
             --image-h: 774px;
-
-            /* 앞표지 투명/텍스트 영역 */
             --transparent-h: 946px;
 
-            /* 기본 컬러 */
             --main-color: #A61D4B;
         }
 
-
         /* =========================================================
            실제 출력 캔버스
-
-           ★ 전체 배경 투명
+           1080 × 1720
+           전체 배경 투명
         ========================================================= */
 
         .book-canvas {
-
             width: var(--canvas-w);
             height: var(--canvas-h);
-
             position: relative;
-
             display: flex;
-
             background: transparent;
-
             overflow: hidden;
         }
 
-
         /* =========================================================
-           실시간 미리보기
+           미리보기
         ========================================================= */
 
         .preview-frame {
-
             width: 502px;
             height: 800px;
-
             position: relative;
-
             overflow: hidden;
-
             flex-shrink: 0;
 
             background:
@@ -113,63 +78,39 @@
             border-radius: 14px;
         }
 
-
         .preview-frame .book-canvas {
-
             transform: scale(0.465);
-
             transform-origin: top left;
         }
 
-
         /* =========================================================
            책등 세로쓰기
-
-           ★ 무조건 한 열
-           ★ 줄바꿈 없음
         ========================================================= */
 
         .spine-vertical {
-
             writing-mode: vertical-rl;
-
             text-orientation: upright;
-
             white-space: nowrap !important;
-
             word-break: keep-all !important;
-
             overflow: visible;
-
             display: block;
-
             width: max-content;
-
             height: max-content;
-
             max-width: none !important;
-
             max-height: none !important;
-
             flex-shrink: 0;
         }
-
 
         /* =========================================================
            민음사 로고
         ========================================================= */
 
         .minumsa-logo {
-
             display: block;
-
             object-fit: contain;
-
             object-position: center;
-
             flex-shrink: 0;
         }
-
 
         /* =========================================================
            색상 버튼
@@ -182,24 +123,20 @@
         .color-chip.selected {
             transform: scale(1.1);
         }
-
     </style>
 </head>
 
 
-
 <body class="bg-slate-100 min-h-screen p-4 md:p-8">
-
 
 <div
     class="max-w-[1400px] mx-auto bg-white rounded-2xl shadow-xl overflow-hidden
            grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_560px]"
 >
 
-
-    <!-- =============================================================
+    <!-- =========================================================
          왼쪽 설정
-    ============================================================== -->
+    ========================================================= -->
 
     <div
         class="p-6 md:p-8 flex flex-col justify-between
@@ -208,11 +145,9 @@
 
         <div class="space-y-4">
 
-
             <h1 class="text-2xl font-bold text-slate-800">
                 📚 봉산삼오전집 투명 책갈피
             </h1>
-
 
             <p class="text-xs text-slate-500">
                 스냅스 포토카드 54:86 · 1080×1720px · 투명 PNG
@@ -232,7 +167,7 @@
                 <input
                     type="file"
                     id="imageInput"
-                    accept="image/*"
+                    accept="image/*,.avif"
                     class="w-full text-sm text-slate-500
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
@@ -242,7 +177,8 @@
                 >
 
                 <p class="text-[11px] text-slate-400 mt-1">
-                    ※ 앞표지 상단 45% 영역에만 들어갑니다.
+                    ※ JPG · PNG · WEBP · AVIF 등 이미지 파일을 사용할 수 있습니다.
+                    앞표지 상단 45% 영역에만 들어갑니다.
                 </p>
 
             </div>
@@ -354,8 +290,6 @@
 
             <!-- =====================================================
                  저자 / 역자
-
-                 ★ 제작자 정보 없음
             ====================================================== -->
 
             <div class="grid grid-cols-2 gap-3">
@@ -404,9 +338,7 @@
                     책등 & 띠 컬러
                 </label>
 
-
                 <div class="flex flex-wrap gap-2.5">
-
 
                     <button
                         type="button"
@@ -417,7 +349,6 @@
                         data-color="#A61D4B"
                     ></button>
 
-
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -425,7 +356,6 @@
                         style="background:#1E3A8A"
                         data-color="#1E3A8A"
                     ></button>
-
 
                     <button
                         type="button"
@@ -435,7 +365,6 @@
                         data-color="#065F46"
                     ></button>
 
-
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -443,7 +372,6 @@
                         style="background:#581C87"
                         data-color="#581C87"
                     ></button>
-
 
                     <button
                         type="button"
@@ -453,7 +381,6 @@
                         data-color="#B45309"
                     ></button>
 
-
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -461,7 +388,6 @@
                         style="background:#111827"
                         data-color="#111827"
                     ></button>
-
 
                     <button
                         type="button"
@@ -471,7 +397,6 @@
                         data-color="#0369A1"
                     ></button>
 
-
                     <button
                         type="button"
                         class="color-chip w-8 h-8 rounded-full
@@ -479,7 +404,6 @@
                         style="background:#9A3412"
                         data-color="#9A3412"
                     ></button>
-
 
                     <button
                         type="button"
@@ -489,7 +413,6 @@
                         data-color="#4D7C0F"
                     ></button>
 
-
                 </div>
 
             </div>
@@ -497,7 +420,9 @@
         </div>
 
 
-        <!-- 다운로드 -->
+        <!-- =========================================================
+             다운로드
+        ========================================================= -->
 
         <button
             id="downloadBtn"
@@ -528,10 +453,8 @@
 
         <div class="preview-frame">
 
-
             <!-- =====================================================
-                 실제 캔버스
-                 1080 × 1720
+                 실제 1080 × 1720 캔버스
             ====================================================== -->
 
             <div
@@ -549,11 +472,8 @@
                     style="
                         width:97px;
                         height:1720px;
-
                         position:relative;
-
                         flex-shrink:0;
-
                         background:transparent;
                     "
                 >
@@ -561,98 +481,59 @@
 
                     <!-- =================================================
                          책등 상단
-
-                         ★ 완전 투명
-                         ★ 우하단 정렬
-
-                         ★ 번호 20px
-                         ★ 봉산삼오전집 14px
+                         완전 투명
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
-
                             top:0;
                             left:0;
-
                             width:96px;
                             height:260px;
-
                             background:transparent;
-
                             display:flex;
-
                             flex-direction:column;
-
                             justify-content:flex-end;
-
                             align-items:flex-end;
-
                             padding-right:4px;
-
                             padding-bottom:8px;
-
                             overflow:visible;
                         "
                     >
 
-
-                        <!-- 전집 번호 -->
-
                         <div
                             class="font-sans-kr"
                             style="
                                 width:100%;
-
                                 text-align:right;
-
                                 font-size:20px;
-
                                 line-height:1;
-
                                 font-weight:700;
-
                                 color:#111111;
-
                                 white-space:nowrap;
                             "
                         >
-
-                            <span id="previewSeriesNo">
-                                088
-                            </span>
-
+                            <span id="previewSeriesNo">088</span>
                         </div>
 
 
-                        <!-- 봉산삼오전집 -->
-
                         <div
                             class="font-sans-kr"
                             style="
                                 width:100%;
-
                                 text-align:right;
-
                                 font-size:14px;
-
                                 line-height:1.15;
-
                                 font-weight:700;
-
                                 color:#111111;
-
                                 white-space:nowrap;
                             "
                         >
-
                             <span>봉산</span><br>
                             <span>삼오</span><br>
                             <span>전집</span>
-
                         </div>
-
 
                     </div>
 
@@ -660,22 +541,17 @@
 
                     <!-- =================================================
                          작가 사진
-
                          260px ~ 410px
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
-
                             top:260px;
                             left:0;
-
                             width:96px;
                             height:150px;
-
                             overflow:hidden;
-
                             background:#e5e7eb;
                         "
                     >
@@ -686,15 +562,10 @@
                             alt="작가 초상"
                             style="
                                 display:block;
-
                                 width:100%;
                                 height:100%;
-
                                 object-fit:cover;
-
-                                filter:
-                                    grayscale(100%)
-                                    contrast(115%);
+                                filter:grayscale(100%) contrast(115%);
                             "
                         >
 
@@ -703,8 +574,7 @@
 
 
                     <!-- =================================================
-                         ★★★★★ 책등 컬러 영역 ★★★★★
-
+                         책등 컬러 영역
                          410px ~ 1460px
                     ================================================== -->
 
@@ -712,15 +582,11 @@
                         id="spineColorBox"
                         style="
                             position:absolute;
-
                             top:410px;
                             left:0;
-
                             width:96px;
                             height:1050px;
-
                             background:#A61D4B;
-
                             overflow:hidden;
                         "
                     >
@@ -728,30 +594,19 @@
 
                         <!-- =================================================
                              책등 제목
-
-                             ★ 32px
-                             ★ 앞표지 83px보다 확실히 작음
-                             ★ 한 열
                         ================================================== -->
 
                         <div
                             id="spineTitleBox"
                             style="
                                 position:absolute;
-
                                 top:35px;
                                 left:0;
-
                                 width:96px;
-
                                 height:auto;
-
                                 display:flex;
-
                                 justify-content:center;
-
                                 align-items:flex-start;
-
                                 overflow:visible;
                             "
                         >
@@ -761,19 +616,12 @@
                                 class="spine-vertical font-batang"
                                 style="
                                     color:#ffffff;
-
                                     font-size:32px;
-
                                     font-weight:700;
-
                                     line-height:1;
-
                                     letter-spacing:0;
-
                                     white-space:nowrap !important;
-
                                     max-height:none !important;
-
                                     max-width:none !important;
                                 "
                             >
@@ -786,27 +634,18 @@
 
                         <!-- =================================================
                              책등 저자
-
-                             ★ 17px
-                             ★ 제목보다 작음
                         ================================================== -->
 
                         <div
                             id="spineAuthorBox"
                             style="
                                 position:absolute;
-
                                 top:400px;
                                 left:0;
-
                                 width:96px;
-
                                 display:flex;
-
                                 justify-content:center;
-
                                 align-items:flex-start;
-
                                 overflow:visible;
                             "
                         >
@@ -816,19 +655,12 @@
                                 class="spine-vertical font-sans-kr"
                                 style="
                                     color:#ffffff;
-
                                     font-size:17px;
-
                                     font-weight:500;
-
                                     line-height:1;
-
                                     letter-spacing:0;
-
                                     white-space:nowrap !important;
-
                                     max-height:none !important;
-
                                     max-width:none !important;
                                 "
                             >
@@ -837,36 +669,26 @@
 
                         </div>
 
-
                     </div>
 
 
 
                     <!-- =================================================
                          책등 하단
-
-                         ★ 완전 투명
-                         ★ 민음사 로고만
+                         완전 투명 + 민음사
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
-
                             left:0;
                             bottom:0;
-
                             width:96px;
                             height:260px;
-
                             background:transparent;
-
                             display:flex;
-
                             align-items:flex-end;
-
                             justify-content:center;
-
                             padding-bottom:58px;
                         "
                     >
@@ -883,7 +705,6 @@
 
                     </div>
 
-
                 </div>
 
 
@@ -897,33 +718,26 @@
                     style="
                         width:983px;
                         height:1720px;
-
                         position:relative;
-
                         flex-shrink:0;
-
                         background:transparent;
                     "
                 >
 
 
                     <!-- =================================================
-                         일러스트 45%
-                         774px
+                         일러스트
+                         정확히 45% = 774px
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
-
                             top:0;
                             left:0;
-
                             width:983px;
                             height:774px;
-
                             overflow:hidden;
-
                             background:transparent;
                         "
                     >
@@ -934,33 +748,23 @@
                             alt=""
                             style="
                                 display:none;
-
                                 width:100%;
                                 height:100%;
-
                                 object-fit:cover;
                             "
                         >
-
 
                         <div
                             id="imagePlaceholder"
                             class="font-sans-kr"
                             style="
                                 position:absolute;
-
                                 inset:0;
-
                                 display:flex;
-
                                 align-items:center;
-
                                 justify-content:center;
-
                                 background:#f8fafc;
-
                                 color:#94a3b8;
-
                                 font-size:20px;
                             "
                         >
@@ -973,20 +777,17 @@
 
                     <!-- =================================================
                          앞표지 하단 55%
-
-                         ★ 완전 투명
+                         946px
+                         완전 투명
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
-
                             top:774px;
                             left:0;
-
                             width:983px;
                             height:946px;
-
                             background:transparent;
                         "
                     >
@@ -999,10 +800,8 @@
                         <div
                             style="
                                 position:absolute;
-
                                 left:59px;
                                 top:42px;
-
                                 width:900px;
                             "
                         >
@@ -1010,33 +809,21 @@
 
                             <!-- =================================================
                                  봉산삼오전집 + 번호
-
-                                 ★ 33px
                             ================================================== -->
 
                             <div
                                 class="font-sans-kr"
                                 style="
                                     margin-left:17px;
-
                                     font-size:33px;
-
                                     line-height:1;
-
                                     font-weight:700;
-
                                     color:#111111;
-
                                     white-space:nowrap;
                                 "
                             >
-
                                 봉산삼오전집
-
-                                <span id="previewSubSeriesNo">
-                                    088
-                                </span>
-
+                                <span id="previewSubSeriesNo">088</span>
                             </div>
 
 
@@ -1049,23 +836,16 @@
                                 id="topBar"
                                 style="
                                     width:700px;
-
                                     height:55px;
-
                                     margin-top:28px;
-
                                     background:#A61D4B;
                                 "
-                            >
-                            </div>
+                            ></div>
 
 
 
                             <!-- =================================================
                                  앞표지 제목
-
-                                 ★ 83px
-                                 ★ Bold
                             ================================================== -->
 
                             <div
@@ -1073,24 +853,15 @@
                                 class="font-batang"
                                 style="
                                     width:700px;
-
                                     margin-top:28px;
                                     margin-bottom:29px;
-
                                     font-size:83px;
-
                                     line-height:1;
-
                                     font-weight:700;
-
                                     letter-spacing:-0.055em;
-
                                     color:#111111;
-
                                     word-break:keep-all;
-
                                     white-space:nowrap;
-
                                     overflow:hidden;
                                 "
                             >
@@ -1107,15 +878,10 @@
                                 id="bottomBar"
                                 style="
                                     width:700px;
-
                                     height:55px;
-
                                     display:flex;
-
                                     align-items:center;
-
                                     padding-left:21px;
-
                                     background:#A61D4B;
                                 "
                             >
@@ -1125,17 +891,11 @@
                                     class="font-sans-kr"
                                     style="
                                         color:#ffffff;
-
                                         font-size:19px;
-
                                         font-weight:500;
-
                                         white-space:nowrap;
-
                                         overflow:hidden;
-
                                         text-overflow:ellipsis;
-
                                         max-width:658px;
                                     "
                                 >
@@ -1154,11 +914,8 @@
                                 class="font-sans-kr"
                                 style="
                                     display:flex;
-
                                     align-items:baseline;
-
                                     margin-top:29px;
-
                                     margin-left:17px;
                                 "
                             >
@@ -1167,29 +924,21 @@
                                     id="previewAuthor"
                                     style="
                                         font-size:27px;
-
                                         font-weight:700;
-
                                         color:#111111;
-
                                         white-space:nowrap;
                                     "
                                 >
                                     제인 오스틴
                                 </span>
 
-
                                 <span
                                     id="previewTranslator"
                                     style="
                                         font-size:18px;
-
                                         font-weight:400;
-
                                         color:#111111;
-
                                         margin-left:17px;
-
                                         white-space:nowrap;
                                     "
                                 >
@@ -1198,25 +947,20 @@
 
                             </div>
 
-
                         </div>
 
 
 
                         <!-- =================================================
                              앞표지 하단 민음사
-                             ★ 투명
                         ================================================== -->
 
                         <div
                             style="
                                 position:absolute;
-
                                 left:59px;
                                 bottom:61px;
-
                                 display:flex;
-
                                 align-items:center;
                             "
                         >
@@ -1233,21 +977,15 @@
 
                         </div>
 
-
                     </div>
-
 
                 </div>
 
 
 
                 <!-- =====================================================
-                     ★★★★★ 책등 ↔ 앞표지 경계선 ★★★★★
-
-                     ★ 정확히 1px
-                     ★ 검은색
-                     ★ 전체 높이
-                     ★ 투명 영역에서도 보임
+                     책등 ↔ 앞표지 경계선
+                     정확히 1px
                 ====================================================== -->
 
                 <div
@@ -1255,24 +993,15 @@
                     aria-hidden="true"
                     style="
                         position:absolute;
-
                         top:0;
-
                         left:96px;
-
                         width:1px;
-
                         height:1720px;
-
                         background:#000000;
-
                         z-index:9999;
-
                         pointer-events:none;
                     "
-                >
-                </div>
-
+                ></div>
 
             </div>
 
@@ -1290,7 +1019,6 @@
 
 
 <script>
-
 
     /* =============================================================
        입력 요소
@@ -1377,27 +1105,19 @@
         document.getElementById('captureArea');
 
 
-
     /* =============================================================
        번호 포맷
     ============================================================= */
 
     function formatSeriesNo(value) {
 
-        const number =
-            parseInt(value, 10);
+        const number = parseInt(value, 10);
 
-        if (
-            isNaN(number) ||
-            number <= 0
-        ) {
-
+        if (isNaN(number) || number <= 0) {
             return '001';
-
         }
 
         return String(number).padStart(3, '0');
-
     }
 
 
@@ -1418,7 +1138,6 @@
 
             previewSubSeriesNo.textContent =
                 value;
-
         }
     );
 
@@ -1442,49 +1161,32 @@
 
     /* =============================================================
        앞표지 제목 + 색띠 자동 조정
+
+       ★ 저장할 때 다시 계산하지 않음
+       ★ 미리보기에서 계산된 값을 그대로 저장
     ============================================================= */
 
     function fitTitleAndBars() {
 
         const MAX_WIDTH = 700;
-
         const MIN_FONT_SIZE = 42;
-
         const NORMAL_FONT_SIZE = 83;
 
-
-        let fontSize =
-            NORMAL_FONT_SIZE;
+        let fontSize = NORMAL_FONT_SIZE;
 
 
-        /*
-         * 우선 한 줄
-         */
+        /* 먼저 한 줄 */
 
-        previewBookTitle.style.whiteSpace =
-            'nowrap';
-
-        previewBookTitle.style.display =
-            'block';
-
-        previewBookTitle.style.webkitLineClamp =
-            'unset';
-
-        previewBookTitle.style.width =
-            MAX_WIDTH + 'px';
-
-        previewBookTitle.style.fontSize =
-            fontSize + 'px';
-
-        previewBookTitle.style.lineHeight =
-            '1';
+        previewBookTitle.style.whiteSpace = 'nowrap';
+        previewBookTitle.style.display = 'block';
+        previewBookTitle.style.webkitLineClamp = 'unset';
+        previewBookTitle.style.width = MAX_WIDTH + 'px';
+        previewBookTitle.style.fontSize = fontSize + 'px';
+        previewBookTitle.style.lineHeight = '1';
+        previewBookTitle.style.overflow = 'hidden';
 
 
-
-        /*
-         * 700px 안에 들어올 때까지
-         * 글자 크기를 줄임
-         */
+        /* 실제 원본 크기에서 폭을 확인 */
 
         while (
             previewBookTitle.scrollWidth > MAX_WIDTH &&
@@ -1495,64 +1197,31 @@
 
             previewBookTitle.style.fontSize =
                 fontSize + 'px';
-
         }
 
 
+        /* 최소 크기에서도 너무 길면 2줄 */
 
-        /*
-         * 최소 크기까지 줄여도
-         * 너무 길면 2줄
-         */
+        if (previewBookTitle.scrollWidth > MAX_WIDTH) {
 
-        if (
-            previewBookTitle.scrollWidth > MAX_WIDTH
-        ) {
+            previewBookTitle.style.whiteSpace = 'normal';
+            previewBookTitle.style.display = '-webkit-box';
+            previewBookTitle.style.webkitBoxOrient = 'vertical';
+            previewBookTitle.style.webkitLineClamp = '2';
+            previewBookTitle.style.lineHeight = '0.88';
+            previewBookTitle.style.width = MAX_WIDTH + 'px';
+            previewBookTitle.style.overflow = 'hidden';
 
-            previewBookTitle.style.whiteSpace =
-                'normal';
+        } else {
 
-            previewBookTitle.style.display =
-                '-webkit-box';
-
-            previewBookTitle.style.webkitBoxOrient =
-                'vertical';
-
-            previewBookTitle.style.webkitLineClamp =
-                '2';
-
-            previewBookTitle.style.lineHeight =
-                '0.88';
-
-            previewBookTitle.style.width =
-                MAX_WIDTH + 'px';
-
-            previewBookTitle.style.overflow =
-                'hidden';
-
-        }
-
-        else {
-
-            previewBookTitle.style.whiteSpace =
-                'nowrap';
-
-            previewBookTitle.style.display =
-                'block';
-
-            previewBookTitle.style.webkitLineClamp =
-                'unset';
-
-            previewBookTitle.style.lineHeight =
-                '1';
-
+            previewBookTitle.style.whiteSpace = 'nowrap';
+            previewBookTitle.style.display = 'block';
+            previewBookTitle.style.webkitLineClamp = 'unset';
+            previewBookTitle.style.lineHeight = '1';
         }
 
 
-
-        /*
-         * 제목 실제 폭 측정
-         */
+        /* 현재 제목 실제 폭 */
 
         const titleWidth =
             Math.min(
@@ -1564,9 +1233,7 @@
             );
 
 
-        /*
-         * 색띠 최소 700px
-         */
+        /* 색띠는 최소 700px */
 
         const barWidth =
             Math.max(
@@ -1575,9 +1242,7 @@
             );
 
 
-        /*
-         * 앞표지 안전 최대 폭
-         */
+        /* 앞표지 최대 900px */
 
         const finalBarWidth =
             Math.min(
@@ -1586,10 +1251,6 @@
             );
 
 
-        /*
-         * 위/아래 동일 길이
-         */
-
         topBar.style.width =
             finalBarWidth + 'px';
 
@@ -1597,18 +1258,11 @@
             finalBarWidth + 'px';
 
 
-
-        /*
-         * 영문 제목이 띠 밖으로
-         * 나오지 않게 함
-         */
-
         previewEngTitle.style.maxWidth =
             Math.max(
                 50,
                 finalBarWidth - 42
             ) + 'px';
-
     }
 
 
@@ -1616,41 +1270,26 @@
     /* =============================================================
        책등 저자 위치 자동 계산
 
-       ★ 작은 제목 아래에 자연스럽게 배치
+       ★ 중요:
+       getBoundingClientRect()를 사용하지 않음
+
+       미리보기 transform(0.465)의 영향을 받지 않는
+       offsetHeight를 사용한다.
     ============================================================= */
 
     function fitSpineAuthor() {
 
-        const titleRect =
-            previewSpineTitle.getBoundingClientRect();
-
-
-        const scale =
-            0.465;
-
-
         const titleHeight =
-            titleRect.height / scale;
+            previewSpineTitle.offsetHeight;
 
-
-        const titleTop =
-            35;
-
-
-        const gap =
-            35;
-
+        const titleTop = 35;
+        const gap = 35;
 
         let authorTop =
             titleTop +
             titleHeight +
             gap;
 
-
-        /*
-         * 컬러 영역 중간을 넘지 않도록
-         * 적당히 제한
-         */
 
         authorTop =
             Math.min(
@@ -1661,7 +1300,6 @@
 
         spineAuthorBox.style.top =
             authorTop + 'px';
-
     }
 
 
@@ -1678,19 +1316,14 @@
                 e.target.value ||
                 '오만과 편견';
 
-
             previewBookTitle.textContent =
                 value;
-
 
             previewSpineTitle.textContent =
                 value;
 
-
             fitTitleAndBars();
-
             fitSpineAuthor();
-
         }
     );
 
@@ -1725,17 +1358,13 @@
                 e.target.value ||
                 '제인 오스틴';
 
-
             previewAuthor.textContent =
                 value;
-
 
             previewSpineAuthor.textContent =
                 value;
 
-
             fitSpineAuthor();
-
         }
     );
 
@@ -1758,9 +1387,12 @@
 
 
     /* =============================================================
-       일러스트 업로드
+       앞표지 일러스트 업로드
 
-       ★ 앞표지에만 적용
+       JPG / PNG / WEBP / AVIF 등
+       FileReader로 Data URL로 변환
+
+       ★ Data URL이므로 저장 시에도 동일한 이미지 사용
     ============================================================= */
 
     imageInput.addEventListener(
@@ -1782,15 +1414,19 @@
             reader.onload =
                 function(event) {
 
+                    previewImage.onload =
+                        function() {
+
+                            previewImage.style.display =
+                                'block';
+
+                            imagePlaceholder.style.display =
+                                'none';
+                        };
+
+
                     previewImage.src =
                         event.target.result;
-
-                    previewImage.style.display =
-                        'block';
-
-                    imagePlaceholder.style.display =
-                        'none';
-
                 };
 
 
@@ -1811,7 +1447,6 @@
             chip.addEventListener(
                 'click',
                 function() {
-
 
                     colorChips.forEach(
                         function(c) {
@@ -1842,10 +1477,8 @@
                     spineColorBox.style.backgroundColor =
                         color;
 
-
                     topBar.style.backgroundColor =
                         color;
-
 
                     bottomBar.style.backgroundColor =
                         color;
@@ -1859,90 +1492,205 @@
 
 
     /* =============================================================
+       이미지 로딩 대기
+    ============================================================= */
+
+    function waitForImages(container) {
+
+        const images =
+            container.querySelectorAll('img');
+
+        return Promise.all(
+            Array.from(images).map(
+                function(img) {
+
+                    if (
+                        img.complete &&
+                        img.naturalWidth > 0
+                    ) {
+                        return Promise.resolve();
+                    }
+
+
+                    return new Promise(
+                        function(resolve) {
+
+                            const done =
+                                function() {
+                                    resolve();
+                                };
+
+                            img.addEventListener(
+                                'load',
+                                done,
+                                { once:true }
+                            );
+
+                            img.addEventListener(
+                                'error',
+                                done,
+                                { once:true }
+                            );
+
+                        }
+                    );
+
+                }
+            )
+        );
+    }
+
+
+
+    /* =============================================================
        PNG 다운로드
 
-       ★ 1080 × 1720
-       ★ 54:86
-       ★ 투명 PNG
+       ★★★★★ 핵심 수정 ★★★★★
+
+       기존 방식:
+       captureArea의 transform을 none으로 변경
+       → 미리보기와 저장 레이아웃이 달라질 수 있음
+
+       새 방식:
+       1. 현재 미리보기의 1080×1720 원본 DOM을 복제
+       2. 복제본은 preview-frame 밖에 둠
+       3. 따라서 scale(0.465)가 적용되지 않음
+       4. 현재 미리보기에서 이미 계산된
+          모든 inline style을 그대로 복사
+       5. 폰트와 이미지가 준비된 뒤 캡처
+       6. 저장 후 미리보기에는 아무 변화 없음
+
+       결과:
+       ★ 미리보기에서 보이는 디자인과 동일한 원본
     ============================================================= */
 
     downloadBtn.addEventListener(
         'click',
         async function() {
 
-
-            const originalTransform =
-                captureArea.style.transform;
-
-
-            downloadBtn.disabled =
-                true;
-
+            downloadBtn.disabled = true;
 
             downloadBtn.textContent =
                 '✨ PNG 생성 중...';
 
 
+            let exportArea = null;
+
+
             try {
 
+                /* -----------------------------------------
+                   폰트 완전히 로딩될 때까지 기다림
+                ----------------------------------------- */
 
-                /*
-                 * 미리보기 확대 제거
-                 */
+                if (document.fonts) {
+                    await document.fonts.ready;
+                }
 
-                captureArea.style.transform =
+
+                /* -----------------------------------------
+                   현재 미리보기 원본을 그대로 복제
+                ----------------------------------------- */
+
+                exportArea =
+                    captureArea.cloneNode(true);
+
+
+                exportArea.id =
+                    'exportArea';
+
+
+                /* -----------------------------------------
+                   preview-frame의
+                   scale(0.465)를 받지 않도록
+                   body 바로 아래에 배치
+                ----------------------------------------- */
+
+                exportArea.style.position =
+                    'absolute';
+
+                exportArea.style.left =
+                    '-20000px';
+
+                exportArea.style.top =
+                    '0';
+
+                exportArea.style.margin =
+                    '0';
+
+                exportArea.style.width =
+                    '1080px';
+
+                exportArea.style.height =
+                    '1720px';
+
+                exportArea.style.transform =
                     'none';
 
+                exportArea.style.transformOrigin =
+                    'top left';
 
-                /*
-                 * 이미지 로딩 대기
-                 */
+                exportArea.style.overflow =
+                    'hidden';
 
-                const images =
-                    captureArea.querySelectorAll('img');
+                exportArea.style.background =
+                    'transparent';
 
 
-                await Promise.all(
-                    Array.from(images).map(
-                        function(img) {
-
-                            if (
-                                img.complete
-                            ) {
-
-                                return Promise.resolve();
-
-                            }
-
-                            return new Promise(
-                                function(resolve) {
-
-                                    img.onload =
-                                        resolve;
-
-                                    img.onerror =
-                                        resolve;
-
-                                }
-                            );
-
-                        }
-                    )
+                document.body.appendChild(
+                    exportArea
                 );
 
 
-                /*
-                 * 실제 1080 × 1720 캡처
-                 */
+                /* -----------------------------------------
+                   복제본 내부 이미지 로딩
+                ----------------------------------------- */
+
+                await waitForImages(
+                    exportArea
+                );
+
+
+                /* -----------------------------------------
+                   브라우저가 복제본의 레이아웃을
+                   실제로 계산할 시간을 줌
+                ----------------------------------------- */
+
+                await new Promise(
+                    function(resolve) {
+                        requestAnimationFrame(
+                            function() {
+                                requestAnimationFrame(
+                                    resolve
+                                );
+                            }
+                        );
+                    }
+                );
+
+
+                /* -----------------------------------------
+                   폰트 다시 확인
+                ----------------------------------------- */
+
+                if (document.fonts) {
+                    await document.fonts.ready;
+                }
+
+
+                /* -----------------------------------------
+                   ★ 1080 × 1720 원본 캡처
+                ----------------------------------------- */
 
                 const canvas =
                     await html2canvas(
-                        captureArea,
+                        exportArea,
                         {
-
                             width:1080,
-
                             height:1720,
+
+                            x:0,
+                            y:0,
 
                             scale:1,
 
@@ -1952,54 +1700,60 @@
 
                             allowTaint:false,
 
-                            imageTimeout:0
+                            imageTimeout:0,
 
+                            logging:false,
+
+                            removeContainer:true
                         }
                     );
 
 
-                /*
-                 * 미리보기 복구
-                 */
+                /* -----------------------------------------
+                   복제본 제거
+                ----------------------------------------- */
 
-                captureArea.style.transform =
-                    originalTransform;
+                exportArea.remove();
+                exportArea = null;
 
 
-                /*
-                 * PNG 다운로드
-                 */
+                /* -----------------------------------------
+                   PNG 다운로드
+                ----------------------------------------- */
 
                 const link =
                     document.createElement('a');
 
-
                 link.download =
                     '봉산삼오전집_책갈피.png';
-
 
                 link.href =
                     canvas.toDataURL(
                         'image/png'
                     );
 
-
                 link.click();
-
 
             }
 
+
             catch(error) {
 
-                console.error(error);
+                console.error(
+                    'PNG 생성 오류:',
+                    error
+                );
 
 
-                captureArea.style.transform =
-                    originalTransform;
+                if (exportArea) {
+                    exportArea.remove();
+                    exportArea = null;
+                }
 
 
                 alert(
-                    'PNG 생성 중 오류가 발생했습니다.'
+                    'PNG 생성 중 오류가 발생했습니다.\n' +
+                    '잠시 후 다시 시도해주세요.'
                 );
 
             }
@@ -2022,19 +1776,26 @@
 
     /* =============================================================
        최초 실행
+
+       ★ 폰트 로딩 후 초기 레이아웃 계산
     ============================================================= */
+
+    async function initialize() {
+
+        if (document.fonts) {
+            await document.fonts.ready;
+        }
+
+        fitTitleAndBars();
+        fitSpineAuthor();
+
+    }
+
 
     window.addEventListener(
         'load',
-        function() {
-
-            fitTitleAndBars();
-
-            fitSpineAuthor();
-
-        }
+        initialize
     );
-
 
 </script>
 
