@@ -40,7 +40,7 @@
         <div class="p-6 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200">
             <div class="space-y-4">
                 <h1 class="text-2xl font-bold text-slate-800">📚 삼삼오오전집 투명 책갈피</h1>
-                <p class="text-xs text-slate-500">실제 민음사 투명 책갈피 굿즈의 비율과 디테일을 완벽 반영했습니다.</p>
+                <p class="text-xs text-slate-500">스냅스 포토카드 비율(54:86) 및 책등 구조 완벽 반영</p>
                 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">제작자 정보 (예: 3학년 5반 김민수)</label>
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <!-- 컬러 칩 선택 팔레트 -->
+                <!-- 컬러 칩 팔레트 -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">전집 책등 & 띠 컬러 선택</label>
                     <div class="flex flex-wrap gap-2.5 items-center">
@@ -115,42 +115,43 @@
 
         <!-- 미리보기 영역 -->
         <div class="p-6 md:p-8 bg-slate-50 flex flex-col items-center justify-center overflow-hidden">
-            <p class="text-xs font-medium text-slate-400 mb-3">삼삼오오전집 실시간 미리보기 (1192x2048 비율)</p>
+            <p class="text-xs font-medium text-slate-400 mb-3">삼삼오오전집 실시간 미리보기 (스냅스 포토카드 규격)</p>
             
-            <div class="w-[262px] h-[450px] bg-white rounded-2xl shadow-lg border border-slate-200 relative overflow-hidden flex">
+            <div class="w-[220px] h-[377px] bg-white rounded-2xl shadow-lg border border-slate-200 relative overflow-hidden flex">
                 
+                <!-- 1192 x 2048 전체 캔버스 (포토카드 규격 준수) -->
                 <div id="captureArea" class="book-canvas bg-white relative flex font-batang select-none">
                     
-                    <!-- [1] 왼쪽 책등 영역 (굿즈 비율 반영) -->
+                    <!-- [1] 왼쪽 독립 책등 영역 (표지 영역을 침범하지 않음) -->
                     <div class="w-[160px] h-full bg-white border-r-[3px] border-slate-300 flex flex-col justify-between items-center relative">
                         
-                        <!-- 상단 전집 번호 & 작가 사진 (좌우 꽉 참, 상단 일러스트 사진의 절반 지점 위치) -->
-                        <div class="w-full flex flex-col items-center pt-[450px]">
+                        <!-- 상단 전집 번호 & 작가 사진 (여백 절반으로 축소하여 상향 배치) -->
+                        <div class="w-full flex flex-col items-center pt-[220px]">
                             <div class="flex items-center gap-1.5 text-[26px] font-sans-kr font-bold text-slate-800 tracking-tight mb-2">
                                 <span id="previewSeriesNo">001</span>
                             </div>
-                            <!-- 좌우 여백 없이 책등 가로(160px)에 꽉 차는 정사각형(160x160) 사진 영역 -->
+                            <!-- 좌우 꽉 찬 작가 사진 (160x160 정사각형) -->
                             <div class="w-[160px] h-[160px] bg-slate-200 grayscale contrast-125 border-y border-slate-400 relative flex items-center justify-center overflow-hidden">
                                 <img src="Hankang.png" class="w-full h-full object-cover" id="portraitImg" alt="작가 초상화" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='flex';">
                                 <div id="imgFallback" style="display:none; position:absolute; inset:0; font-size:11px; text-align:center; padding:4px; color:#555; background:#e2e8f0; align-items:center; justify-content:center; word-break:keep-all; font-family:'Noto Sans KR', sans-serif;">Hankang.png 파일 필요</div>
                             </div>
                         </div>
 
-                        <!-- 중앙~하단 컬러부 (작가 사진 바로 아래 시작, 하단 1/4 공간만 남김) -->
-                        <div id="spineColorBox" class="absolute left-0 right-0 bottom-[160px] top-[665px] flex items-center justify-between px-3 transition-colors duration-300" style="background-color: #A61D4B;">
-                            <!-- 작은 글씨 고딕체 저자 이름 -->
-                            <span id="previewSpineAuthor" class="text-[20px] font-sans-kr font-medium text-white tracking-widest truncate" style="writing-mode: vertical-rl;">제인 오스틴</span>
-                            <!-- 큼직한 명조체 책 제목 -->
-                            <div id="previewSpineTitle" class="text-[38px] tracking-widest font-batang font-bold text-white uppercase truncate" style="writing-mode: vertical-rl;">여기는 어디 나는 누구?</div>
+                        <!-- 중앙~하단 컬러부 (위로 바짝 올림, 하단 여백 및 민음사 로고와 간격 확보) -->
+                        <div id="spineColorBox" class="absolute left-0 right-0 bottom-[220px] top-[430px] flex items-center justify-between px-3 transition-colors duration-300" style="background-color: #A61D4B;">
+                            <!-- 세로쓰기 한 줄 저자 이름 (글자 겹침 방지 nowrap) -->
+                            <span id="previewSpineAuthor" class="text-[20px] font-sans-kr font-medium text-white tracking-widest whitespace-nowrap" style="writing-mode: vertical-rl;">제인 오스틴</span>
+                            <!-- 세로쓰기 한 줄 책 제목 (글자 겹침 방지 nowrap) -->
+                            <div id="previewSpineTitle" class="text-[38px] tracking-widest font-batang font-bold text-white uppercase whitespace-nowrap" style="writing-mode: vertical-rl;">여기는 어디 나는 누구?</div>
                         </div>
 
-                        <!-- 최하단 1/4 여백의 민음사 로고 -->
+                        <!-- 최하단 민음사 로고 (제자리 유지) -->
                         <div class="w-[90px] h-[160px] flex items-center justify-center z-10">
                             <img src="minumsa.png" alt="민음사" class="w-full object-contain">
                         </div>
                     </div>
 
-                    <!-- [2] 오른쪽 메인 영역 -->
+                    <!-- [2] 오른쪽 메인 표지 영역 (정확한 1192x2048 꽉 찬 비율) -->
                     <div class="flex-1 flex flex-col h-full bg-white relative">
                         
                         <div class="w-full h-[900px] bg-slate-100 relative overflow-hidden flex items-center justify-center border-b-[3px] border-slate-300">
@@ -192,7 +193,7 @@
                 </div>
 
             </div>
-            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 실제 굿즈 책등 비율 및 고딕체 저자명 반영 완료</p>
+            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 포토카드 비율(54:86) 및 책등 독립 배치·세로쓰기 한 줄 적용 완료</p>
         </div>
 
     </div>
