@@ -3235,12 +3235,13 @@
                 /* =================================================
                    7. 앞표지 전집명 + 번호
 
-                   전집명과 번호를 하나의 가로 행으로 직접 그린다.
-                   → 전집명 왼쪽 정렬
-                   → 번호는 전집명 바로 오른쪽
+                   반드시
+                   [봉산삼오전집] [번호]
+                   순서로, 앞표지 텍스트 영역의 왼쪽에서 시작한다.
+                   이 두 글자를 각각 독립적으로 DOM 위치에 맡기지 않는다.
                 ================================================= */
 
-                const frontSeries =
+                const frontSeriesName =
                     document.getElementById(
                         'previewSubSeriesName'
                     );
@@ -3250,26 +3251,20 @@
                         'previewSubSeriesNo'
                     );
 
-                const frontSeriesRow =
-                    frontSeries
-                        ? frontSeries.parentElement
-                        : null;
-
-
                 if (
-                    frontSeries &&
-                    frontSeriesNumber &&
-                    frontSeriesRow
+                    frontSeriesName &&
+                    frontSeriesNumber
                 ) {
 
+                    const row =
+                        frontSeriesName.parentElement;
+
                     const rowRect =
-                        getExportRect(
-                            frontSeriesRow
-                        );
+                        getExportRect(row);
 
                     const nameStyle =
                         getComputedStyle(
-                            frontSeries
+                            frontSeriesName
                         );
 
                     const numberStyle =
@@ -3277,19 +3272,27 @@
                             frontSeriesNumber
                         );
 
+                    const name =
+                        frontSeriesName.textContent.trim();
+
+                    const number =
+                        frontSeriesNumber.textContent.trim();
+
 
                     ctx.save();
 
-
-                    /* 전집명 */
+                    /*
+                     * 전집명
+                     * rowRect.x = 앞표지 텍스트 영역의 실제 왼쪽 시작점
+                     */
                     ctx.font =
                         canvasFontFromElement(
-                            frontSeries
+                            frontSeriesName
                         );
 
                     ctx.fillStyle =
                         getElementColor(
-                            frontSeries
+                            frontSeriesName
                         );
 
                     ctx.textAlign =
@@ -3298,15 +3301,10 @@
                     ctx.textBaseline =
                         'alphabetic';
 
-
-                    const name =
-                        frontSeries.textContent.trim();
-
                     const nameFontSize =
                         parseFloat(
                             nameStyle.fontSize
                         );
-
 
                     ctx.fillText(
                         name,
@@ -3316,7 +3314,15 @@
                     );
 
 
-                    /* 전집번호 — 전집명 바로 오른쪽 */
+                    /*
+                     * 번호
+                     * 전집명의 실제 Canvas 폭만큼 오른쪽으로 이동한다.
+                     */
+                    const nameWidth =
+                        ctx.measureText(
+                            name
+                        ).width;
+
                     ctx.font =
                         canvasFontFromElement(
                             frontSeriesNumber
@@ -3327,35 +3333,19 @@
                             frontSeriesNumber
                         );
 
-
-                    const number =
-                        frontSeriesNumber.textContent.trim();
-
-                    const nameWidth =
-                        ctx.measureText(
-                            name
-                        ).width;
-
-
-                    const numberMargin =
-                        20;
-
-
                     const numberFontSize =
                         parseFloat(
                             numberStyle.fontSize
                         );
 
-
                     ctx.fillText(
                         number,
                         rowRect.x +
                         nameWidth +
-                        numberMargin,
+                        20,
                         rowRect.y +
                         numberFontSize * 0.82
                     );
-
 
                     ctx.restore();
                 }
