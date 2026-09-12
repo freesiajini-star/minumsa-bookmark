@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>민음사 스타일 투명 책갈피 제작소</title>
+    <title>삼삼오오전집 투명 책갈피 제작소</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -22,7 +22,7 @@
             height: var(--canvas-h);
             transform: scale(0.22);
             transform-origin: top left;
-            margin-bottom: -1597px; /* scale로 인해 생기는 여백 보정 */
+            margin-bottom: -1597px;
             margin-right: -930px;
         }
     </style>
@@ -34,8 +34,8 @@
         <!-- 입력 폼 영역 -->
         <div class="p-6 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200">
             <div class="space-y-4">
-                <h1 class="text-2xl font-bold text-slate-800">📚 민음사 투명 책갈피</h1>
-                <p class="text-xs text-slate-500">원작 표지 비율과 좌측 정렬 레이아웃이 완벽 적용됩니다.</p>
+                <h1 class="text-2xl font-bold text-slate-800">📚 삼삼오오전집 투명 책갈피</h1>
+                <p class="text-xs text-slate-500">전집 번호는 숫자만 입력하면 세 자리(001, 019)로 자동 변환됩니다.</p>
                 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">제작자 정보 (예: 3학년 5반 김민수)</label>
@@ -49,8 +49,8 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">전집 번호</label>
-                        <input type="text" id="seriesNoInput" value="88" maxlength="4" class="w-full px-3 py-2 border rounded-lg outline-none">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">전집 번호 (숫자 입력)</label>
+                        <input type="number" id="seriesNoInput" value="1" min="1" max="999" class="w-full px-3 py-2 border rounded-lg outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">책등 인물 선택</label>
@@ -101,79 +101,64 @@
             </button>
         </div>
 
-        <!-- 미리보기 영역 (좌측 정렬 구조 반영) -->
+        <!-- 미리보기 영역 -->
         <div class="p-6 md:p-8 bg-slate-50 flex flex-col items-center justify-center overflow-hidden">
-            <p class="text-xs font-medium text-slate-400 mb-3">민음사 책갈피 실시간 미리보기 (1192x2048 비율)</p>
+            <p class="text-xs font-medium text-slate-400 mb-3">삼삼오오전집 실시간 미리보기 (1192x2048 비율)</p>
             
-            <!-- 외곽 컨테이너 (축소 프리뷰용) -->
             <div class="w-[262px] h-[450px] bg-white rounded-2xl shadow-lg border border-slate-200 relative overflow-hidden flex">
                 
-                <!-- 캔버스 본체 (1192px × 2048px 스펙 정확 준수) -->
                 <div id="captureArea" class="book-canvas bg-white relative flex font-batang select-none">
                     
-                    <!-- [1] 왼쪽 책등 영역 (약 160px 폭 배분) -->
+                    <!-- [1] 왼쪽 책등 영역 -->
                     <div class="w-[160px] h-full bg-white border-r-[3px] border-slate-300 flex flex-col justify-between items-center py-10">
-                        <!-- 상단: 전집번호 및 세계문학전집 -->
-                        <div class="flex flex-col items-center text-[28px] font-sans-kr font-bold text-slate-800 tracking-tight leading-tight">
-                            <span id="previewSeriesNo">88</span>
-                            <span class="text-[20px] font-normal tracking-tighter mt-1">세계문학전집</span>
-                            <!-- 지정된 파일명 초상화 매핑 영역 -->
+                        <div class="flex flex-col items-center text-[26px] font-sans-kr font-bold text-slate-800 tracking-tight leading-tight">
+                            <span id="previewSeriesNo">001</span>
+                            <span class="text-[18px] font-normal tracking-tighter mt-1">삼삼오오전집</span>
                             <div class="w-[90px] h-[110px] bg-slate-200 mt-4 rounded-sm overflow-hidden grayscale contrast-125 border border-slate-400">
                                 <img src="Hankang.png" class="w-full h-full object-cover" id="portraitImg" alt="작가 초상화">
                             </div>
                         </div>
 
-                        <!-- 중단: 컬러 책등 제목 영역 -->
                         <div id="spineColorBox" class="w-full py-12 flex items-center justify-center transition-colors duration-300" style="background-color: #A61D4B;">
                             <div id="previewSpineTitle" class="text-[38px] tracking-widest font-batang font-bold text-white uppercase truncate" style="writing-mode: vertical-rl;">오만과 편견</div>
                         </div>
 
-                        <!-- 하단: 공식 민음사 CI 이미지 -->
                         <div class="w-[90px] pb-4">
                             <img src="minumsa.png" alt="민음사" class="w-full object-contain">
                         </div>
                     </div>
 
-                    <!-- [2] 오른쪽 메인 영역 (폭 1032px, 완전 좌측 정렬 구조) -->
+                    <!-- [2] 오른쪽 메인 영역 -->
                     <div class="flex-1 flex flex-col h-full bg-white relative">
                         
-                        <!-- 상단 이미지 영역 (1192:900 비율, 높이 정확히 900px) -->
                         <div class="w-full h-[900px] bg-slate-100 relative overflow-hidden flex items-center justify-center border-b-[3px] border-slate-300">
                             <img id="previewImage" src="" alt="" class="w-full h-full object-cover hidden">
                             <span id="imagePlaceholder" class="text-2xl text-slate-400 font-sans-kr">상단 일러스트 영역 (1192 × 900)</span>
                         </div>
 
-                        <!-- 흰색 본문 영역 (x=71px 기준 좌측 정렬 배치) -->
                         <div class="flex-1 w-full relative flex flex-col justify-start" style="padding-left: 71px; padding-top: 40px;">
                             
-                            <!-- 상단 작은 제목: "세계문학전집 88" (x≈92px 위치감 조성) -->
                             <div class="text-[26px] font-sans-kr font-bold text-slate-900 tracking-tight" style="margin-left: 21px;">
-                                세계문학전집 <span id="previewSubSeriesNo">88</span>
+                                삼삼오오전집 <span id="previewSubSeriesNo">001</span>
                             </div>
 
-                            <!-- 첫 번째 자주색 띠 (width: 608px, height: 67px) -->
                             <div id="topBar" class="w-[608px] h-[67px] mt-[16px] transition-colors duration-300" style="background-color: #A61D4B;"></div>
 
-                            <!-- 메인 제목: "오만과 편견" (font-size ~92px 가늘고 우아한 명조체) -->
                             <div id="previewBookTitle" class="font-bold text-slate-900 tracking-wide truncate" style="font-size: 88px; line-height: 1.1; margin-top: 45px; margin-bottom: 45px; word-break: keep-all; max-width: 650px;">오만과 편견</div>
 
-                            <!-- 두 번째 자주색 띠 (width: 608px, height: 67px, 영문 원제 25px 안쪽) -->
                             <div id="bottomBar" class="w-[608px] h-[67px] flex items-center transition-colors duration-300" style="background-color: #A61D4B; padding-left: 25px;">
                                 <span id="previewEngTitle" class="text-white font-sans-kr font-medium tracking-wide" style="font-size: 23px;">Pride and Prejudice</span>
                             </div>
 
-                            <!-- 저자 및 역자 영역 (저자 30px, 역자 소형, baseline 일치) -->
                             <div class="flex items-baseline font-sans-kr" style="margin-top: 35px;">
                                 <span id="previewAuthor" class="font-bold text-slate-900" style="font-size: 30px;">제인 오스틴</span>
                                 <span id="previewTranslator" class="text-slate-600 font-normal" style="font-size: 20px; margin-left: 15px;">윤지관, 전승희 옮김</span>
                             </div>
 
-                            <!-- 학급 및 제작자 표기 (선생님 요청 반영 고딕체) -->
                             <div class="font-sans-kr text-slate-500 font-medium" style="margin-top: 15px; font-size: 22px;">
                                 <span id="previewStudentInfo">3학년 5반 홍길동</span>
                             </div>
 
-                            <!-- 출판사 로고 ("민음사" 하단 고정 배치) -->
                             <div style="position: absolute; bottom: 80px; left: 71px; width: 130px;">
                                 <img src="minumsa.png" alt="민음사" class="w-full object-contain">
                             </div>
@@ -185,7 +170,7 @@
                 </div>
 
             </div>
-            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 1192x2048 고해상도 규격 및 좌측 정렬 레이아웃 반영 완료</p>
+            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 삼삼오오전집 및 세 자리 번호 포맷(001) 적용 완료</p>
         </div>
 
     </div>
@@ -221,15 +206,21 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const captureArea = document.getElementById('captureArea');
 
-        // 지정된 파일명과 직접 매핑
-        authorImageSelect.addEventListener('change', (e) => {
-            portraitImg.src = e.target.value;
-        });
+        // 세 자리 번호 변환 함수 (예: 1 -> 001, 19 -> 019)
+        function formatSeriesNo(val) {
+            const num = parseInt(val, 10);
+            if (isNaN(num) || num <= 0) return '001';
+            return String(num).padStart(3, '0');
+        }
 
         seriesNoInput.addEventListener('input', (e) => {
-            const val = e.target.value || '88';
-            previewSeriesNo.innerText = val;
-            previewSubSeriesNo.innerText = val;
+            const formatted = formatSeriesNo(e.target.value);
+            previewSeriesNo.innerText = formatted;
+            previewSubSeriesNo.innerText = formatted;
+        });
+
+        authorImageSelect.addEventListener('change', (e) => {
+            portraitImg.src = e.target.value;
         });
 
         commonTitleInput.addEventListener('input', (e) => {
@@ -237,7 +228,6 @@
             previewBookTitle.innerText = val;
             previewSpineTitle.innerText = val;
 
-            // 길이에 따른 자동 폰트 크기 조정
             if (val.length > 10) {
                 previewBookTitle.style.fontSize = '65px';
             } else if (val.length > 6) {
@@ -285,7 +275,6 @@
             });
         });
 
-        // 고해상도 PNG 다운로드 (1192x2048 원본 해상도 유지, 투명 배경)
         downloadBtn.addEventListener('click', async () => {
             const info = studentInfoInput.value.trim() || '학생';
             downloadBtn.innerText = '✨ 고화질 1192px 변환 중...';
@@ -293,13 +282,13 @@
 
             try {
                 const canvas = await html2canvas(captureArea, {
-                    scale: 1, // 이미 1192x2048 고해상도 캔버스 크기 유지
-                    backgroundColor: null, // 배경 투명 유지
+                    scale: 1,
+                    backgroundColor: null,
                     useCORS: true
                 });
 
                 const link = document.createElement('a');
-                link.download = `민음사책갈피_${info}.png`;
+                link.download = `삼삼오오전집_${info}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             } catch (error) {
