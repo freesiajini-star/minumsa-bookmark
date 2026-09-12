@@ -12,7 +12,6 @@
         .font-batang { font-family: 'Gowun Batang', serif; }
         .font-sans-kr { font-family: 'Noto Sans KR', sans-serif; }
 
-        /* 지정된 1192 x 2048 비율 스케일링 (화면 미리보기용 축소) */
         :root {
             --canvas-w: 1192px;
             --canvas-h: 2048px;
@@ -25,6 +24,12 @@
             margin-bottom: -1597px;
             margin-right: -930px;
         }
+        .color-chip {
+            transition: all 0.2s ease;
+        }
+        .color-chip.ring-offset-2 {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-4 md:p-8">
@@ -35,7 +40,7 @@
         <div class="p-6 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200">
             <div class="space-y-4">
                 <h1 class="text-2xl font-bold text-slate-800">📚 삼삼오오전집 투명 책갈피</h1>
-                <p class="text-xs text-slate-500">전집 번호는 숫자만 입력하면 세 자리(001, 019)로 자동 변환됩니다.</p>
+                <p class="text-xs text-slate-500">실제 민음사 투명 책갈피 굿즈의 비율과 디테일을 완벽 반영했습니다.</p>
                 
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1">제작자 정보 (예: 3학년 5반 김민수)</label>
@@ -67,11 +72,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">책 제목 (한글)</label>
-                        <input type="text" id="commonTitleInput" maxlength="15" value="오만과 편견" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="commonTitleInput" maxlength="25" value="여기는 어디 나는 누구?" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1">영문 원제 (띠 표기용)</label>
-                        <input type="text" id="engTitleInput" value="Pride and Prejudice" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="engTitleInput" value="Where am I, Who am I?" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
 
@@ -86,12 +91,19 @@
                     </div>
                 </div>
 
+                <!-- 컬러 칩 선택 팔레트 -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">공통 포인트 색상 (띠 및 책등)</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="#A61D4B" checked class="accent-pink-800"> 오리지널 자주색 (#A61D4B)</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="#1E3A8A" class="accent-blue-900"> 네이비</label>
-                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="#065F46" class="accent-emerald-800"> 그린</label>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">전집 책등 & 띠 컬러 선택</label>
+                    <div class="flex flex-wrap gap-2.5 items-center">
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-2 ring-indigo-600 ring-offset-2" style="background-color: #A61D4B;" data-color="#A61D4B" title="클래식 레드"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #1E3A8A;" data-color="#1E3A8A" title="다크 네이비"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #065F46;" data-color="#065F46" title="포레스트 그린"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #581C87;" data-color="#581C87" title="로얄 퍼플"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #B45309;" data-color="#B45309" title="앰버 브라운"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #111827;" data-color="#111827" title="차콜 블랙"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #0369A1;" data-color="#0369A1" title="스카이 블루"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #9A3412;" data-color="#9A3412" title="테라코타 오렌지"></button>
+                        <button type="button" class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300" style="background-color: #4D7C0F;" data-color="#4D7C0F" title="올리브 그린"></button>
                     </div>
                 </div>
             </div>
@@ -109,21 +121,31 @@
                 
                 <div id="captureArea" class="book-canvas bg-white relative flex font-batang select-none">
                     
-                    <!-- [1] 왼쪽 책등 영역 -->
-                    <div class="w-[160px] h-full bg-white border-r-[3px] border-slate-300 flex flex-col justify-between items-center py-10">
-                        <div class="flex flex-col items-center text-[26px] font-sans-kr font-bold text-slate-800 tracking-tight leading-tight">
-                            <span id="previewSeriesNo">001</span>
-                            <span class="text-[18px] font-normal tracking-tighter mt-1">삼삼오오전집</span>
-                            <div class="w-[90px] h-[110px] bg-slate-200 mt-4 rounded-sm overflow-hidden grayscale contrast-125 border border-slate-400">
-                                <img src="Hankang.png" class="w-full h-full object-cover" id="portraitImg" alt="작가 초상화">
+                    <!-- [1] 왼쪽 책등 영역 (굿즈 비율 반영) -->
+                    <div class="w-[160px] h-full bg-white border-r-[3px] border-slate-300 flex flex-col justify-between items-center relative">
+                        
+                        <!-- 상단 전집 번호 & 작가 사진 (좌우 꽉 참, 상단 일러스트 사진의 절반 지점 위치) -->
+                        <div class="w-full flex flex-col items-center pt-[450px]">
+                            <div class="flex items-center gap-1.5 text-[26px] font-sans-kr font-bold text-slate-800 tracking-tight mb-2">
+                                <span id="previewSeriesNo">001</span>
+                            </div>
+                            <!-- 좌우 여백 없이 책등 가로(160px)에 꽉 차는 정사각형(160x160) 사진 영역 -->
+                            <div class="w-[160px] h-[160px] bg-slate-200 grayscale contrast-125 border-y border-slate-400 relative flex items-center justify-center overflow-hidden">
+                                <img src="Hankang.png" class="w-full h-full object-cover" id="portraitImg" alt="작가 초상화" onerror="this.style.display='none'; document.getElementById('imgFallback').style.display='flex';">
+                                <div id="imgFallback" style="display:none; position:absolute; inset:0; font-size:11px; text-align:center; padding:4px; color:#555; background:#e2e8f0; align-items:center; justify-content:center; word-break:keep-all; font-family:'Noto Sans KR', sans-serif;">Hankang.png 파일 필요</div>
                             </div>
                         </div>
 
-                        <div id="spineColorBox" class="w-full py-12 flex items-center justify-center transition-colors duration-300" style="background-color: #A61D4B;">
-                            <div id="previewSpineTitle" class="text-[38px] tracking-widest font-batang font-bold text-white uppercase truncate" style="writing-mode: vertical-rl;">오만과 편견</div>
+                        <!-- 중앙~하단 컬러부 (작가 사진 바로 아래 시작, 하단 1/4 공간만 남김) -->
+                        <div id="spineColorBox" class="absolute left-0 right-0 bottom-[160px] top-[665px] flex items-center justify-between px-3 transition-colors duration-300" style="background-color: #A61D4B;">
+                            <!-- 작은 글씨 고딕체 저자 이름 -->
+                            <span id="previewSpineAuthor" class="text-[20px] font-sans-kr font-medium text-white tracking-widest truncate" style="writing-mode: vertical-rl;">제인 오스틴</span>
+                            <!-- 큼직한 명조체 책 제목 -->
+                            <div id="previewSpineTitle" class="text-[38px] tracking-widest font-batang font-bold text-white uppercase truncate" style="writing-mode: vertical-rl;">여기는 어디 나는 누구?</div>
                         </div>
 
-                        <div class="w-[90px] pb-4">
+                        <!-- 최하단 1/4 여백의 민음사 로고 -->
+                        <div class="w-[90px] h-[160px] flex items-center justify-center z-10">
                             <img src="minumsa.png" alt="민음사" class="w-full object-contain">
                         </div>
                     </div>
@@ -144,10 +166,10 @@
 
                             <div id="topBar" class="w-[608px] h-[67px] mt-[16px] transition-colors duration-300" style="background-color: #A61D4B;"></div>
 
-                            <div id="previewBookTitle" class="font-bold text-slate-900 tracking-wide truncate" style="font-size: 88px; line-height: 1.1; margin-top: 45px; margin-bottom: 45px; word-break: keep-all; max-width: 650px;">오만과 편견</div>
+                            <div id="previewBookTitle" class="font-bold text-slate-900 tracking-wide" style="font-size: 75px; line-height: 1.2; margin-top: 35px; margin-bottom: 35px; word-break: keep-all; overflow-wrap: break-word; max-width: 630px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">여기는 어디 나는 누구?</div>
 
                             <div id="bottomBar" class="w-[608px] h-[67px] flex items-center transition-colors duration-300" style="background-color: #A61D4B; padding-left: 25px;">
-                                <span id="previewEngTitle" class="text-white font-sans-kr font-medium tracking-wide" style="font-size: 23px;">Pride and Prejudice</span>
+                                <span id="previewEngTitle" class="text-white font-sans-kr font-medium tracking-wide truncate" style="font-size: 23px; max-width: 560px;">Where am I, Who am I?</span>
                             </div>
 
                             <div class="flex items-baseline font-sans-kr" style="margin-top: 35px;">
@@ -170,7 +192,7 @@
                 </div>
 
             </div>
-            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 삼삼오오전집 및 세 자리 번호 포맷(001) 적용 완료</p>
+            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 실제 굿즈 책등 비율 및 고딕체 저자명 반영 완료</p>
         </div>
 
     </div>
@@ -189,6 +211,7 @@
         const previewSeriesNo = document.getElementById('previewSeriesNo');
         const previewSubSeriesNo = document.getElementById('previewSubSeriesNo');
         const previewSpineTitle = document.getElementById('previewSpineTitle');
+        const previewSpineAuthor = document.getElementById('previewSpineAuthor');
         const previewBookTitle = document.getElementById('previewBookTitle');
         const previewEngTitle = document.getElementById('previewEngTitle');
         const previewAuthor = document.getElementById('previewAuthor');
@@ -197,16 +220,16 @@
         const previewImage = document.getElementById('previewImage');
         const imagePlaceholder = document.getElementById('imagePlaceholder');
         const portraitImg = document.getElementById('portraitImg');
+        const imgFallback = document.getElementById('imgFallback');
 
         const spineColorBox = document.getElementById('spineColorBox');
         const topBar = document.getElementById('topBar');
         const bottomBar = document.getElementById('bottomBar');
-        const themeColors = document.querySelectorAll('input[name="themeColor"]');
+        const colorChips = document.querySelectorAll('.color-chip');
         
         const downloadBtn = document.getElementById('downloadBtn');
         const captureArea = document.getElementById('captureArea');
 
-        // 세 자리 번호 변환 함수 (예: 1 -> 001, 19 -> 019)
         function formatSeriesNo(val) {
             const num = parseInt(val, 10);
             if (isNaN(num) || num <= 0) return '001';
@@ -221,28 +244,24 @@
 
         authorImageSelect.addEventListener('change', (e) => {
             portraitImg.src = e.target.value;
+            portraitImg.style.display = 'block';
+            if(imgFallback) imgFallback.style.display = 'none';
         });
 
         commonTitleInput.addEventListener('input', (e) => {
-            const val = e.target.value || '오만과 편견';
+            const val = e.target.value || '여기는 어디 나는 누구?';
             previewBookTitle.innerText = val;
             previewSpineTitle.innerText = val;
-
-            if (val.length > 10) {
-                previewBookTitle.style.fontSize = '65px';
-            } else if (val.length > 6) {
-                previewBookTitle.style.fontSize = '75px';
-            } else {
-                previewBookTitle.style.fontSize = '88px';
-            }
         });
 
         engTitleInput.addEventListener('input', (e) => {
-            previewEngTitle.innerText = e.target.value || 'Pride and Prejudice';
+            previewEngTitle.innerText = e.target.value || 'Where am I, Who am I?';
         });
 
         authorInput.addEventListener('input', (e) => {
-            previewAuthor.innerText = e.target.value || '제인 오스틴';
+            const val = e.target.value || '제인 오스틴';
+            previewAuthor.innerText = val;
+            previewSpineAuthor.innerText = val;
         });
 
         translatorInput.addEventListener('input', (e) => {
@@ -266,9 +285,12 @@
             }
         });
 
-        themeColors.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const colorCode = e.target.value;
+        colorChips.forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                colorChips.forEach(c => c.classList.remove('ring-2', 'ring-indigo-600', 'ring-offset-2'));
+                chip.classList.add('ring-2', 'ring-indigo-600', 'ring-offset-2');
+
+                const colorCode = chip.getAttribute('data-color');
                 spineColorBox.style.backgroundColor = colorCode;
                 topBar.style.backgroundColor = colorCode;
                 bottomBar.style.backgroundColor = colorCode;
