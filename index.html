@@ -3107,20 +3107,23 @@
 
                    기존 디자인은 그대로 두고,
                    PNG로 저장할 때 전체 디자인만
-                   92%로 균일 축소하여 중앙 배치한다.
+                   가로 93%, 세로 95%로 축소하여 중앙 배치한다.
 
                    최종 Canvas는 여전히 1080×1720px이며,
-                   좌우 약 43.2px / 상하 약 68.8px가 투명하다.
+                   좌우 약 37.8px / 상하 약 43px가 투명하다.
                 ================================================= */
 
-                const SAFE_SCALE =
-                    0.92;
+                const SAFE_SCALE_X =
+                    0.93;
+
+                const SAFE_SCALE_Y =
+                    0.95;
 
                 const SAFE_OFFSET_X =
-                    (1080 - 1080 * SAFE_SCALE) / 2;
+                    (1080 - 1080 * SAFE_SCALE_X) / 2;
 
                 const SAFE_OFFSET_Y =
-                    (1720 - 1720 * SAFE_SCALE) / 2;
+                    (1720 - 1720 * SAFE_SCALE_Y) / 2;
 
                 ctx.save();
 
@@ -3130,8 +3133,8 @@
                 );
 
                 ctx.scale(
-                    SAFE_SCALE,
-                    SAFE_SCALE
+                    SAFE_SCALE_X,
+                    SAFE_SCALE_Y
                 );
 
 
