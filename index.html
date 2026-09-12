@@ -2962,24 +2962,28 @@
 
 
                 /* -------------------------------------------------
-                   1080×1720 투명 Canvas
+                   1080×1720 투명 작업 Canvas
+
+                   기존 디자인은 이 작업 Canvas에 원래 좌표 그대로
+                   그린 뒤, 마지막에 완성된 한 장을 92%로 축소하여
+                   최종 1080×1720 PNG 중앙에 배치한다.
                 ------------------------------------------------- */
 
-                const canvas =
+                const artCanvas =
                     document.createElement(
                         'canvas'
                     );
 
 
-                canvas.width =
+                artCanvas.width =
                     1080;
 
-                canvas.height =
+                artCanvas.height =
                     1720;
 
 
                 const ctx =
-                    canvas.getContext(
+                    artCanvas.getContext(
                         '2d'
                     );
 
@@ -2989,36 +2993,6 @@
                     0,
                     1080,
                     1720
-                );
-
-
-                /* =================================================
-                   Snaps 안전 여백
-
-                   기존 디자인의 내부 배치는 전혀 변경하지 않고,
-                   완성된 전체 디자인만 92%로 균일 축소하여
-                   1080×1720 캔버스 중앙에 배치한다.
-                ================================================= */
-
-                const SAFE_SCALE =
-                    0.92;
-
-                const SAFE_OFFSET_X =
-                    (1080 - (1080 * SAFE_SCALE)) / 2;
-
-                const SAFE_OFFSET_Y =
-                    (1720 - (1720 * SAFE_SCALE)) / 2;
-
-                ctx.save();
-
-                ctx.translate(
-                    SAFE_OFFSET_X,
-                    SAFE_OFFSET_Y
-                );
-
-                ctx.scale(
-                    SAFE_SCALE,
-                    SAFE_SCALE
                 );
 
 
@@ -3359,12 +3333,69 @@
                 );
 
 
+
                 /* =================================================
-                   안전 여백용 전체 변환 종료
+                   Snaps 안전 여백
+
+                   완성된 디자인 전체를 92%로 균일 축소하여
+                   최종 1080×1720 투명 PNG의 정중앙에 배치한다.
+                   내부 디자인의 좌표/비율/폰트/색상은 변경하지 않는다.
                 ================================================= */
 
-                ctx.restore();
+                const canvas =
+                    document.createElement(
+                        'canvas'
+                    );
 
+
+                canvas.width =
+                    1080;
+
+                canvas.height =
+                    1720;
+
+
+                const finalCtx =
+                    canvas.getContext(
+                        '2d'
+                    );
+
+
+                finalCtx.clearRect(
+                    0,
+                    0,
+                    1080,
+                    1720
+                );
+
+
+                const SAFE_SCALE =
+                    0.92;
+
+                const SAFE_W =
+                    1080 * SAFE_SCALE;
+
+                const SAFE_H =
+                    1720 * SAFE_SCALE;
+
+                const SAFE_X =
+                    (1080 - SAFE_W) / 2;
+
+                const SAFE_Y =
+                    (1720 - SAFE_H) / 2;
+
+
+                finalCtx.drawImage(
+                    artCanvas,
+                    0,
+                    0,
+                    1080,
+                    1720,
+                    SAFE_X,
+                    SAFE_Y,
+                    SAFE_W,
+                    SAFE_H
+                );
 
 
                 /* =================================================
