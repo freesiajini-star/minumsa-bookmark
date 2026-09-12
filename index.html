@@ -7,7 +7,6 @@
     <title>봉산삼오전집 투명 책갈피 제작소</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
@@ -140,7 +139,13 @@
 
             justify-content: flex-start;
 
-            overflow: hidden;
+            /*
+             * 글자 자체의 실제 폭이 43px보다 넓어도
+             * 잘라내지 않는다.
+             * 짧은 제목(64px)에서도 한자/한글의 좌우 획이
+             * 잘리지 않도록 한다.
+             */
+            overflow: visible;
 
             flex-shrink: 0;
         }
@@ -149,9 +154,15 @@
         .spine-title-char {
             display: block;
 
+            /*
+             * 43px 박스 안에서 64px 글자를 중앙 정렬하되
+             * 글자 자체는 절대 잘라내지 않는다.
+             */
             width: 43px;
 
             height: 64px;
+
+            overflow: visible;
 
             line-height: 64px;
 
@@ -2025,17 +2036,844 @@
     /* =============================================================
        PNG 다운로드
 
-       ★ 중요 ★
+       ★ 저장 방식 완전 교체 ★
 
-       미리보기의 0.465배 화면을 캡처하지 않는다.
+       html2canvas를 사용하지 않는다.
 
-       실제 1080×1720 canvas를 그대로 캡처한다.
+       미리보기 DOM을 다시 해석해서 저장하는 대신,
+       현재 미리보기의 실제 요소 위치/크기/스타일을 읽어서
+       1080×1720 HTML5 Canvas에 직접 그린다.
 
-       그래서:
-       - 세로쓰기 깨짐 방지
-       - 이미지 찌그러짐 방지
-       - 제목 위치 틀어짐 방지
-       - 미리보기와 실제 디자인 구조 동일
+       따라서:
+       - previewFrame의 scale(0.465) 영향 없음
+       - CSS writing-mode 재해석 없음
+       - 책등 제목 세로쓰기 깨짐 없음
+       - 이미지 비율 강제 변경 없음
+       - 투명 영역은 실제 alpha=0
+       - 최종 파일은 항상 1080×1720
+    ============================================================= */
+
+
+    const PREVIEW_SCALE = 0.465;
+
+
+    /* -------------------------------------------------------------
+       DOM 사각형을 실제 1080×1720 좌표로 변환
+    ------------------------------------------------------------- */
+
+    function getExportRect(element) {
+
+        const elementRect =
+            element.getBoundingClientRect();
+
+        const captureRect =
+            captureArea.getBoundingClientRect();
+
+
+        return {
+            x:
+                (elementRect.left - captureRect.left)
+                / PREVIEW_SCALE,
+
+            y:
+                (elementRect.top - captureRect.top)
+                / PREVIEW_SCALE,
+
+            width:
+                elementRect.width
+                / PREVIEW_SCALE,
+
+            height:
+                elementRect.height
+                / PREVIEW_SCALE
+        };
+
+    }
+
+
+    /* -------------------------------------------------------------
+       CSS font → Canvas font
+    ------------------------------------------------------------- */
+
+    function canvasFontFromElement(element) {
+
+        const style =
+            getComputedStyle(element);
+
+
+        const fontStyle =
+            style.fontStyle || 'normal';
+
+        const fontWeight =
+            style.fontWeight || '400';
+
+        const fontSize =
+            parseFloat(style.fontSize) / PREVIEW_SCALE;
+
+
+        const fontFamily =
+            style.fontFamily || 'sans-serif';
+
+
+        return (
+            fontStyle + ' ' +
+            fontWeight + ' ' +
+            fontSize + 'px ' +
+            fontFamily
+        );
+
+    }
+
+
+    /* -------------------------------------------------------------
+       색상
+    ------------------------------------------------------------- */
+
+    function getElementColor(element) {
+
+        return getComputedStyle(element).color;
+
+    }
+
+
+    function getElementBackground(element) {
+
+        return getComputedStyle(element).backgroundColor;
+
+    }
+
+
+    /* -------------------------------------------------------------
+       이미지가 완전히 로드되었는지 확인
+    ------------------------------------------------------------- */
+
+    function imageReady(img) {
+
+        return (
+            img &&
+            img.complete &&
+            img.naturalWidth > 0 &&
+            img.naturalHeight > 0
+        );
+
+    }
+
+
+    /* -------------------------------------------------------------
+       object-fit: cover와 같은 방식으로 이미지 그리기
+
+       ★ 원본 비율 절대 변경하지 않음
+       ★ 필요한 부분만 crop
+    ------------------------------------------------------------- */
+
+    function drawImageCover(
+        ctx,
+        img,
+        rect
+    ) {
+
+        if (!imageReady(img)) {
+            return;
+        }
+
+
+        const sourceWidth =
+            img.naturalWidth;
+
+        const sourceHeight =
+            img.naturalHeight;
+
+
+        const targetWidth =
+            rect.width;
+
+        const targetHeight =
+            rect.height;
+
+
+        const sourceRatio =
+            sourceWidth / sourceHeight;
+
+        const targetRatio =
+            targetWidth / targetHeight;
+
+
+        let sx = 0;
+        let sy = 0;
+        let sw = sourceWidth;
+        let sh = sourceHeight;
+
+
+        if (sourceRatio > targetRatio) {
+
+            /*
+             * 원본이 더 가로로 넓음
+             * → 좌우 crop
+             */
+
+            sw =
+                sourceHeight * targetRatio;
+
+            sx =
+                (sourceWidth - sw) / 2;
+
+        } else {
+
+            /*
+             * 원본이 더 세로로 김
+             * → 위아래 crop
+             */
+
+            sh =
+                sourceWidth / targetRatio;
+
+            sy =
+                (sourceHeight - sh) / 2;
+
+        }
+
+
+        ctx.drawImage(
+            img,
+            sx,
+            sy,
+            sw,
+            sh,
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height
+        );
+
+    }
+
+
+    /* -------------------------------------------------------------
+       object-fit: contain과 같은 방식으로 로고 그리기
+    ------------------------------------------------------------- */
+
+    function drawImageContain(
+        ctx,
+        img,
+        rect
+    ) {
+
+        if (!imageReady(img)) {
+            return;
+        }
+
+
+        const ratio =
+            Math.min(
+                rect.width / img.naturalWidth,
+                rect.height / img.naturalHeight
+            );
+
+
+        const width =
+            img.naturalWidth * ratio;
+
+        const height =
+            img.naturalHeight * ratio;
+
+
+        const x =
+            rect.x +
+            (rect.width - width) / 2;
+
+        const y =
+            rect.y +
+            (rect.height - height) / 2;
+
+
+        ctx.drawImage(
+            img,
+            x,
+            y,
+            width,
+            height
+        );
+
+    }
+
+
+    /* -------------------------------------------------------------
+       한 줄 또는 여러 줄 텍스트를
+       실제 DOM의 문자 위치를 기준으로 그린다.
+
+       Range를 사용하기 때문에
+       앞표지 제목이 1줄/2줄이 되었을 때도
+       현재 미리보기의 줄바꿈 위치를 그대로 따라간다.
+    ------------------------------------------------------------- */
+
+    function drawTextElement(
+        ctx,
+        element
+    ) {
+
+        if (!element) {
+            return;
+        }
+
+
+        const text =
+            element.textContent || '';
+
+
+        if (!text.trim()) {
+            return;
+        }
+
+
+        const style =
+            getComputedStyle(element);
+
+
+        const rect =
+            getExportRect(element);
+
+
+        ctx.save();
+
+
+        ctx.font =
+            canvasFontFromElement(element);
+
+
+        ctx.fillStyle =
+            getElementColor(element);
+
+
+        ctx.textBaseline =
+            'alphabetic';
+
+
+        /*
+         * letter-spacing은 px 단위로 계산한다.
+         */
+
+        const letterSpacing =
+            parseFloat(
+                style.letterSpacing
+            ) / PREVIEW_SCALE;
+
+
+        /*
+         * 세로쓰기 저자처럼 writing-mode가 적용된 요소는
+         * 문자 하나씩 실제 위치에 맞춰 그린다.
+         */
+
+        const writingMode =
+            style.writingMode;
+
+
+        if (
+            writingMode &&
+            writingMode !== 'horizontal-tb'
+        ) {
+
+            const chars =
+                Array.from(text);
+
+
+            let characterOffset =
+                0;
+
+
+            for (const char of chars) {
+
+                if (char === '\n') {
+                    characterOffset += 1;
+                    continue;
+                }
+
+
+                const range =
+                    document.createRange();
+
+
+                const node =
+                    findTextNode(
+                        element,
+                        characterOffset
+                    );
+
+
+                if (!node) {
+                    characterOffset += char.length;
+                    continue;
+                }
+
+
+                const localOffset =
+                    node.offset;
+
+
+                try {
+
+                    range.setStart(
+                        node.node,
+                        localOffset
+                    );
+
+                    range.setEnd(
+                        node.node,
+                        localOffset + char.length
+                    );
+
+
+                    const r =
+                        range.getBoundingClientRect();
+
+
+                    const x =
+                        (
+                            r.left -
+                            captureArea.getBoundingClientRect().left
+                        )
+                        / PREVIEW_SCALE;
+
+                    const y =
+                        (
+                            r.top -
+                            captureArea.getBoundingClientRect().top
+                        )
+                        / PREVIEW_SCALE;
+
+
+                    const w =
+                        r.width /
+                        PREVIEW_SCALE;
+
+                    const h =
+                        r.height /
+                        PREVIEW_SCALE;
+
+
+                    ctx.save();
+
+
+                    ctx.translate(
+                        x + w / 2,
+                        y + h / 2
+                    );
+
+
+                    ctx.textAlign =
+                        'center';
+
+                    ctx.textBaseline =
+                        'middle';
+
+
+                    ctx.fillText(
+                        char,
+                        0,
+                        0
+                    );
+
+
+                    ctx.restore();
+
+                } catch (error) {
+                    /* 개별 문자 실패는 전체 저장을 중단하지 않는다. */
+                }
+
+
+                characterOffset +=
+                    char.length;
+
+            }
+
+
+            ctx.restore();
+
+            return;
+
+        }
+
+
+        /*
+         * 가로쓰기 텍스트:
+         * Range로 실제 줄을 찾아서 줄 단위로 그린다.
+         */
+
+        const textNodeInfo =
+            findTextNode(
+                element,
+                0
+            );
+
+
+        if (!textNodeInfo) {
+
+            ctx.restore();
+
+            return;
+
+        }
+
+
+        const node =
+            textNodeInfo.node;
+
+        const fullText =
+            node.textContent || '';
+
+
+        const lineGroups =
+            [];
+
+
+        for (
+            let i = 0;
+            i < fullText.length;
+            i++
+        ) {
+
+            const char =
+                fullText[i];
+
+
+            if (char === '\n') {
+                continue;
+            }
+
+
+            const range =
+                document.createRange();
+
+
+            try {
+
+                range.setStart(
+                    node,
+                    i
+                );
+
+                range.setEnd(
+                    node,
+                    i + 1
+                );
+
+                const r =
+                    range.getBoundingClientRect();
+
+
+                const top =
+                    Math.round(
+                        (
+                            r.top -
+                            captureArea.getBoundingClientRect().top
+                        ) /
+                        PREVIEW_SCALE
+                    );
+
+
+                let line =
+                    lineGroups.find(
+                        function(item) {
+
+                            return Math.abs(
+                                item.top - top
+                            ) <= 2;
+
+                        }
+                    );
+
+
+                if (!line) {
+
+                    line = {
+                        top: top,
+                        chars: []
+                    };
+
+                    lineGroups.push(
+                        line
+                    );
+
+                }
+
+
+                line.chars.push({
+                    index:i,
+                    char:char,
+                    left:
+                        (
+                            r.left -
+                            captureArea.getBoundingClientRect().left
+                        )
+                        / PREVIEW_SCALE,
+                    width:
+                        r.width /
+                        PREVIEW_SCALE,
+                    top:top,
+                    height:
+                        r.height /
+                        PREVIEW_SCALE
+                });
+
+
+            } catch (error) {
+                /* 무시 */
+            }
+
+        }
+
+
+        lineGroups.sort(
+            function(a,b) {
+                return a.top - b.top;
+            }
+        );
+
+
+        for (const line of lineGroups) {
+
+            if (!line.chars.length) {
+                continue;
+            }
+
+
+            line.chars.sort(
+                function(a,b) {
+                    return a.index - b.index;
+                }
+            );
+
+
+            const lineText =
+                line.chars
+                    .map(
+                        function(item) {
+                            return item.char;
+                        }
+                    )
+                    .join('');
+
+
+            const first =
+                line.chars[0];
+
+            const last =
+                line.chars[
+                    line.chars.length - 1
+                ];
+
+
+            const x =
+                first.left;
+
+
+            const y =
+                line.top;
+
+
+            const lineHeight =
+                Math.max.apply(
+                    null,
+                    line.chars.map(
+                        function(item) {
+                            return item.height;
+                        }
+                    )
+                );
+
+
+            /*
+             * CSS text baseline에 맞춘 근사값.
+             * 현재 미리보기의 위치를 유지하는 것이 목적이다.
+             */
+
+            const fontSize =
+                parseFloat(style.fontSize)
+                / PREVIEW_SCALE;
+
+
+            ctx.textAlign =
+                'left';
+
+            ctx.textBaseline =
+                'alphabetic';
+
+
+            ctx.fillText(
+                lineText,
+                x,
+                y +
+                Math.min(
+                    lineHeight * 0.82,
+                    fontSize * 0.82
+                )
+            );
+
+        }
+
+
+        ctx.restore();
+
+    }
+
+
+    /* -------------------------------------------------------------
+       element 내부의 text node와 offset 찾기
+    ------------------------------------------------------------- */
+
+    function findTextNode(
+        element,
+        characterIndex
+    ) {
+
+        const walker =
+            document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT
+            );
+
+
+        let current;
+        let remaining =
+            characterIndex;
+
+
+        while (
+            current =
+                walker.nextNode()
+        ) {
+
+            const length =
+                current.textContent.length;
+
+
+            if (
+                remaining <= length
+            ) {
+
+                return {
+                    node: current,
+                    offset: remaining
+                };
+
+            }
+
+
+            remaining -= length;
+
+        }
+
+
+        return null;
+
+    }
+
+
+    /* -------------------------------------------------------------
+       요소의 사각형을 배경색으로 칠한다.
+    ------------------------------------------------------------- */
+
+    function drawElementBackground(
+        ctx,
+        element
+    ) {
+
+        const color =
+            getElementBackground(
+                element
+            );
+
+
+        if (
+            !color ||
+            color === 'transparent' ||
+            color === 'rgba(0, 0, 0, 0)'
+        ) {
+            return;
+        }
+
+
+        const rect =
+            getExportRect(
+                element
+            );
+
+
+        ctx.fillStyle =
+            color;
+
+
+        ctx.fillRect(
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height
+        );
+
+    }
+
+
+    /* -------------------------------------------------------------
+       이미지 로딩 대기
+    ------------------------------------------------------------- */
+
+    async function waitForImages(
+        container
+    ) {
+
+        const images =
+            container.querySelectorAll(
+                'img'
+            );
+
+
+        await Promise.all(
+            Array.from(images).map(
+                function(img) {
+
+                    if (
+                        imageReady(img)
+                    ) {
+
+                        return Promise.resolve();
+
+                    }
+
+
+                    return new Promise(
+                        function(resolve) {
+
+                            const done =
+                                function() {
+                                    resolve();
+                                };
+
+
+                            img.addEventListener(
+                                'load',
+                                done,
+                                { once:true }
+                            );
+
+
+                            img.addEventListener(
+                                'error',
+                                done,
+                                { once:true }
+                            );
+
+                        }
+                    );
+
+                }
+            )
+        );
+
+    }
+
+
+
+    /* =============================================================
+       실제 PNG 생성
     ============================================================= */
 
     downloadBtn.addEventListener(
@@ -2072,7 +2910,7 @@
 
 
                 /* -------------------------------------------------
-                   폰트
+                   폰트와 이미지가 완전히 준비될 때까지 기다린다.
                 ------------------------------------------------- */
 
                 if (document.fonts) {
@@ -2082,20 +2920,10 @@
                 }
 
 
-
-                /* -------------------------------------------------
-                   이미지
-                ------------------------------------------------- */
-
                 await waitForImages(
                     captureArea
                 );
 
-
-
-                /* -------------------------------------------------
-                   렌더링 안정화
-                ------------------------------------------------- */
 
                 await new Promise(
                     function(resolve) {
@@ -2116,66 +2944,24 @@
 
 
                 /* -------------------------------------------------
-                   실제 캔버스 캡처
-
-                   transform을 사용한 미리보기 프레임이 아니라
-                   실제 1080×1720 디자인을 캡처한다.
+                   1080×1720 투명 Canvas
                 ------------------------------------------------- */
 
-                const exportCanvas =
-                    await html2canvas(
-                        captureArea,
-                        {
-
-                            width:1080,
-
-                            height:1720,
-
-                            scale:1,
-
-                            backgroundColor:null,
-
-                            useCORS:true,
-
-                            allowTaint:false,
-
-                            imageTimeout:0,
-
-                            logging:false,
-
-                            removeContainer:true,
-
-                            scrollX:0,
-
-                            scrollY:0
-
-                        }
-                    );
-
-
-
-                /* -------------------------------------------------
-                   최종 PNG 캔버스
-
-                   혹시 html2canvas가 미세하게 다른 크기를
-                   반환하더라도 최종 규격은 항상 1080×1720
-                ------------------------------------------------- */
-
-                const finalCanvas =
+                const canvas =
                     document.createElement(
                         'canvas'
                     );
 
 
-                finalCanvas.width =
+                canvas.width =
                     1080;
 
-                finalCanvas.height =
+                canvas.height =
                     1720;
 
 
                 const ctx =
-                    finalCanvas.getContext(
+                    canvas.getContext(
                         '2d'
                     );
 
@@ -2188,29 +2974,279 @@
                 );
 
 
-                ctx.drawImage(
-                    exportCanvas,
+
+                /* =================================================
+                   1. 책등 컬러
+                ================================================= */
+
+                drawElementBackground(
+                    ctx,
+                    spineColorBox
+                );
+
+
+
+                /* =================================================
+                   2. 앞표지 이미지
+
+                   placeholder는 저장하지 않는다.
+                   실제 업로드 이미지가 있을 때만 그린다.
+                ================================================= */
+
+                drawImageCover(
+                    ctx,
+                    previewImage,
+                    getExportRect(
+                        previewImage.parentElement
+                    )
+                );
+
+
+
+                /* =================================================
+                   3. 작가 사진
+
+                   object-fit:cover와 동일하게 crop
+                ================================================= */
+
+                drawImageCover(
+                    ctx,
+                    portraitImg,
+                    getExportRect(
+                        portraitImg.parentElement
+                    )
+                );
+
+
+
+                /* =================================================
+                   4. 책등 상단 번호/전집명
+                ================================================= */
+
+                const spineHeader =
+                    document.querySelector(
+                        '#spine > div:first-child'
+                    );
+
+
+                const spineHeaderTexts =
+                    spineHeader.querySelectorAll(
+                        ':scope > div'
+                    );
+
+
+                spineHeaderTexts.forEach(
+                    function(element) {
+
+                        drawTextElement(
+                            ctx,
+                            element
+                        );
+
+                    }
+                );
+
+
+
+                /* =================================================
+                   5. 책등 제목
+
+                   현재 미리보기의 실제 글자 위치를 그대로
+                   Canvas에 그린다.
+                ================================================= */
+
+                const spineTitleChars =
+                    document.querySelectorAll(
+                        '#spineTitleColumns .spine-title-char'
+                    );
+
+
+                spineTitleChars.forEach(
+                    function(element) {
+
+                        drawTextElement(
+                            ctx,
+                            element
+                        );
+
+                    }
+                );
+
+
+
+                /* =================================================
+                   6. 책등 저자
+
+                   세로쓰기지만 현재 미리보기의 위치를
+                   그대로 읽어서 그린다.
+                ================================================= */
+
+                drawTextElement(
+                    ctx,
+                    previewSpineAuthor
+                );
+
+
+
+                /* =================================================
+                   7. 앞표지 전집명 + 번호
+                ================================================= */
+
+                const frontTextContainer =
+                    document.querySelector(
+                        '#frontCover > div:nth-child(2) > div'
+                    );
+
+
+                const frontSeries =
+                    frontTextContainer.children[0];
+
+
+                drawTextElement(
+                    ctx,
+                    frontSeries
+                );
+
+
+
+                /* =================================================
+                   8. 위 색띠
+                ================================================= */
+
+                drawElementBackground(
+                    ctx,
+                    topBar
+                );
+
+
+
+                /* =================================================
+                   9. 앞표지 제목
+
+                   현재 화면에서 실제 줄바꿈된 위치를
+                   그대로 읽어서 그린다.
+                ================================================= */
+
+                drawTextElement(
+                    ctx,
+                    previewBookTitle
+                );
+
+
+
+                /* =================================================
+                   10. 아래 색띠
+                ================================================= */
+
+                drawElementBackground(
+                    ctx,
+                    bottomBar
+                );
+
+
+
+                /* =================================================
+                   11. 영문 제목
+                ================================================= */
+
+                drawTextElement(
+                    ctx,
+                    previewEngTitle
+                );
+
+
+
+                /* =================================================
+                   12. 앞표지 저자
+                ================================================= */
+
+                drawTextElement(
+                    ctx,
+                    previewAuthor
+                );
+
+
+
+                /* =================================================
+                   13. 앞표지 역자
+                ================================================= */
+
+                drawTextElement(
+                    ctx,
+                    previewTranslator
+                );
+
+
+
+                /* =================================================
+                   14. 민음사 로고 - 책등
+                ================================================= */
+
+                const spineLogo =
+                    document.querySelector(
+                        '#spine .minumsa-logo'
+                    );
+
+
+                drawImageContain(
+                    ctx,
+                    spineLogo,
+                    getExportRect(
+                        spineLogo
+                    )
+                );
+
+
+
+                /* =================================================
+                   15. 민음사 로고 - 앞표지
+                ================================================= */
+
+                const frontLogo =
+                    document.querySelector(
+                        '#frontCover .minumsa-logo'
+                    );
+
+
+                drawImageContain(
+                    ctx,
+                    frontLogo,
+                    getExportRect(
+                        frontLogo.parentElement
+                    )
+                );
+
+
+
+                /* =================================================
+                   16. 경계선
+
+                   유일한 1px 검은 선.
+                   실제 출력에서도 1px.
+                ================================================= */
+
+                ctx.fillStyle =
+                    '#000000';
+
+
+                ctx.fillRect(
+                    96,
                     0,
-                    0,
-                    exportCanvas.width,
-                    exportCanvas.height,
-                    0,
-                    0,
-                    1080,
+                    1,
                     1720
                 );
 
 
 
-                /* -------------------------------------------------
+                /* =================================================
                    PNG Blob
-                ------------------------------------------------- */
+                ================================================= */
 
                 const blob =
                     await new Promise(
                         function(resolve) {
 
-                            finalCanvas.toBlob(
+                            canvas.toBlob(
                                 resolve,
                                 'image/png'
                             );
@@ -2229,12 +3265,12 @@
 
 
 
-                /* -------------------------------------------------
+                /* =================================================
                    파일명
 
                    예:
                    북커버_020.png
-                ------------------------------------------------- */
+                ================================================= */
 
                 const fileName =
                     '북커버_' +
@@ -2249,7 +3285,9 @@
 
 
                 const link =
-                    document.createElement('a');
+                    document.createElement(
+                        'a'
+                    );
 
 
                 link.href =
@@ -2292,6 +3330,7 @@
                     1000
                 );
 
+
             }
 
 
@@ -2305,7 +3344,7 @@
 
                 alert(
                     'PNG 생성 중 오류가 발생했습니다.\n' +
-                    '잠시 후 다시 시도해주세요.'
+                    '브라우저 개발자 콘솔(F12)의 오류 내용을 확인해주세요.'
                 );
 
             }
@@ -2324,8 +3363,6 @@
 
         }
     );
-
-
 
     /* =============================================================
        최초 실행
