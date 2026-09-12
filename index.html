@@ -3234,15 +3234,13 @@
 
                 /* =================================================
                    7. 앞표지 전집명 + 번호
+
+                   전집명과 번호를 하나의 가로 행으로 직접 그린다.
+                   → 전집명 왼쪽 정렬
+                   → 번호는 전집명 바로 오른쪽
                 ================================================= */
 
-                const frontTextContainer =
-                    document.querySelector(
-                        '#frontCover > div:nth-child(2) > div'
-                    );
-
-
-                const frontSeriesName =
+                const frontSeries =
                     document.getElementById(
                         'previewSubSeriesName'
                     );
@@ -3252,17 +3250,115 @@
                         'previewSubSeriesNo'
                     );
 
+                const frontSeriesRow =
+                    frontSeries
+                        ? frontSeries.parentElement
+                        : null;
 
-                drawTextElement(
-                    ctx,
-                    frontSeriesName
-                );
+
+                if (
+                    frontSeries &&
+                    frontSeriesNumber &&
+                    frontSeriesRow
+                ) {
+
+                    const rowRect =
+                        getExportRect(
+                            frontSeriesRow
+                        );
+
+                    const nameStyle =
+                        getComputedStyle(
+                            frontSeries
+                        );
+
+                    const numberStyle =
+                        getComputedStyle(
+                            frontSeriesNumber
+                        );
 
 
-                drawTextElement(
-                    ctx,
-                    frontSeriesNumber
-                );
+                    ctx.save();
+
+
+                    /* 전집명 */
+                    ctx.font =
+                        canvasFontFromElement(
+                            frontSeries
+                        );
+
+                    ctx.fillStyle =
+                        getElementColor(
+                            frontSeries
+                        );
+
+                    ctx.textAlign =
+                        'left';
+
+                    ctx.textBaseline =
+                        'alphabetic';
+
+
+                    const name =
+                        frontSeries.textContent.trim();
+
+                    const nameFontSize =
+                        parseFloat(
+                            nameStyle.fontSize
+                        );
+
+
+                    ctx.fillText(
+                        name,
+                        rowRect.x,
+                        rowRect.y +
+                        nameFontSize * 0.82
+                    );
+
+
+                    /* 전집번호 — 전집명 바로 오른쪽 */
+                    ctx.font =
+                        canvasFontFromElement(
+                            frontSeriesNumber
+                        );
+
+                    ctx.fillStyle =
+                        getElementColor(
+                            frontSeriesNumber
+                        );
+
+
+                    const number =
+                        frontSeriesNumber.textContent.trim();
+
+                    const nameWidth =
+                        ctx.measureText(
+                            name
+                        ).width;
+
+
+                    const numberMargin =
+                        20;
+
+
+                    const numberFontSize =
+                        parseFloat(
+                            numberStyle.fontSize
+                        );
+
+
+                    ctx.fillText(
+                        number,
+                        rowRect.x +
+                        nameWidth +
+                        numberMargin,
+                        rowRect.y +
+                        numberFontSize * 0.82
+                    );
+
+
+                    ctx.restore();
+                }
 
 
 
