@@ -16,8 +16,16 @@
 
 
         /* =========================================================
-           폰트
+           기본
         ========================================================= */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+        }
 
         .font-batang {
             font-family: 'Gowun Batang', serif;
@@ -31,42 +39,37 @@
         /* =========================================================
            실제 출력 규격
 
-           스냅스 포토카드
            54 : 86
-
-           1080 : 1720 = 정확히 54 : 86
+           1080 : 1720
         ========================================================= */
 
         :root {
+
             --canvas-w: 1080px;
             --canvas-h: 1720px;
 
-            /* 화면 미리보기 1.5배 수준 */
-            --preview-scale: 0.465;
-
-            /* 책등 약 9% */
+            /* 책등 */
             --spine-w: 97px;
 
             /* 앞표지 */
             --front-w: 983px;
 
-            /* 상단 일러스트 */
-            --image-h: 756px;
+            /* 앞표지 일러스트 = 전체 높이의 정확히 40% */
+            --image-h: 688px;
 
-            /* 민음사 대표색 */
+            /* 민음사 계열 색상 */
             --main-color: #A61D4B;
         }
 
 
         /* =========================================================
-           실제 캔버스
+           실제 PNG 캔버스
 
-           중요:
-           전체 캔버스 자체에는 흰색 배경을 깔지 않는다.
-           → 빈 공간은 실제 PNG에서 투명(alpha=0)이 된다.
+           ★ 배경 투명
         ========================================================= */
 
         .book-canvas {
+
             width: var(--canvas-w);
             height: var(--canvas-h);
 
@@ -76,23 +79,18 @@
 
             background: transparent;
 
-            transform: scale(var(--preview-scale));
-            transform-origin: top left;
-
-            margin: 0;
-
             overflow: hidden;
         }
 
 
         /* =========================================================
-           미리보기 프레임
+           화면 미리보기
 
-           1080 × 1720 × 0.465
-           ≈ 502 × 800
+           약 1.5배 확대해서 보이도록 설정
         ========================================================= */
 
         .preview-frame {
+
             width: 502px;
             height: 800px;
 
@@ -100,19 +98,34 @@
 
             overflow: hidden;
 
-            flex-shrink: 0;
+            background:
+                repeating-conic-gradient(
+                    #f1f5f9 0% 25%,
+                    #ffffff 0% 50%
+                )
+                50% / 16px 16px;
 
-            background: transparent;
+            border-radius: 14px;
+
+            flex-shrink: 0;
+        }
+
+        .preview-frame .book-canvas {
+
+            transform: scale(0.465);
+
+            transform-origin: top left;
         }
 
 
         /* =========================================================
            책등 세로쓰기
 
-           한 줄 고정
+           ★ 줄바꿈 절대 금지
         ========================================================= */
 
-        .spine-text {
+        .spine-vertical {
+
             writing-mode: vertical-rl;
 
             text-orientation: upright;
@@ -121,23 +134,18 @@
 
             word-break: keep-all;
 
-            display: block;
-
-            width: max-content;
-
-            height: max-content;
+            overflow: visible;
 
             flex-shrink: 0;
-
-            overflow: visible;
         }
 
 
         /* =========================================================
-           민음사 PNG
+           민음사 로고
         ========================================================= */
 
         .minumsa-logo {
+
             display: block;
 
             object-fit: contain;
@@ -153,38 +161,11 @@
         ========================================================= */
 
         .color-chip {
-            transition: all 0.2s ease;
+            transition: transform 0.15s ease;
         }
 
-        .color-chip.ring-offset-2 {
+        .color-chip.selected {
             transform: scale(1.1);
-        }
-
-
-        /* =========================================================
-           이미지 오류 표시
-        ========================================================= */
-
-        .image-error {
-            display: none;
-
-            position: absolute;
-
-            inset: 0;
-
-            align-items: center;
-
-            justify-content: center;
-
-            text-align: center;
-
-            font-family: 'Noto Sans KR', sans-serif;
-
-            font-size: 12px;
-
-            color: #64748b;
-
-            background: #e2e8f0;
         }
 
     </style>
@@ -194,531 +175,1018 @@
 <body class="bg-slate-100 min-h-screen p-4 md:p-8">
 
 
+<div
+    class="max-w-[1400px] mx-auto bg-white rounded-2xl shadow-xl overflow-hidden
+           grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_560px]"
+>
+
+
     <!-- =============================================================
-         전체 앱
+         왼쪽 설정
     ============================================================== -->
 
     <div
-        class="max-w-[1400px] mx-auto bg-white rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_560px]"
+        class="p-6 md:p-8 flex flex-col justify-between
+               border-b lg:border-b-0 lg:border-r border-slate-200"
     >
 
-
-        <!-- =========================================================
-             왼쪽 입력
-        ========================================================== -->
-
-        <div
-            class="p-6 md:p-8 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-200"
-        >
-
-            <div class="space-y-4">
+        <div class="space-y-4">
 
 
-                <h1 class="text-2xl font-bold text-slate-800">
-                    📚 삼삼오오전집 투명 책갈피
-                </h1>
+            <h1 class="text-2xl font-bold text-slate-800">
+                📚 삼삼오오전집 투명 책갈피
+            </h1>
 
 
-                <p class="text-xs text-slate-500">
-                    스냅스 54:86 규격 · 투명 PNG · 책등 포함
+            <p class="text-xs text-slate-500">
+                스냅스 포토카드 54:86 · 1080×1720px · 투명 PNG
+            </p>
+
+
+            <!-- 제작자 -->
+
+            <div>
+
+                <label class="block text-sm font-semibold text-slate-700 mb-1">
+                    제작자 정보
+                </label>
+
+                <input
+                    type="text"
+                    id="studentInfoInput"
+                    placeholder="3학년 5반 홍길동"
+                    class="w-full px-3 py-2 border rounded-lg outline-none
+                           focus:ring-2 focus:ring-indigo-500"
+                >
+
+            </div>
+
+
+            <!-- 일러스트 -->
+
+            <div>
+
+                <label class="block text-sm font-semibold text-slate-700 mb-1">
+                    상단 일러스트 이미지
+                </label>
+
+                <input
+                    type="file"
+                    id="imageInput"
+                    accept="image/*"
+                    class="w-full text-sm text-slate-500
+                           file:mr-4 file:py-2 file:px-4
+                           file:rounded-full file:border-0
+                           file:text-sm file:font-semibold
+                           file:bg-indigo-50 file:text-indigo-700
+                           hover:file:bg-indigo-100 cursor-pointer"
+                >
+
+                <p class="text-[11px] text-slate-400 mt-1">
+                    ※ 앞표지 영역에서만 40%를 차지합니다. 책등으로 넘어가지 않습니다.
                 </p>
 
+            </div>
 
-                <!-- 제작자 -->
+
+            <!-- 번호 / 책등 인물 -->
+
+            <div class="grid grid-cols-2 gap-3">
+
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
-                        제작자 정보 (예: 3학년 5반 김민수)
+                        전집 번호
                     </label>
 
                     <input
-                        type="text"
-                        id="studentInfoInput"
-                        placeholder="3학년 5반 홍길동"
-                        class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                        type="number"
+                        id="seriesNoInput"
+                        value="88"
+                        min="1"
+                        max="999"
+                        class="w-full px-3 py-2 border rounded-lg outline-none"
                     >
 
                 </div>
 
 
-                <!-- 상단 일러스트 -->
                 <div>
 
                     <label class="block text-sm font-semibold text-slate-700 mb-1">
-                        상단 일러스트 이미지
+                        책등 인물
                     </label>
 
-                    <input
-                        type="file"
-                        id="imageInput"
-                        accept="image/*"
-                        class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
+                    <select
+                        id="authorImageSelect"
+                        class="w-full px-3 py-2 border rounded-lg outline-none bg-white text-sm"
                     >
 
-                    <p class="text-[11px] text-slate-400 mt-1">
-                        ※ 일러스트는 책등을 침범하지 않고 앞표지 영역에만 들어갑니다.
-                    </p>
-
-                </div>
-
-
-                <!-- 번호 / 인물 -->
-                <div class="grid grid-cols-2 gap-3">
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            전집 번호
-                        </label>
-
-                        <input
-                            type="number"
-                            id="seriesNoInput"
-                            value="1"
-                            min="1"
-                            max="999"
-                            class="w-full px-3 py-2 border rounded-lg outline-none"
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            책등 인물 선택
-                        </label>
-
-                        <select
-                            id="authorImageSelect"
-                            class="w-full px-3 py-2 border rounded-lg outline-none bg-white text-sm"
-                        >
-
-                            <option value="Hankang.png">
-                                한강 작가
-                            </option>
-
-                            <option value="Sejong.png">
-                                세종대왕
-                            </option>
-
-                            <option value="Shakespeare.png">
-                                셰익스피어
-                            </option>
-
-                            <option value="Jane.png">
-                                제인 오스틴
-                            </option>
-
-                            <option value="Hwang.png">
-                                황석영 작가
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- 제목 -->
-                <div class="grid grid-cols-2 gap-3">
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            책 제목 (한글)
-                        </label>
-
-                        <input
-                            type="text"
-                            id="commonTitleInput"
-                            maxlength="25"
-                            value="여기는 어디 나는 누구?"
-                            class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            영문 원제
-                        </label>
-
-                        <input
-                            type="text"
-                            id="engTitleInput"
-                            value="Where am I, Who am I?"
-                            class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- 저자 -->
-                <div class="grid grid-cols-2 gap-3">
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            저자명
-                        </label>
-
-                        <input
-                            type="text"
-                            id="authorInput"
-                            value="제인 오스틴"
-                            class="w-full px-3 py-2 border rounded-lg outline-none"
-                        >
-
-                    </div>
-
-
-                    <div>
-
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">
-                            역자명 (옵션)
-                        </label>
-
-                        <input
-                            type="text"
-                            id="translatorInput"
-                            value="윤지관, 전승희 옮김"
-                            class="w-full px-3 py-2 border rounded-lg outline-none"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- 색상 -->
-                <div>
-
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        전집 책등 & 띠 컬러
-                    </label>
-
-
-                    <div class="flex flex-wrap gap-2.5 items-center">
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-2 ring-indigo-600 ring-offset-2"
-                            style="background-color:#A61D4B;"
-                            data-color="#A61D4B"
-                            title="클래식 레드"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#1E3A8A;"
-                            data-color="#1E3A8A"
-                            title="다크 네이비"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#065F46;"
-                            data-color="#065F46"
-                            title="포레스트 그린"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#581C87;"
-                            data-color="#581C87"
-                            title="로얄 퍼플"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#B45309;"
-                            data-color="#B45309"
-                            title="앰버 브라운"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#111827;"
-                            data-color="#111827"
-                            title="차콜 블랙"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#0369A1;"
-                            data-color="#0369A1"
-                            title="스카이 블루"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#9A3412;"
-                            data-color="#9A3412"
-                            title="테라코타 오렌지"
-                        ></button>
-
-
-                        <button
-                            type="button"
-                            class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-slate-300"
-                            style="background-color:#4D7C0F;"
-                            data-color="#4D7C0F"
-                            title="올리브 그린"
-                        ></button>
-
-                    </div>
+                        <option value="Jane.png">
+                            제인 오스틴
+                        </option>
+
+                        <option value="Hankang.png">
+                            한강 작가
+                        </option>
+
+                        <option value="Sejong.png">
+                            세종대왕
+                        </option>
+
+                        <option value="Shakespeare.png">
+                            셰익스피어
+                        </option>
+
+                        <option value="Hwang.png">
+                            황석영 작가
+                        </option>
+
+                    </select>
 
                 </div>
 
             </div>
 
 
-            <!-- 다운로드 -->
-            <button
-                id="downloadBtn"
-                class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition shadow-md"
-            >
-                ✨ 고화질 투명 PNG 다운로드
-            </button>
+            <!-- 제목 -->
+
+            <div class="grid grid-cols-2 gap-3">
+
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">
+                        책 제목
+                    </label>
+
+                    <input
+                        type="text"
+                        id="commonTitleInput"
+                        value="오만과 편견"
+                        maxlength="25"
+                        class="w-full px-3 py-2 border rounded-lg outline-none"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">
+                        영문 원제
+                    </label>
+
+                    <input
+                        type="text"
+                        id="engTitleInput"
+                        value="Pride and Prejudice"
+                        class="w-full px-3 py-2 border rounded-lg outline-none"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- 저자 / 역자 -->
+
+            <div class="grid grid-cols-2 gap-3">
+
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">
+                        저자명
+                    </label>
+
+                    <input
+                        type="text"
+                        id="authorInput"
+                        value="제인 오스틴"
+                        class="w-full px-3 py-2 border rounded-lg outline-none"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">
+                        역자명
+                    </label>
+
+                    <input
+                        type="text"
+                        id="translatorInput"
+                        value="윤지관, 전승희 옮김"
+                        class="w-full px-3 py-2 border rounded-lg outline-none"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- 색상 -->
+
+            <div>
+
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    책등 & 띠 컬러
+                </label>
+
+
+                <div class="flex flex-wrap gap-2.5">
+
+                    <button
+                        type="button"
+                        class="color-chip selected w-8 h-8 rounded-full
+                               border-2 border-white shadow-md
+                               ring-2 ring-indigo-600 ring-offset-2"
+                        style="background:#A61D4B"
+                        data-color="#A61D4B"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#1E3A8A"
+                        data-color="#1E3A8A"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#065F46"
+                        data-color="#065F46"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#581C87"
+                        data-color="#581C87"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#B45309"
+                        data-color="#B45309"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#111827"
+                        data-color="#111827"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#0369A1"
+                        data-color="#0369A1"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#9A3412"
+                        data-color="#9A3412"
+                    ></button>
+
+
+                    <button
+                        type="button"
+                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        style="background:#4D7C0F"
+                        data-color="#4D7C0F"
+                    ></button>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <!-- =========================================================
-             오른쪽 미리보기
-        ========================================================== -->
+        <!-- 다운로드 -->
 
-        <div
-            class="p-6 md:p-8 bg-slate-50 flex flex-col items-center justify-start overflow-auto"
+        <button
+            id="downloadBtn"
+            class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700
+                   text-white font-semibold py-3 rounded-xl
+                   transition shadow-md"
         >
+            ✨ 고화질 투명 PNG 다운로드
+        </button>
 
-            <p class="text-xs font-medium text-slate-400 mb-3">
-                실시간 미리보기 (1.5배 확대 · 54:86)
-            </p>
+    </div>
 
 
-            <div class="preview-frame">
+
+    <!-- =============================================================
+         오른쪽 미리보기
+    ============================================================== -->
+
+    <div
+        class="p-6 md:p-8 bg-slate-50 flex flex-col
+               items-center justify-start overflow-auto"
+    >
+
+        <p class="text-xs font-medium text-slate-400 mb-3">
+            실시간 미리보기 · 54:86 · 일러스트 40%
+        </p>
+
+
+        <div class="preview-frame">
+
+
+            <!-- =====================================================
+                 실제 1080 × 1720 캔버스
+            ====================================================== -->
+
+            <div
+                id="captureArea"
+                class="book-canvas"
+            >
 
 
                 <!-- =================================================
-                     실제 출력 캔버스
-                     
-                     1080 × 1720
-                     54 : 86
+                     ★★★★★ 책등 ★★★★★
+
+                     97px × 1720px
+
+                     일러스트와 완전히 독립
                 ================================================== -->
 
                 <div
-                    id="captureArea"
-                    class="book-canvas font-batang select-none"
+                    id="spine"
+                    style="
+                        width:97px;
+                        height:1720px;
+                        position:relative;
+                        flex-shrink:0;
+                        background:#ffffff;
+                        border-right:1px solid #cbd5e1;
+                    "
                 >
 
 
-                    <!-- =================================================
-                         책등
-                         
-                         ★ 가장 중요한 구조
-                         ★ 일러스트가 절대로 들어오지 않음
-                    ================================================== -->
+                    <!-- -------------------------------------------------
+                         책등 상단
+                    -------------------------------------------------- -->
 
                     <div
-                        id="spine"
                         style="
+                            position:absolute;
+                            top:0;
+                            left:0;
                             width:97px;
-                            height:1720px;
-                            position:relative;
-                            flex-shrink:0;
+                            height:430px;
                             background:#ffffff;
-                            border-right:2px solid #cbd5e1;
                         "
                     >
 
 
+                        <!-- 전집 번호 -->
+
+                        <div
+                            class="font-sans-kr"
+                            style="
+                                position:absolute;
+                                top:38px;
+                                left:0;
+                                width:97px;
+
+                                text-align:center;
+
+                                font-size:17px;
+                                font-weight:700;
+
+                                color:#111111;
+                            "
+                        >
+
+                            <span id="previewSeriesNo">
+                                088
+                            </span>
+
+                        </div>
+
+
+                        <!-- 세계문학전집 -->
+
+                        <div
+                            class="font-sans-kr"
+                            style="
+                                position:absolute;
+                                top:76px;
+                                left:0;
+                                width:97px;
+
+                                text-align:center;
+
+                                font-size:13px;
+                                line-height:1.25;
+
+                                font-weight:700;
+
+                                color:#111111;
+                            "
+                        >
+
+                            세계<br>
+                            문학<br>
+                            전집
+
+                        </div>
+
+
                         <!-- -------------------------------------------------
-                             책등 상단 영역
+                             작가 초상
+
+                             원본처럼 책등 상단의 흰색 영역 안에
+                             흑백 초상
                         -------------------------------------------------- -->
 
                         <div
                             style="
                                 position:absolute;
-                                top:0;
+                                top:170px;
                                 left:0;
+
                                 width:97px;
-                                height:380px;
-                                background:#ffffff;
+                                height:150px;
+
+                                overflow:hidden;
+
+                                background:#e5e7eb;
                             "
                         >
 
-
-                            <!-- 번호 -->
-
-                            <div
+                            <img
+                                id="portraitImg"
+                                src="Jane.png"
+                                alt="작가 초상"
                                 style="
-                                    position:absolute;
-                                    top:185px;
-                                    left:0;
-                                    width:97px;
-                                    text-align:center;
+                                    display:block;
+
+                                    width:100%;
+                                    height:100%;
+
+                                    object-fit:cover;
+
+                                    filter:
+                                        grayscale(100%)
+                                        contrast(115%);
+                                "
+                                onerror="
+                                    this.style.display='none';
                                 "
                             >
 
-                                <span
-                                    id="previewSeriesNo"
-                                    class="font-sans-kr"
-                                    style="
-                                        font-size:18px;
-                                        font-weight:700;
-                                        color:#111827;
-                                    "
-                                >
-                                    001
-                                </span>
+                        </div>
 
-                            </div>
+                    </div>
 
 
-                            <!-- 인물 사진 -->
+                    <!-- =================================================
+                         ★ 책등 자주색 영역
 
-                            <div
+                         제목 + 저자를 세로 한 줄로 배치
+
+                         제목 : 크고
+                         저자 : 작게
+                         둘 다 같은 세로 방향
+                    ================================================== -->
+
+                    <div
+                        id="spineColorBox"
+                        style="
+                            position:absolute;
+
+                            top:430px;
+                            left:0;
+
+                            width:97px;
+                            height:1030px;
+
+                            background:#A61D4B;
+
+                            display:flex;
+
+                            flex-direction:column;
+
+                            align-items:center;
+
+                            justify-content:flex-start;
+
+                            overflow:hidden;
+                        "
+                    >
+
+
+                        <!-- -------------------------------------------------
+                             큰 책 제목
+
+                             ★ 책등에서 가장 크게
+                        -------------------------------------------------- -->
+
+                        <div
+                            style="
+                                position:absolute;
+
+                                top:55px;
+                                left:0;
+
+                                width:97px;
+
+                                display:flex;
+
+                                justify-content:center;
+                            "
+                        >
+
+                            <span
+                                id="previewSpineTitle"
+                                class="spine-vertical font-batang"
                                 style="
-                                    position:absolute;
-                                    top:220px;
-                                    left:0;
-                                    width:97px;
-                                    height:110px;
-                                    overflow:hidden;
-                                    border-top:1px solid #94a3b8;
-                                    border-bottom:1px solid #94a3b8;
-                                    background:#e2e8f0;
-                                    filter:grayscale(100%) contrast(125%);
+                                    color:#ffffff;
+
+                                    font-size:29px;
+
+                                    font-weight:700;
+
+                                    line-height:1;
+
+                                    letter-spacing:0.02em;
+
+                                    max-height:650px;
                                 "
                             >
-
-                                <img
-                                    src="Hankang.png"
-                                    id="portraitImg"
-                                    alt="작가 초상화"
-                                    style="
-                                        width:100%;
-                                        height:100%;
-                                        object-fit:cover;
-                                        display:block;
-                                    "
-                                    onerror="
-                                        this.style.display='none';
-                                        document.getElementById('imgFallback').style.display='flex';
-                                    "
-                                >
-
-                                <div
-                                    id="imgFallback"
-                                    class="image-error"
-                                >
-                                    Hankang.png<br>
-                                    파일을 찾을 수 없습니다.
-                                </div>
-
-                            </div>
+                                오만과 편견
+                            </span>
 
                         </div>
 
 
-                        <!-- =================================================
-                             책등 컬러 영역
-                             
-                             앞표지 일러스트와 완전히 분리됨
-                        ================================================== -->
+                        <!-- -------------------------------------------------
+                             작은 저자
+
+                             ★ 제목 밑
+                             ★ 제목과 좌우로 나뉘지 않음
+                        -------------------------------------------------- -->
 
                         <div
-                            id="spineColorBox"
                             style="
                                 position:absolute;
-                                top:380px;
+
+                                top:720px;
                                 left:0;
+
                                 width:97px;
-                                height:1080px;
-                                background:#A61D4B;
 
                                 display:flex;
-                                flex-direction:row;
-                                align-items:center;
-                                justify-content:center;
 
-                                overflow:hidden;
+                                justify-content:center;
                             "
                         >
 
-
-                            <!-- 책등 저자 -->
-
                             <span
                                 id="previewSpineAuthor"
-                                class="spine-text font-sans-kr"
+                                class="spine-vertical font-sans-kr"
                                 style="
-                                    font-size:14px;
+                                    color:#ffffff;
+
+                                    font-size:17px;
+
                                     font-weight:500;
-                                    color:white;
+
+                                    line-height:1;
+
                                     letter-spacing:0.08em;
-                                    margin-right:9px;
+
+                                    max-height:300px;
                                 "
                             >
                                 제인 오스틴
                             </span>
 
-
-                            <!-- 책등 제목 -->
-
-                            <span
-                                id="previewSpineTitle"
-                                class="spine-text font-batang"
-                                style="
-                                    font-size:21px;
-                                    font-weight:700;
-                                    color:white;
-                                    letter-spacing:0.03em;
-                                "
-                            >
-                                여기는 어디 나는 누구?
-                            </span>
-
                         </div>
 
 
+                    </div>
+
+
+                    <!-- =================================================
+                         책등 하단
+
+                         민음사 PNG
+                    ================================================== -->
+
+                    <div
+                        style="
+                            position:absolute;
+
+                            left:0;
+                            bottom:0;
+
+                            width:97px;
+                            height:260px;
+
+                            background:#ffffff;
+
+                            display:flex;
+
+                            align-items:flex-end;
+
+                            justify-content:center;
+
+                            padding-bottom:58px;
+                        "
+                    >
+
+                        <img
+                            src="./minumsa.png"
+                            alt="민음사"
+                            class="minumsa-logo"
+                            style="
+                                width:70px;
+                                height:40px;
+                            "
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ★★★★★ 앞표지 ★★★★★
+
+                     983px × 1720px
+                ================================================== -->
+
+                <div
+                    id="frontCover"
+                    style="
+                        width:983px;
+                        height:1720px;
+
+                        position:relative;
+
+                        flex-shrink:0;
+
+                        background:transparent;
+                    "
+                >
+
+
+                    <!-- =================================================
+                         ★ 일러스트
+
+                         전체 카드 높이의 40%
+                         = 688px
+
+                         ★★★★★
+                         앞표지 폭 안에서만 존재
+                         ★★★★★
+                    ================================================== -->
+
+                    <div
+                        style="
+                            position:absolute;
+
+                            top:0;
+                            left:0;
+
+                            width:983px;
+                            height:688px;
+
+                            overflow:hidden;
+
+                            background:transparent;
+                        "
+                    >
+
+                        <img
+                            id="previewImage"
+                            src=""
+                            alt=""
+                            style="
+                                display:none;
+
+                                width:100%;
+                                height:100%;
+
+                                object-fit:cover;
+                            "
+                        >
+
+
+                        <div
+                            id="imagePlaceholder"
+                            class="font-sans-kr"
+                            style="
+                                position:absolute;
+
+                                inset:0;
+
+                                display:flex;
+
+                                align-items:center;
+                                justify-content:center;
+
+                                background:#f8fafc;
+
+                                color:#94a3b8;
+
+                                font-size:20px;
+                            "
+                        >
+                            앞표지 일러스트 · 40%
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         앞표지 하단
+
+                         ★ 배경 없음
+                         ★ 실제 PNG에서 투명
+                    ================================================== -->
+
+                    <div
+                        style="
+                            position:absolute;
+
+                            top:688px;
+                            left:0;
+
+                            width:983px;
+                            height:1032px;
+
+                            background:transparent;
+                        "
+                    >
+
+
                         <!-- =================================================
-                             책등 하단
+                             앞표지 텍스트 전체
                         ================================================== -->
 
                         <div
                             style="
                                 position:absolute;
-                                left:0;
-                                bottom:65px;
-                                width:97px;
+
+                                left:59px;
+                                top:42px;
+
+                                width:700px;
+                            "
+                        >
+
+
+                            <!-- ---------------------------------------------
+                                 세계문학전집 88
+                            ---------------------------------------------- -->
+
+                            <div
+                                class="font-sans-kr"
+                                style="
+                                    margin-left:17px;
+
+                                    font-size:22px;
+
+                                    line-height:1;
+
+                                    font-weight:700;
+
+                                    color:#111111;
+                                "
+                            >
+
+                                세계문학전집
+
+                                <span id="previewSubSeriesNo">
+                                    088
+                                </span>
+
+                            </div>
+
+
+                            <!-- ---------------------------------------------
+                                 위쪽 컬러 띠
+                            ---------------------------------------------- -->
+
+                            <div
+                                id="topBar"
+                                style="
+                                    width:500px;
+                                    height:55px;
+
+                                    margin-top:28px;
+
+                                    background:#A61D4B;
+                                "
+                            >
+                            </div>
+
+
+                            <!-- ---------------------------------------------
+                                 큰 제목
+
+                                 원본 느낌을 위해 크게
+                            ---------------------------------------------- -->
+
+                            <div
+                                id="previewBookTitle"
+                                class="font-batang"
+                                style="
+                                    width:650px;
+
+                                    margin-top:28px;
+                                    margin-bottom:29px;
+
+                                    font-size:69px;
+
+                                    line-height:1.15;
+
+                                    font-weight:400;
+
+                                    letter-spacing:-0.055em;
+
+                                    color:#111111;
+
+                                    word-break:keep-all;
+
+                                    white-space:nowrap;
+
+                                    overflow:hidden;
+
+                                    text-overflow:clip;
+                                "
+                            >
+                                오만과 편견
+                            </div>
+
+
+                            <!-- ---------------------------------------------
+                                 영문 제목 띠
+                            ---------------------------------------------- -->
+
+                            <div
+                                id="bottomBar"
+                                style="
+                                    width:500px;
+                                    height:55px;
+
+                                    display:flex;
+
+                                    align-items:center;
+
+                                    padding-left:21px;
+
+                                    background:#A61D4B;
+                                "
+                            >
+
+                                <span
+                                    id="previewEngTitle"
+                                    class="font-sans-kr"
+                                    style="
+                                        color:#ffffff;
+
+                                        font-size:19px;
+
+                                        font-weight:500;
+
+                                        white-space:nowrap;
+
+                                        overflow:hidden;
+
+                                        text-overflow:ellipsis;
+
+                                        max-width:455px;
+                                    "
+                                >
+                                    Pride and Prejudice
+                                </span>
+
+                            </div>
+
+
+                            <!-- ---------------------------------------------
+                                 저자 / 역자
+
+                                 원본처럼 저자는 크고
+                                 역자는 오른쪽에 작게
+                            ---------------------------------------------- -->
+
+                            <div
+                                class="font-sans-kr"
+                                style="
+                                    display:flex;
+
+                                    align-items:baseline;
+
+                                    margin-top:29px;
+
+                                    margin-left:17px;
+                                "
+                            >
+
+                                <span
+                                    id="previewAuthor"
+                                    style="
+                                        font-size:27px;
+
+                                        font-weight:700;
+
+                                        color:#111111;
+
+                                        white-space:nowrap;
+                                    "
+                                >
+                                    제인 오스틴
+                                </span>
+
+
+                                <span
+                                    id="previewTranslator"
+                                    style="
+                                        font-size:18px;
+
+                                        font-weight:400;
+
+                                        color:#111111;
+
+                                        margin-left:17px;
+
+                                        white-space:nowrap;
+                                    "
+                                >
+                                    윤지관, 전승희 옮김
+                                </span>
+
+                            </div>
+
+
+                            <!-- 제작자 -->
+
+                            <div
+                                class="font-sans-kr"
+                                style="
+                                    margin-top:14px;
+
+                                    margin-left:17px;
+
+                                    font-size:18px;
+
+                                    color:#64748b;
+                                "
+                            >
+
+                                <span id="previewStudentInfo">
+                                    3학년 5반 홍길동
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+
+
+                        <!-- =================================================
+                             앞표지 하단 민음사
+
+                             ★ PNG만 존재
+                             ★ 주변은 투명
+                        ================================================== -->
+
+                        <div
+                            style="
+                                position:absolute;
+
+                                left:59px;
+                                bottom:61px;
 
                                 display:flex;
-                                justify-content:center;
-                                align-items:center;
 
-                                background:#ffffff;
+                                align-items:center;
                             "
                         >
 
@@ -727,859 +1195,467 @@
                                 alt="민음사"
                                 class="minumsa-logo"
                                 style="
-                                    width:72px;
-                                    height:38px;
-                                "
-                                onerror="
-                                    this.style.display='none';
-                                    document.getElementById('spineLogoError').style.display='block';
+                                    width:76px;
+                                    height:42px;
                                 "
                             >
-
-                            <span
-                                id="spineLogoError"
-                                style="
-                                    display:none;
-                                    font-family:'Noto Sans KR',sans-serif;
-                                    font-size:14px;
-                                    font-weight:700;
-                                    color:#111827;
-                                "
-                            >
-                                민음사
-                            </span>
 
                         </div>
 
-                    </div>
-
-
-                    <!-- =================================================
-                         앞표지
-                         
-                         ★ 책등과 완전히 별개
-                         ★ 일러스트는 여기 안에서만 존재
-                    ================================================== -->
-
-                    <div
-                        id="frontCover"
-                        style="
-                            width:983px;
-                            height:1720px;
-                            position:relative;
-                            flex-shrink:0;
-                        "
-                    >
-
-
-                        <!-- =================================================
-                             상단 일러스트
-                             
-                             ★ 앞표지 영역에만 존재
-                             ★ 책등 영역에는 절대 침범하지 않음
-                        ================================================== -->
-
-                        <div
-                            style="
-                                position:absolute;
-                                top:0;
-                                left:0;
-                                width:983px;
-                                height:756px;
-
-                                overflow:hidden;
-
-                                background:transparent;
-                            "
-                        >
-
-                            <img
-                                id="previewImage"
-                                src=""
-                                alt=""
-                                style="
-                                    width:100%;
-                                    height:100%;
-                                    object-fit:cover;
-                                    display:none;
-                                "
-                            >
-
-
-                            <span
-                                id="imagePlaceholder"
-                                class="font-sans-kr"
-                                style="
-                                    position:absolute;
-                                    inset:0;
-
-                                    display:flex;
-                                    align-items:center;
-                                    justify-content:center;
-
-                                    color:#94a3b8;
-
-                                    font-size:20px;
-
-                                    background:#f8fafc;
-                                "
-                            >
-                                앞표지 일러스트 영역
-                            </span>
-
-                        </div>
-
-
-                        <!-- =================================================
-                             앞표지 하단
-                             
-                             ★ 배경 없음
-                             ★ 완전히 투명
-                        ================================================== -->
-
-                        <div
-                            style="
-                                position:absolute;
-                                top:756px;
-                                left:0;
-                                width:983px;
-                                height:964px;
-
-                                background:transparent;
-                            "
-                        >
-
-
-                            <!-- -------------------------------------------------
-                                 콘텐츠 영역
-                            -------------------------------------------------- -->
-
-                            <div
-                                style="
-                                    position:absolute;
-                                    left:59px;
-                                    top:44px;
-                                    width:700px;
-                                "
-                            >
-
-
-                                <!-- 세계문학전집 -->
-
-                                <div
-                                    class="font-sans-kr"
-                                    style="
-                                        font-size:22px;
-                                        line-height:1;
-                                        font-weight:700;
-                                        color:#111827;
-
-                                        margin-left:17px;
-                                    "
-                                >
-
-                                    삼삼오오전집
-
-                                    <span id="previewSubSeriesNo">
-                                        001
-                                    </span>
-
-                                </div>
-
-
-                                <!-- -------------------------------------------------
-                                     위쪽 띠
-                                -------------------------------------------------- -->
-
-                                <div
-                                    id="topBar"
-                                    style="
-                                        width:500px;
-                                        height:55px;
-
-                                        margin-top:28px;
-
-                                        background:#A61D4B;
-                                    "
-                                >
-                                </div>
-
-
-                                <!-- -------------------------------------------------
-                                     메인 제목
-                                -------------------------------------------------- -->
-
-                                <div
-                                    id="previewBookTitle"
-                                    class="font-batang"
-                                    style="
-                                        width:620px;
-
-                                        margin-top:32px;
-                                        margin-bottom:32px;
-
-                                        font-size:67px;
-                                        line-height:1.18;
-
-                                        font-weight:400;
-
-                                        letter-spacing:-0.055em;
-
-                                        color:#111111;
-
-                                        word-break:keep-all;
-                                        overflow-wrap:break-word;
-
-                                        display:-webkit-box;
-                                        -webkit-line-clamp:2;
-                                        -webkit-box-orient:vertical;
-                                        overflow:hidden;
-                                    "
-                                >
-                                    여기는 어디 나는 누구?
-                                </div>
-
-
-                                <!-- -------------------------------------------------
-                                     아래쪽 띠
-                                -------------------------------------------------- -->
-
-                                <div
-                                    id="bottomBar"
-                                    style="
-                                        width:500px;
-                                        height:55px;
-
-                                        display:flex;
-                                        align-items:center;
-
-                                        padding-left:21px;
-
-                                        background:#A61D4B;
-                                    "
-                                >
-
-                                    <span
-                                        id="previewEngTitle"
-                                        class="font-sans-kr"
-                                        style="
-                                            color:white;
-
-                                            font-size:19px;
-
-                                            font-weight:500;
-
-                                            white-space:nowrap;
-
-                                            overflow:hidden;
-                                            text-overflow:ellipsis;
-
-                                            max-width:455px;
-                                        "
-                                    >
-                                        Where am I, Who am I?
-                                    </span>
-
-                                </div>
-
-
-                                <!-- -------------------------------------------------
-                                     저자 / 역자
-                                -------------------------------------------------- -->
-
-                                <div
-                                    class="font-sans-kr"
-                                    style="
-                                        display:flex;
-                                        align-items:baseline;
-
-                                        margin-top:29px;
-                                        margin-left:17px;
-                                    "
-                                >
-
-                                    <span
-                                        id="previewAuthor"
-                                        style="
-                                            font-size:27px;
-                                            font-weight:700;
-                                            color:#111111;
-                                            white-space:nowrap;
-                                        "
-                                    >
-                                        제인 오스틴
-                                    </span>
-
-
-                                    <span
-                                        id="previewTranslator"
-                                        style="
-                                            font-size:18px;
-                                            font-weight:400;
-                                            color:#111111;
-
-                                            margin-left:17px;
-
-                                            white-space:nowrap;
-                                        "
-                                    >
-                                        윤지관, 전승희 옮김
-                                    </span>
-
-                                </div>
-
-
-                                <!-- -------------------------------------------------
-                                     제작자 정보
-                                -------------------------------------------------- -->
-
-                                <div
-                                    class="font-sans-kr"
-                                    style="
-                                        margin-top:13px;
-                                        margin-left:17px;
-
-                                        font-size:19px;
-                                        font-weight:500;
-
-                                        color:#64748b;
-                                    "
-                                >
-
-                                    <span id="previewStudentInfo">
-                                        3학년 5반 홍길동
-                                    </span>
-
-                                </div>
-
-
-                            </div>
-
-
-                            <!-- =================================================
-                                 앞표지 하단 민음사
-                                 
-                                 ★ 투명 영역 위에 PNG만 올라감
-                            ================================================== -->
-
-                            <div
-                                style="
-                                    position:absolute;
-
-                                    left:59px;
-                                    bottom:69px;
-
-                                    display:flex;
-                                    align-items:center;
-                                "
-                            >
-
-                                <img
-                                    src="./minumsa.png"
-                                    alt="민음사"
-                                    class="minumsa-logo"
-                                    style="
-                                        width:75px;
-                                        height:40px;
-                                    "
-                                    onerror="
-                                        this.style.display='none';
-                                        document.getElementById('frontLogoError').style.display='block';
-                                    "
-                                >
-
-                                <span
-                                    id="frontLogoError"
-                                    style="
-                                        display:none;
-
-                                        font-family:'Noto Sans KR',sans-serif;
-                                        font-size:28px;
-                                        font-weight:700;
-                                        color:#111827;
-                                    "
-                                >
-                                    민음사
-                                </span>
-
-                            </div>
-
-
-                        </div>
 
                     </div>
 
 
                 </div>
 
+
             </div>
-
-
-            <p
-                class="text-[11px] text-slate-400 mt-4 text-center"
-            >
-                ※ 실제 출력: 1080×1720px (54:86) · 빈 공간은 투명
-            </p>
 
         </div>
 
+
+        <p class="text-[11px] text-slate-400 mt-4 text-center">
+            ※ 최종 PNG 1080×1720px · 54:86 · 앞표지 사진 40% · 빈 공간 투명
+        </p>
+
     </div>
 
-
-    <!-- =============================================================
-         JavaScript
-    ============================================================== -->
-
-    <script>
+</div>
 
 
-        /* =============================================================
-           입력 요소
-        ============================================================= */
 
-        const studentInfoInput =
-            document.getElementById('studentInfoInput');
-
-        const seriesNoInput =
-            document.getElementById('seriesNoInput');
-
-        const commonTitleInput =
-            document.getElementById('commonTitleInput');
-
-        const engTitleInput =
-            document.getElementById('engTitleInput');
-
-        const authorInput =
-            document.getElementById('authorInput');
-
-        const translatorInput =
-            document.getElementById('translatorInput');
-
-        const imageInput =
-            document.getElementById('imageInput');
-
-        const authorImageSelect =
-            document.getElementById('authorImageSelect');
+<script>
 
 
-        /* =============================================================
-           미리보기 요소
-        ============================================================= */
+    /* =============================================================
+       요소
+    ============================================================= */
 
-        const previewSeriesNo =
-            document.getElementById('previewSeriesNo');
+    const studentInfoInput =
+        document.getElementById('studentInfoInput');
 
-        const previewSubSeriesNo =
-            document.getElementById('previewSubSeriesNo');
+    const seriesNoInput =
+        document.getElementById('seriesNoInput');
 
-        const previewSpineTitle =
-            document.getElementById('previewSpineTitle');
+    const commonTitleInput =
+        document.getElementById('commonTitleInput');
 
-        const previewSpineAuthor =
-            document.getElementById('previewSpineAuthor');
+    const engTitleInput =
+        document.getElementById('engTitleInput');
 
-        const previewBookTitle =
-            document.getElementById('previewBookTitle');
+    const authorInput =
+        document.getElementById('authorInput');
 
-        const previewEngTitle =
-            document.getElementById('previewEngTitle');
+    const translatorInput =
+        document.getElementById('translatorInput');
 
-        const previewAuthor =
-            document.getElementById('previewAuthor');
+    const imageInput =
+        document.getElementById('imageInput');
 
-        const previewTranslator =
-            document.getElementById('previewTranslator');
-
-        const previewStudentInfo =
-            document.getElementById('previewStudentInfo');
-
-        const previewImage =
-            document.getElementById('previewImage');
-
-        const imagePlaceholder =
-            document.getElementById('imagePlaceholder');
-
-        const portraitImg =
-            document.getElementById('portraitImg');
-
-        const imgFallback =
-            document.getElementById('imgFallback');
+    const authorImageSelect =
+        document.getElementById('authorImageSelect');
 
 
-        /* =============================================================
-           컬러
-        ============================================================= */
+    /* 미리보기 */
 
-        const spineColorBox =
-            document.getElementById('spineColorBox');
+    const previewSeriesNo =
+        document.getElementById('previewSeriesNo');
 
-        const topBar =
-            document.getElementById('topBar');
+    const previewSubSeriesNo =
+        document.getElementById('previewSubSeriesNo');
 
-        const bottomBar =
-            document.getElementById('bottomBar');
+    const previewSpineTitle =
+        document.getElementById('previewSpineTitle');
 
-        const colorChips =
-            document.querySelectorAll('.color-chip');
+    const previewSpineAuthor =
+        document.getElementById('previewSpineAuthor');
+
+    const previewBookTitle =
+        document.getElementById('previewBookTitle');
+
+    const previewEngTitle =
+        document.getElementById('previewEngTitle');
+
+    const previewAuthor =
+        document.getElementById('previewAuthor');
+
+    const previewTranslator =
+        document.getElementById('previewTranslator');
+
+    const previewStudentInfo =
+        document.getElementById('previewStudentInfo');
+
+    const previewImage =
+        document.getElementById('previewImage');
+
+    const imagePlaceholder =
+        document.getElementById('imagePlaceholder');
+
+    const portraitImg =
+        document.getElementById('portraitImg');
 
 
-        /* =============================================================
-           다운로드
-        ============================================================= */
+    /* 컬러 */
 
-        const downloadBtn =
-            document.getElementById('downloadBtn');
+    const spineColorBox =
+        document.getElementById('spineColorBox');
 
-        const captureArea =
-            document.getElementById('captureArea');
+    const topBar =
+        document.getElementById('topBar');
+
+    const bottomBar =
+        document.getElementById('bottomBar');
+
+    const colorChips =
+        document.querySelectorAll('.color-chip');
 
 
-        /* =============================================================
-           번호 포맷
-        ============================================================= */
+    /* 다운로드 */
 
-        function formatSeriesNo(val) {
+    const downloadBtn =
+        document.getElementById('downloadBtn');
 
-            const num =
-                parseInt(val, 10);
+    const captureArea =
+        document.getElementById('captureArea');
 
-            if (
-                isNaN(num) ||
-                num <= 0
-            ) {
-                return '001';
-            }
 
-            return String(num).padStart(3, '0');
+
+    /* =============================================================
+       번호
+    ============================================================= */
+
+    function formatSeriesNo(value) {
+
+        const number =
+            parseInt(value, 10);
+
+        if (
+            isNaN(number) ||
+            number <= 0
+        ) {
+            return '001';
         }
 
+        return String(number).padStart(3, '0');
+    }
 
-        /* =============================================================
-           번호 변경
-        ============================================================= */
 
-        seriesNoInput.addEventListener(
-            'input',
-            (e) => {
+    seriesNoInput.addEventListener(
+        'input',
+        function(e) {
 
-                const formatted =
-                    formatSeriesNo(e.target.value);
+            const value =
+                formatSeriesNo(e.target.value);
 
-                previewSeriesNo.innerText =
-                    formatted;
+            previewSeriesNo.textContent =
+                value;
 
-                previewSubSeriesNo.innerText =
-                    formatted;
+            previewSubSeriesNo.textContent =
+                value;
 
+        }
+    );
+
+
+
+    /* =============================================================
+       책등 인물
+    ============================================================= */
+
+    authorImageSelect.addEventListener(
+        'change',
+        function(e) {
+
+            portraitImg.src =
+                e.target.value;
+
+        }
+    );
+
+
+
+    /* =============================================================
+       제목
+    ============================================================= */
+
+    commonTitleInput.addEventListener(
+        'input',
+        function(e) {
+
+            const value =
+                e.target.value || '오만과 편견';
+
+            previewBookTitle.textContent =
+                value;
+
+            previewSpineTitle.textContent =
+                value;
+
+        }
+    );
+
+
+
+    /* =============================================================
+       영문 제목
+    ============================================================= */
+
+    engTitleInput.addEventListener(
+        'input',
+        function(e) {
+
+            previewEngTitle.textContent =
+                e.target.value || 'Pride and Prejudice';
+
+        }
+    );
+
+
+
+    /* =============================================================
+       저자
+    ============================================================= */
+
+    authorInput.addEventListener(
+        'input',
+        function(e) {
+
+            const value =
+                e.target.value || '제인 오스틴';
+
+            previewAuthor.textContent =
+                value;
+
+            previewSpineAuthor.textContent =
+                value;
+
+        }
+    );
+
+
+
+    /* =============================================================
+       역자
+    ============================================================= */
+
+    translatorInput.addEventListener(
+        'input',
+        function(e) {
+
+            previewTranslator.textContent =
+                e.target.value;
+
+        }
+    );
+
+
+
+    /* =============================================================
+       제작자
+    ============================================================= */
+
+    studentInfoInput.addEventListener(
+        'input',
+        function(e) {
+
+            previewStudentInfo.textContent =
+                e.target.value || '3학년 5반 홍길동';
+
+        }
+    );
+
+
+
+    /* =============================================================
+       일러스트 업로드
+
+       ★ 앞표지에만 들어감
+       ★ 책등과 완전히 별개
+    ============================================================= */
+
+    imageInput.addEventListener(
+        'change',
+        function(e) {
+
+            const file =
+                e.target.files[0];
+
+            if (!file) {
+                return;
             }
-        );
+
+            const reader =
+                new FileReader();
 
 
-        /* =============================================================
-           책등 인물 변경
-        ============================================================= */
+            reader.onload =
+                function(event) {
 
-        authorImageSelect.addEventListener(
-            'change',
-            (e) => {
+                    previewImage.src =
+                        event.target.result;
 
-                portraitImg.src =
-                    e.target.value;
+                    previewImage.style.display =
+                        'block';
 
-                portraitImg.style.display =
-                    'block';
-
-                if (imgFallback) {
-
-                    imgFallback.style.display =
+                    imagePlaceholder.style.display =
                         'none';
 
-                }
-
-            }
-        );
+                };
 
 
-        /* =============================================================
-           제목 변경
-        ============================================================= */
+            reader.readAsDataURL(file);
 
-        commonTitleInput.addEventListener(
-            'input',
-            (e) => {
-
-                const val =
-                    e.target.value ||
-                    '여기는 어디 나는 누구?';
-
-                previewBookTitle.innerText =
-                    val;
-
-                previewSpineTitle.innerText =
-                    val;
-
-            }
-        );
+        }
+    );
 
 
-        /* =============================================================
-           영문 제목
-        ============================================================= */
 
-        engTitleInput.addEventListener(
-            'input',
-            (e) => {
+    /* =============================================================
+       컬러 변경
+    ============================================================= */
 
-                previewEngTitle.innerText =
-                    e.target.value ||
-                    'Where am I, Who am I?';
+    colorChips.forEach(
+        function(chip) {
 
-            }
-        );
+            chip.addEventListener(
+                'click',
+                function() {
 
 
-        /* =============================================================
-           저자
-        ============================================================= */
+                    colorChips.forEach(
+                        function(c) {
 
-        authorInput.addEventListener(
-            'input',
-            (e) => {
-
-                const val =
-                    e.target.value ||
-                    '제인 오스틴';
-
-                previewAuthor.innerText =
-                    val;
-
-                previewSpineAuthor.innerText =
-                    val;
-
-            }
-        );
-
-
-        /* =============================================================
-           역자
-        ============================================================= */
-
-        translatorInput.addEventListener(
-            'input',
-            (e) => {
-
-                previewTranslator.innerText =
-                    e.target.value;
-
-            }
-        );
-
-
-        /* =============================================================
-           제작자
-        ============================================================= */
-
-        studentInfoInput.addEventListener(
-            'input',
-            (e) => {
-
-                previewStudentInfo.innerText =
-                    e.target.value ||
-                    '3학년 5반 홍길동';
-
-            }
-        );
-
-
-        /* =============================================================
-           상단 일러스트 업로드
-           
-           ★ 이미지가 들어가는 곳은 frontCover뿐이다.
-           ★ 책등에는 절대 들어가지 않는다.
-        ============================================================= */
-
-        imageInput.addEventListener(
-            'change',
-            (e) => {
-
-                const file =
-                    e.target.files[0];
-
-                if (!file) {
-                    return;
-                }
-
-                const reader =
-                    new FileReader();
-
-                reader.onload =
-                    function(event) {
-
-                        previewImage.src =
-                            event.target.result;
-
-                        previewImage.style.display =
-                            'block';
-
-                        imagePlaceholder.style.display =
-                            'none';
-
-                    };
-
-                reader.readAsDataURL(file);
-
-            }
-        );
-
-
-        /* =============================================================
-           색상 변경
-        ============================================================= */
-
-        colorChips.forEach(
-            chip => {
-
-                chip.addEventListener(
-                    'click',
-                    () => {
-
-                        colorChips.forEach(
-                            c => {
-
-                                c.classList.remove(
-                                    'ring-2',
-                                    'ring-indigo-600',
-                                    'ring-offset-2'
-                                );
-
-                            }
-                        );
-
-
-                        chip.classList.add(
-                            'ring-2',
-                            'ring-indigo-600',
-                            'ring-offset-2'
-                        );
-
-
-                        const colorCode =
-                            chip.getAttribute(
-                                'data-color'
+                            c.classList.remove(
+                                'selected',
+                                'ring-2',
+                                'ring-indigo-600',
+                                'ring-offset-2'
                             );
 
+                        }
+                    );
 
-                        spineColorBox.style.backgroundColor =
-                            colorCode;
 
-                        topBar.style.backgroundColor =
-                            colorCode;
+                    chip.classList.add(
+                        'selected',
+                        'ring-2',
+                        'ring-indigo-600',
+                        'ring-offset-2'
+                    );
 
-                        bottomBar.style.backgroundColor =
-                            colorCode;
 
-                    }
+                    const color =
+                        chip.dataset.color;
+
+
+                    spineColorBox.style.backgroundColor =
+                        color;
+
+                    topBar.style.backgroundColor =
+                        color;
+
+                    bottomBar.style.backgroundColor =
+                        color;
+
+                }
+            );
+
+        }
+    );
+
+
+
+    /* =============================================================
+       다운로드
+
+       ★ 1080 × 1720
+       ★ transparent PNG
+    ============================================================= */
+
+    downloadBtn.addEventListener(
+        'click',
+        async function() {
+
+            const info =
+                studentInfoInput.value.trim() ||
+                '학생';
+
+
+            downloadBtn.disabled =
+                true;
+
+            downloadBtn.textContent =
+                '✨ PNG 생성 중...';
+
+
+            try {
+
+                const canvas =
+                    await html2canvas(
+                        captureArea,
+                        {
+
+                            scale:1,
+
+                            /*
+                             * 핵심
+                             * 캔버스 바깥은 투명
+                             */
+                            backgroundColor:null,
+
+                            useCORS:true,
+
+                            allowTaint:false,
+
+                            imageTimeout:0
+
+                        }
+                    );
+
+
+                const link =
+                    document.createElement('a');
+
+
+                link.download =
+                    `삼삼오오전집_${info}.png`;
+
+
+                link.href =
+                    canvas.toDataURL(
+                        'image/png'
+                    );
+
+
+                link.click();
+
+            }
+
+            catch(error) {
+
+                console.error(error);
+
+                alert(
+                    'PNG 생성 중 오류가 발생했습니다.'
                 );
 
             }
-        );
 
-
-        /* =============================================================
-           PNG 다운로드
-           
-           ★ 실제 캔버스 = 1080 × 1720
-           ★ 배경색 = null
-           ★ 투명 영역 유지
-        ============================================================= */
-
-        downloadBtn.addEventListener(
-            'click',
-            async () => {
-
-                const info =
-                    studentInfoInput.value.trim() ||
-                    '학생';
-
-
-                downloadBtn.innerText =
-                    '✨ 고화질 PNG 생성 중...';
+            finally {
 
                 downloadBtn.disabled =
-                    true;
+                    false;
 
-
-                try {
-
-                    const canvas =
-                        await html2canvas(
-                            captureArea,
-                            {
-                                scale:1,
-
-                                /*
-                                 * 핵심:
-                                 * 캔버스 바깥 배경을 투명하게 한다.
-                                 */
-                                backgroundColor:null,
-
-                                useCORS:true,
-
-                                allowTaint:false,
-
-                                /*
-                                 * 이미지가 로드될 때까지 기다림
-                                 */
-                                imageTimeout:0
-                            }
-                        );
-
-
-                    const link =
-                        document.createElement('a');
-
-
-                    link.download =
-                        `삼삼오오전집_${info}.png`;
-
-
-                    link.href =
-                        canvas.toDataURL(
-                            'image/png'
-                        );
-
-
-                    link.click();
-
-                }
-
-                catch(error) {
-
-                    console.error(error);
-
-                    alert(
-                        'PNG 생성 중 오류가 발생했습니다.\n\n' +
-                        'minumsa.png 및 작가 이미지 파일이 ' +
-                        'index.html과 같은 폴더에 있는지 확인해주세요.'
-                    );
-
-                }
-
-                finally {
-
-                    downloadBtn.innerText =
-                        '✨ 고화질 투명 PNG 다운로드';
-
-                    downloadBtn.disabled =
-                        false;
-
-                }
+                downloadBtn.textContent =
+                    '✨ 고화질 투명 PNG 다운로드';
 
             }
-        );
+
+        }
+    );
 
 
-    </script>
+</script>
 
 </body>
 </html>
