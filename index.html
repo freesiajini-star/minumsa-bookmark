@@ -976,6 +976,7 @@
                                     font-weight:700;
                                     color:#111111;
                                     white-space:nowrap;
+                                    text-align:left;
                                 "
                             >
 
@@ -3042,13 +3043,28 @@
                     );
 
 
-                const spineHeaderTexts =
-                    spineHeader.querySelectorAll(
-                        ':scope > div'
+                const spineHeaderNumber =
+                    spineHeader.querySelector(
+                        ':scope > div:first-child'
+                    );
+
+                const spineHeaderName =
+                    spineHeader.querySelector(
+                        ':scope > div:nth-child(2)'
                     );
 
 
-                spineHeaderTexts.forEach(
+                /* 번호 */
+                drawTextElement(
+                    ctx,
+                    spineHeaderNumber
+                );
+
+
+                /* 전집명은 3개의 span을 각각 그린다. */
+                spineHeaderName.querySelectorAll(
+                    ':scope > span'
+                ).forEach(
                     function(element) {
 
                         drawTextElement(
@@ -3115,9 +3131,16 @@
                     frontTextContainer.children[0];
 
 
+                /* 전집명 */
                 drawTextElement(
                     ctx,
                     frontSeries
+                );
+
+                /* 전집 번호: frontSeries 내부의 span은 별도로 그린다. */
+                drawTextElement(
+                    ctx,
+                    previewSubSeriesNo
                 );
 
 
