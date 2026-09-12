@@ -39,8 +39,10 @@
         /* =========================================================
            실제 출력 규격
 
+           스냅스 포토카드
            54 : 86
-           1080 : 1720
+
+           1080 × 1720
         ========================================================= */
 
         :root {
@@ -54,16 +56,16 @@
             /* 앞표지 */
             --front-w: 983px;
 
-            /* 앞표지 일러스트 = 전체 높이의 정확히 40% */
+            /* 일러스트 = 전체 높이의 40% */
             --image-h: 688px;
 
-            /* 민음사 계열 색상 */
+            /* 기본 컬러 */
             --main-color: #A61D4B;
         }
 
 
         /* =========================================================
-           실제 PNG 캔버스
+           실제 출력 캔버스
 
            ★ 배경 투명
         ========================================================= */
@@ -84,9 +86,9 @@
 
 
         /* =========================================================
-           화면 미리보기
+           실시간 미리보기
 
-           약 1.5배 확대해서 보이도록 설정
+           실제 캔버스 1080×1720을 약 1.5배 크게 표시
         ========================================================= */
 
         .preview-frame {
@@ -98,6 +100,8 @@
 
             overflow: hidden;
 
+            flex-shrink: 0;
+
             background:
                 repeating-conic-gradient(
                     #f1f5f9 0% 25%,
@@ -106,8 +110,6 @@
                 50% / 16px 16px;
 
             border-radius: 14px;
-
-            flex-shrink: 0;
         }
 
         .preview-frame .book-canvas {
@@ -121,7 +123,8 @@
         /* =========================================================
            책등 세로쓰기
 
-           ★ 줄바꿈 절대 금지
+           ★ 절대 줄바꿈되지 않음
+           ★ 2열 방지
         ========================================================= */
 
         .spine-vertical {
@@ -130,11 +133,21 @@
 
             text-orientation: upright;
 
-            white-space: nowrap;
+            white-space: nowrap !important;
 
-            word-break: keep-all;
+            word-break: keep-all !important;
 
             overflow: visible;
+
+            display: block;
+
+            width: max-content;
+
+            height: max-content;
+
+            max-width: none !important;
+
+            max-height: none !important;
 
             flex-shrink: 0;
         }
@@ -157,7 +170,7 @@
 
 
         /* =========================================================
-           색상 버튼
+           컬러 버튼
         ========================================================= */
 
         .color-chip {
@@ -243,13 +256,13 @@
                 >
 
                 <p class="text-[11px] text-slate-400 mt-1">
-                    ※ 앞표지 영역에서만 40%를 차지합니다. 책등으로 넘어가지 않습니다.
+                    ※ 앞표지 영역의 상단 40%에만 들어갑니다.
                 </p>
 
             </div>
 
 
-            <!-- 번호 / 책등 인물 -->
+            <!-- 번호 / 인물 -->
 
             <div class="grid grid-cols-2 gap-3">
 
@@ -279,7 +292,8 @@
 
                     <select
                         id="authorImageSelect"
-                        class="w-full px-3 py-2 border rounded-lg outline-none bg-white text-sm"
+                        class="w-full px-3 py-2 border rounded-lg outline-none
+                               bg-white text-sm"
                     >
 
                         <option value="Jane.png">
@@ -323,7 +337,7 @@
                         type="text"
                         id="commonTitleInput"
                         value="오만과 편견"
-                        maxlength="25"
+                        maxlength="40"
                         class="w-full px-3 py-2 border rounded-lg outline-none"
                     >
 
@@ -397,6 +411,7 @@
 
                 <div class="flex flex-wrap gap-2.5">
 
+
                     <button
                         type="button"
                         class="color-chip selected w-8 h-8 rounded-full
@@ -409,7 +424,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#1E3A8A"
                         data-color="#1E3A8A"
                     ></button>
@@ -417,7 +433,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#065F46"
                         data-color="#065F46"
                     ></button>
@@ -425,7 +442,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#581C87"
                         data-color="#581C87"
                     ></button>
@@ -433,7 +451,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#B45309"
                         data-color="#B45309"
                     ></button>
@@ -441,7 +460,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#111827"
                         data-color="#111827"
                     ></button>
@@ -449,7 +469,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#0369A1"
                         data-color="#0369A1"
                     ></button>
@@ -457,7 +478,8 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#9A3412"
                         data-color="#9A3412"
                     ></button>
@@ -465,10 +487,12 @@
 
                     <button
                         type="button"
-                        class="color-chip w-8 h-8 rounded-full border-2 border-white shadow-md"
+                        class="color-chip w-8 h-8 rounded-full
+                               border-2 border-white shadow-md"
                         style="background:#4D7C0F"
                         data-color="#4D7C0F"
                     ></button>
+
 
                 </div>
 
@@ -510,7 +534,7 @@
 
 
             <!-- =====================================================
-                 실제 1080 × 1720 캔버스
+                 실제 1080 × 1720
             ====================================================== -->
 
             <div
@@ -522,9 +546,9 @@
                 <!-- =================================================
                      ★★★★★ 책등 ★★★★★
 
-                     97px × 1720px
+                     97 × 1720
 
-                     일러스트와 완전히 독립
+                     앞표지 일러스트와 완전히 독립
                 ================================================== -->
 
                 <div
@@ -532,38 +556,50 @@
                     style="
                         width:97px;
                         height:1720px;
+
                         position:relative;
+
                         flex-shrink:0;
+
                         background:#ffffff;
+
                         border-right:1px solid #cbd5e1;
                     "
                 >
 
 
-                    <!-- -------------------------------------------------
+                    <!-- =================================================
                          책등 상단
-                    -------------------------------------------------- -->
+
+                         ★ 작가 사진 바로 아래에 컬러가 붙도록
+                           사진과 컬러 영역 사이에 빈 공간 없음
+                    ================================================== -->
 
                     <div
                         style="
                             position:absolute;
+
                             top:0;
                             left:0;
+
                             width:97px;
-                            height:430px;
+                            height:320px;
+
                             background:#ffffff;
                         "
                     >
 
 
-                        <!-- 전집 번호 -->
+                        <!-- 번호 -->
 
                         <div
                             class="font-sans-kr"
                             style="
                                 position:absolute;
-                                top:38px;
+
+                                top:25px;
                                 left:0;
+
                                 width:97px;
 
                                 text-align:center;
@@ -588,13 +624,16 @@
                             class="font-sans-kr"
                             style="
                                 position:absolute;
-                                top:76px;
+
+                                top:63px;
                                 left:0;
+
                                 width:97px;
 
                                 text-align:center;
 
                                 font-size:13px;
+
                                 line-height:1.25;
 
                                 font-weight:700;
@@ -610,16 +649,17 @@
                         </div>
 
 
-                        <!-- -------------------------------------------------
-                             작가 초상
+                        <!-- =================================================
+                             작가 사진
 
-                             원본처럼 책등 상단의 흰색 영역 안에
-                             흑백 초상
-                        -------------------------------------------------- -->
+                             ★ 책등 컬러 영역 바로 위
+                             ★ 아래에 빈 공간 없음
+                        ================================================== -->
 
                         <div
                             style="
                                 position:absolute;
+
                                 top:170px;
                                 left:0;
 
@@ -648,24 +688,23 @@
                                         grayscale(100%)
                                         contrast(115%);
                                 "
-                                onerror="
-                                    this.style.display='none';
-                                "
                             >
 
                         </div>
 
+
                     </div>
 
 
+
                     <!-- =================================================
-                         ★ 책등 자주색 영역
+                         ★★★★★ 책등 컬러 영역 ★★★★★
 
-                         제목 + 저자를 세로 한 줄로 배치
+                         top = 320px
 
-                         제목 : 크고
-                         저자 : 작게
-                         둘 다 같은 세로 방향
+                         → 작가 사진의 끝과 정확히 맞닿음
+
+                         따라서 중간 흰색 여백 없음
                     ================================================== -->
 
                     <div
@@ -673,38 +712,31 @@
                         style="
                             position:absolute;
 
-                            top:430px;
+                            top:320px;
                             left:0;
 
                             width:97px;
-                            height:1030px;
+                            height:1140px;
 
                             background:#A61D4B;
-
-                            display:flex;
-
-                            flex-direction:column;
-
-                            align-items:center;
-
-                            justify-content:flex-start;
 
                             overflow:hidden;
                         "
                     >
 
 
-                        <!-- -------------------------------------------------
+                        <!-- =================================================
                              큰 책 제목
 
-                             ★ 책등에서 가장 크게
-                        -------------------------------------------------- -->
+                             ★ 세로 한 줄
+                             ★ 2열 금지
+                        ================================================== -->
 
                         <div
                             style="
                                 position:absolute;
 
-                                top:55px;
+                                top:48px;
                                 left:0;
 
                                 width:97px;
@@ -721,7 +753,7 @@
                                 style="
                                     color:#ffffff;
 
-                                    font-size:29px;
+                                    font-size:30px;
 
                                     font-weight:700;
 
@@ -729,7 +761,9 @@
 
                                     letter-spacing:0.02em;
 
-                                    max-height:650px;
+                                    white-space:nowrap !important;
+
+                                    max-height:none !important;
                                 "
                             >
                                 오만과 편견
@@ -738,18 +772,20 @@
                         </div>
 
 
-                        <!-- -------------------------------------------------
+                        <!-- =================================================
                              작은 저자
 
-                             ★ 제목 밑
-                             ★ 제목과 좌우로 나뉘지 않음
-                        -------------------------------------------------- -->
+                             ★ 제목 아래
+                             ★ 제목보다 작음
+                             ★ 역시 한 줄
+                        ================================================== -->
 
                         <div
+                            id="spineAuthorBox"
                             style="
                                 position:absolute;
 
-                                top:720px;
+                                top:690px;
                                 left:0;
 
                                 width:97px;
@@ -766,7 +802,7 @@
                                 style="
                                     color:#ffffff;
 
-                                    font-size:17px;
+                                    font-size:16px;
 
                                     font-weight:500;
 
@@ -774,7 +810,9 @@
 
                                     letter-spacing:0.08em;
 
-                                    max-height:300px;
+                                    white-space:nowrap !important;
+
+                                    max-height:none !important;
                                 "
                             >
                                 제인 오스틴
@@ -786,10 +824,12 @@
                     </div>
 
 
+
                     <!-- =================================================
                          책등 하단
 
-                         민음사 PNG
+                         ★ 컬러 영역 바로 아래
+                         ★ 민음사
                     ================================================== -->
 
                     <div
@@ -834,7 +874,7 @@
                 <!-- =================================================
                      ★★★★★ 앞표지 ★★★★★
 
-                     983px × 1720px
+                     983 × 1720
                 ================================================== -->
 
                 <div
@@ -853,14 +893,14 @@
 
 
                     <!-- =================================================
-                         ★ 일러스트
+                         ★ 일러스트 영역
 
-                         전체 카드 높이의 40%
+                         전체 높이의 정확히 40%
+
+                         1720 × 0.4
                          = 688px
 
-                         ★★★★★
-                         앞표지 폭 안에서만 존재
-                         ★★★★★
+                         ★ 책등에는 절대 들어가지 않음
                     ================================================== -->
 
                     <div
@@ -924,8 +964,7 @@
                     <!-- =================================================
                          앞표지 하단
 
-                         ★ 배경 없음
-                         ★ 실제 PNG에서 투명
+                         ★ 배경 투명
                     ================================================== -->
 
                     <div
@@ -944,7 +983,7 @@
 
 
                         <!-- =================================================
-                             앞표지 텍스트 전체
+                             앞표지 텍스트
                         ================================================== -->
 
                         <div
@@ -959,9 +998,7 @@
                         >
 
 
-                            <!-- ---------------------------------------------
-                                 세계문학전집 88
-                            ---------------------------------------------- -->
+                            <!-- 세계문학전집 -->
 
                             <div
                                 class="font-sans-kr"
@@ -987,14 +1024,17 @@
                             </div>
 
 
-                            <!-- ---------------------------------------------
-                                 위쪽 컬러 띠
-                            ---------------------------------------------- -->
+                            <!-- =================================================
+                                 위쪽 색띠
+
+                                 ★ JS가 제목 길이에 맞춰 자동 조절
+                            ================================================== -->
 
                             <div
                                 id="topBar"
                                 style="
                                     width:500px;
+
                                     height:55px;
 
                                     margin-top:28px;
@@ -1005,11 +1045,11 @@
                             </div>
 
 
-                            <!-- ---------------------------------------------
-                                 큰 제목
+                            <!-- =================================================
+                                 제목
 
-                                 원본 느낌을 위해 크게
-                            ---------------------------------------------- -->
+                                 ★ JS가 글자 크기와 색띠 길이를 자동 조절
+                            ================================================== -->
 
                             <div
                                 id="previewBookTitle"
@@ -1035,22 +1075,23 @@
                                     white-space:nowrap;
 
                                     overflow:hidden;
-
-                                    text-overflow:clip;
                                 "
                             >
                                 오만과 편견
                             </div>
 
 
-                            <!-- ---------------------------------------------
-                                 영문 제목 띠
-                            ---------------------------------------------- -->
+                            <!-- =================================================
+                                 아래쪽 색띠
+
+                                 ★ 위쪽 색띠와 항상 같은 길이
+                            ================================================== -->
 
                             <div
                                 id="bottomBar"
                                 style="
                                     width:500px;
+
                                     height:55px;
 
                                     display:flex;
@@ -1088,12 +1129,9 @@
                             </div>
 
 
-                            <!-- ---------------------------------------------
+                            <!-- =================================================
                                  저자 / 역자
-
-                                 원본처럼 저자는 크고
-                                 역자는 오른쪽에 작게
-                            ---------------------------------------------- -->
+                            ================================================== -->
 
                             <div
                                 class="font-sans-kr"
@@ -1173,7 +1211,7 @@
                         <!-- =================================================
                              앞표지 하단 민음사
 
-                             ★ PNG만 존재
+                             ★ PNG
                              ★ 주변은 투명
                         ================================================== -->
 
@@ -1215,7 +1253,7 @@
 
 
         <p class="text-[11px] text-slate-400 mt-4 text-center">
-            ※ 최종 PNG 1080×1720px · 54:86 · 앞표지 사진 40% · 빈 공간 투명
+            ※ 최종 PNG 1080×1720px · 54:86 · 빈 공간 투명
         </p>
 
     </div>
@@ -1228,7 +1266,7 @@
 
 
     /* =============================================================
-       요소
+       입력 요소
     ============================================================= */
 
     const studentInfoInput =
@@ -1256,7 +1294,9 @@
         document.getElementById('authorImageSelect');
 
 
-    /* 미리보기 */
+    /* =============================================================
+       미리보기
+    ============================================================= */
 
     const previewSeriesNo =
         document.getElementById('previewSeriesNo');
@@ -1294,8 +1334,13 @@
     const portraitImg =
         document.getElementById('portraitImg');
 
+    const spineAuthorBox =
+        document.getElementById('spineAuthorBox');
 
-    /* 컬러 */
+
+    /* =============================================================
+       색상
+    ============================================================= */
 
     const spineColorBox =
         document.getElementById('spineColorBox');
@@ -1310,7 +1355,9 @@
         document.querySelectorAll('.color-chip');
 
 
-    /* 다운로드 */
+    /* =============================================================
+       다운로드
+    ============================================================= */
 
     const downloadBtn =
         document.getElementById('downloadBtn');
@@ -1321,7 +1368,7 @@
 
 
     /* =============================================================
-       번호
+       번호 포맷
     ============================================================= */
 
     function formatSeriesNo(value) {
@@ -1339,6 +1386,171 @@
         return String(number).padStart(3, '0');
     }
 
+
+
+    /* =============================================================
+       제목 + 색띠 자동 조절
+
+       핵심 기능
+
+       1. 제목이 색띠보다 길어지지 않게 함
+       2. 현재 제목 길이에 맞춰 색띠 길이를 늘림
+       3. 위/아래 색띠 길이를 항상 동일하게 유지
+       4. 너무 긴 제목은 글자 크기를 먼저 줄임
+       5. 그래도 너무 길면 최대폭에서 2줄 허용
+    ============================================================= */
+
+    function fitTitleAndBars() {
+
+        const MAX_WIDTH = 650;
+
+        const BAR_PADDING = 20;
+
+        let fontSize = 69;
+
+
+        /* 처음에는 한 줄 */
+
+        previewBookTitle.style.whiteSpace =
+            'nowrap';
+
+
+        previewBookTitle.style.width =
+            MAX_WIDTH + 'px';
+
+
+        previewBookTitle.style.fontSize =
+            fontSize + 'px';
+
+
+        /*
+         * 제목이 650px 안에 들어올 때까지
+         * 글자를 조금씩 줄인다.
+         */
+
+        while (
+            previewBookTitle.scrollWidth > MAX_WIDTH &&
+            fontSize > 40
+        ) {
+
+            fontSize -= 1;
+
+            previewBookTitle.style.fontSize =
+                fontSize + 'px';
+
+        }
+
+
+        /*
+         * 그래도 너무 길면
+         * 그때만 2줄 허용
+         */
+
+        if (
+            previewBookTitle.scrollWidth > MAX_WIDTH
+        ) {
+
+            previewBookTitle.style.whiteSpace =
+                'normal';
+
+            previewBookTitle.style.width =
+                MAX_WIDTH + 'px';
+
+            previewBookTitle.style.overflow =
+                'hidden';
+
+            previewBookTitle.style.lineHeight =
+                '1.15';
+
+        }
+
+        else {
+
+            previewBookTitle.style.whiteSpace =
+                'nowrap';
+
+        }
+
+
+        /*
+         * 실제 제목이 차지하는 폭 측정
+         */
+
+        const titleWidth =
+            Math.min(
+                MAX_WIDTH,
+                Math.max(
+                    100,
+                    previewBookTitle.scrollWidth
+                )
+            );
+
+
+        /*
+         * 제목 끝보다 약간 여유 있게
+         * 색띠를 설정한다.
+         */
+
+        const barWidth =
+            Math.min(
+                MAX_WIDTH,
+                titleWidth + BAR_PADDING
+            );
+
+
+        /*
+         * 위/아래 색띠 동일 길이
+         */
+
+        topBar.style.width =
+            barWidth + 'px';
+
+        bottomBar.style.width =
+            barWidth + 'px';
+
+
+        /*
+         * 영문 제목이 색띠 밖으로 나가지 않도록
+         * 내부 최대폭도 함께 조정
+         */
+
+        previewEngTitle.style.maxWidth =
+            Math.max(
+                50,
+                barWidth - 42
+            ) + 'px';
+
+
+        /*
+         * 2줄 제목이 된 경우에도
+         * 아래 색띠와의 간격이 이상하지 않도록
+         * 약간 조정
+         */
+
+        if (
+            previewBookTitle.style.whiteSpace ===
+            'normal'
+        ) {
+
+            previewBookTitle.style.minHeight =
+                '158px';
+
+        }
+
+        else {
+
+            previewBookTitle.style.minHeight =
+                'auto';
+
+        }
+
+    }
+
+
+
+    /* =============================================================
+       번호 변경
+    ============================================================= */
 
     seriesNoInput.addEventListener(
         'input',
@@ -1375,7 +1587,7 @@
 
 
     /* =============================================================
-       제목
+       제목 변경
     ============================================================= */
 
     commonTitleInput.addEventListener(
@@ -1385,11 +1597,29 @@
             const value =
                 e.target.value || '오만과 편견';
 
+
             previewBookTitle.textContent =
                 value;
 
+
             previewSpineTitle.textContent =
                 value;
+
+
+            /*
+             * 제목이 바뀔 때마다
+             * 색띠 길이도 다시 계산
+             */
+
+            fitTitleAndBars();
+
+
+            /*
+             * 책등 저자의 위치도 제목에 맞춰
+             * 다시 계산
+             */
+
+            fitSpineAuthor();
 
         }
     );
@@ -1405,7 +1635,8 @@
         function(e) {
 
             previewEngTitle.textContent =
-                e.target.value || 'Pride and Prejudice';
+                e.target.value ||
+                'Pride and Prejudice';
 
         }
     );
@@ -1421,13 +1652,19 @@
         function(e) {
 
             const value =
-                e.target.value || '제인 오스틴';
+                e.target.value ||
+                '제인 오스틴';
+
 
             previewAuthor.textContent =
                 value;
 
+
             previewSpineAuthor.textContent =
                 value;
+
+
+            fitSpineAuthor();
 
         }
     );
@@ -1459,7 +1696,8 @@
         function(e) {
 
             previewStudentInfo.textContent =
-                e.target.value || '3학년 5반 홍길동';
+                e.target.value ||
+                '3학년 5반 홍길동';
 
         }
     );
@@ -1470,7 +1708,6 @@
        일러스트 업로드
 
        ★ 앞표지에만 들어감
-       ★ 책등과 완전히 별개
     ============================================================= */
 
     imageInput.addEventListener(
@@ -1483,6 +1720,7 @@
             if (!file) {
                 return;
             }
+
 
             const reader =
                 new FileReader();
@@ -1507,6 +1745,69 @@
 
         }
     );
+
+
+
+    /* =============================================================
+       책등 저자 위치 자동 조정
+
+       제목 밑에 작은 글씨가 오도록 함
+    ============================================================= */
+
+    function fitSpineAuthor() {
+
+        /*
+         * 책등 컬러 영역 안에서
+         * 제목의 실제 높이를 측정
+         */
+
+        const titleHeight =
+            previewSpineTitle.getBoundingClientRect().height /
+            0.465;
+
+
+        /*
+         * 제목 시작 위치
+         */
+
+        const titleTop =
+            48;
+
+
+        /*
+         * 제목 아래 여백
+         */
+
+        const gap =
+            38;
+
+
+        /*
+         * 저자 시작 위치
+         */
+
+        let authorTop =
+            titleTop +
+            titleHeight +
+            gap;
+
+
+        /*
+         * 너무 아래로 내려가면
+         * 최대 위치 제한
+         */
+
+        authorTop =
+            Math.min(
+                authorTop,
+                830
+            );
+
+
+        spineAuthorBox.style.top =
+            authorTop + 'px';
+
+    }
 
 
 
@@ -1566,10 +1867,11 @@
 
 
     /* =============================================================
-       다운로드
+       PNG 다운로드
 
        ★ 1080 × 1720
-       ★ transparent PNG
+       ★ PNG
+       ★ transparent
     ============================================================= */
 
     downloadBtn.addEventListener(
@@ -1584,23 +1886,37 @@
             downloadBtn.disabled =
                 true;
 
+
             downloadBtn.textContent =
                 '✨ PNG 생성 중...';
 
 
             try {
 
+
+                /*
+                 * 캔버스 크기 확인
+                 */
+
+                captureArea.style.transform =
+                    'none';
+
+
+                /*
+                 * 실제 출력 크기
+                 */
+
                 const canvas =
                     await html2canvas(
                         captureArea,
                         {
 
+                            width:1080,
+
+                            height:1720,
+
                             scale:1,
 
-                            /*
-                             * 핵심
-                             * 캔버스 바깥은 투명
-                             */
                             backgroundColor:null,
 
                             useCORS:true,
@@ -1612,6 +1928,18 @@
                         }
                     );
 
+
+                /*
+                 * 다시 미리보기 크기로 복구
+                 */
+
+                captureArea.style.transform =
+                    'scale(0.465)';
+
+
+                /*
+                 * PNG 다운로드
+                 */
 
                 const link =
                     document.createElement('a');
@@ -1629,17 +1957,25 @@
 
                 link.click();
 
+
             }
 
             catch(error) {
 
                 console.error(error);
 
+                captureArea.style.transform =
+                    'scale(0.465)';
+
+
                 alert(
-                    'PNG 생성 중 오류가 발생했습니다.'
+                    'PNG 생성 중 오류가 발생했습니다.\n\n' +
+                    'minumsa.png와 작가 이미지 파일이 ' +
+                    'index.html과 같은 폴더에 있는지 확인해주세요.'
                 );
 
             }
+
 
             finally {
 
@@ -1650,6 +1986,32 @@
                     '✨ 고화질 투명 PNG 다운로드';
 
             }
+
+        }
+    );
+
+
+
+    /* =============================================================
+       최초 실행
+    ============================================================= */
+
+    window.addEventListener(
+        'load',
+        function() {
+
+            /*
+             * 최초 제목/띠 크기 계산
+             */
+
+            fitTitleAndBars();
+
+
+            /*
+             * 최초 책등 저자 위치 계산
+             */
+
+            fitSpineAuthor();
 
         }
     );
