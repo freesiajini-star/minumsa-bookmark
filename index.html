@@ -215,8 +215,6 @@
 
             margin-bottom: 29px;
 
-            transform:translateY(40px);
-
             display: flex;
 
             align-items: center;
@@ -978,12 +976,23 @@
                                     font-weight:700;
                                     color:#111111;
                                     white-space:nowrap;
+                                    display:flex;
+                                    align-items:baseline;
+                                    justify-content:flex-start;
+                                    text-align:left;
                                 "
                             >
 
-                                봉산삼오전집
+                                <span id="previewSubSeriesName">
+                                    봉산삼오전집
+                                </span>
 
-                                <span id="previewSubSeriesNo">
+                                <span
+                                    id="previewSubSeriesNo"
+                                    style="
+                                        margin-left:20px;
+                                    "
+                                >
                                     088
                                 </span>
 
@@ -999,8 +1008,6 @@
                                     width:700px;
                                     height:55px;
                                     margin-top:28px;
-                                    position:relative;
-                                    top:-30px;
                                     background:#A61D4B;
                                 "
                             ></div>
@@ -1039,7 +1046,6 @@
                                     display:flex;
                                     align-items:center;
                                     padding-left:21px;
-                                    transform:translateY(-40px);
                                     background:#A61D4B;
                                 "
                             >
@@ -2643,6 +2649,110 @@
         );
 
 
+        /*
+         * 앞표지 제목은 위/아래 색띠 사이의
+         * 실제 제목 영역 정중앙에 배치한다.
+         */
+        if (element.id === 'previewBookTitle') {
+
+            const titleArea =
+                document.getElementById(
+                    'frontTitleArea'
+                );
+
+            const titleAreaRect =
+                getExportRect(titleArea);
+
+            const totalLineHeight =
+                lineGroups.reduce(
+                    function(total, line) {
+                        return total +
+                            Math.max.apply(
+                                null,
+                                line.chars.map(
+                                    function(item) {
+                                        return item.height;
+                                    }
+                                )
+                            );
+                    },
+                    0
+                );
+
+            const availableGap =
+                Math.max(
+                    0,
+                    titleAreaRect.height -
+                    totalLineHeight
+                );
+
+            const lineGap =
+                lineGroups.length > 1
+                    ? availableGap /
+                      (lineGroups.length - 1)
+                    : 0;
+
+            let currentY =
+                titleAreaRect.y +
+                availableGap / 2;
+
+            for (const line of lineGroups) {
+
+                if (!line.chars.length) {
+                    continue;
+                }
+
+                line.chars.sort(
+                    function(a,b) {
+                        return a.index - b.index;
+                    }
+                );
+
+                const lineText =
+                    line.chars
+                        .map(
+                            function(item) {
+                                return item.char;
+                            }
+                        )
+                        .join('');
+
+                const first =
+                    line.chars[0];
+
+                const lineHeight =
+                    Math.max.apply(
+                        null,
+                        line.chars.map(
+                            function(item) {
+                                return item.height;
+                            }
+                        )
+                    );
+
+                ctx.textAlign =
+                    'left';
+
+                ctx.textBaseline =
+                    'middle';
+
+                ctx.fillText(
+                    lineText,
+                    first.left,
+                    currentY +
+                    lineHeight / 2
+                );
+
+                currentY +=
+                    lineHeight +
+                    lineGap;
+            }
+
+            ctx.restore();
+            return;
+        }
+
+
         for (const line of lineGroups) {
 
             if (!line.chars.length) {
@@ -3056,10 +3166,26 @@
                 spineHeaderTexts.forEach(
                     function(element) {
 
-                        drawTextElement(
-                            ctx,
-                            element
-                        );
+                        const spans =
+                            element.querySelectorAll(
+                                ':scope > span'
+                            );
+
+                        if (spans.length) {
+                            spans.forEach(
+                                function(span) {
+                                    drawTextElement(
+                                        ctx,
+                                        span
+                                    );
+                                }
+                            );
+                        } else {
+                            drawTextElement(
+                                ctx,
+                                element
+                            );
+                        }
 
                     }
                 );
@@ -3108,22 +3234,121 @@
 
                 /* =================================================
                    7. 앞표지 전집명 + 번호
+
+                   반드시
+                   [봉산삼오전집] [번호]
+                   순서로, 앞표지 텍스트 영역의 왼쪽에서 시작한다.
+                   이 두 글자를 각각 독립적으로 DOM 위치에 맡기지 않는다.
                 ================================================= */
 
-                const frontTextContainer =
-                    document.querySelector(
-                        '#frontCover > div:nth-child(2) > div'
+                const frontSeriesName =
+                    document.getElementById(
+                        'previewSubSeriesName'
+                    );
+
+                const frontSeriesNumber =
+                    document.getElementById(
+                        'previewSubSeriesNo'
+                    );
+
+                if (
+                    frontSeriesName &&
+                    frontSeriesNumber
+                ) {
+
+                    const row =
+                        frontSeriesName.parentElement;
+
+                    const rowRect =
+                        getExportRect(row);
+
+                    const nameStyle =
+                        getComputedStyle(
+                            frontSeriesName
+                        );
+
+                    const numberStyle =
+                        getComputedStyle(
+                            frontSeriesNumber
+                        );
+
+                    const name =
+                        frontSeriesName.textContent.trim();
+
+                    const number =
+                        frontSeriesNumber.textContent.trim();
+
+
+                    ctx.save();
+
+                    /*
+                     * 전집명
+                     * rowRect.x = 앞표지 텍스트 영역의 실제 왼쪽 시작점
+                     */
+                    ctx.font =
+                        canvasFontFromElement(
+                            frontSeriesName
+                        );
+
+                    ctx.fillStyle =
+                        getElementColor(
+                            frontSeriesName
+                        );
+
+                    ctx.textAlign =
+                        'left';
+
+                    ctx.textBaseline =
+                        'alphabetic';
+
+                    const nameFontSize =
+                        parseFloat(
+                            nameStyle.fontSize
+                        );
+
+                    ctx.fillText(
+                        name,
+                        rowRect.x,
+                        rowRect.y +
+                        nameFontSize * 0.82
                     );
 
 
-                const frontSeries =
-                    frontTextContainer.children[0];
+                    /*
+                     * 번호
+                     * 전집명의 실제 Canvas 폭만큼 오른쪽으로 이동한다.
+                     */
+                    const nameWidth =
+                        ctx.measureText(
+                            name
+                        ).width;
 
+                    ctx.font =
+                        canvasFontFromElement(
+                            frontSeriesNumber
+                        );
 
-                drawTextElement(
-                    ctx,
-                    frontSeries
-                );
+                    ctx.fillStyle =
+                        getElementColor(
+                            frontSeriesNumber
+                        );
+
+                    const numberFontSize =
+                        parseFloat(
+                            numberStyle.fontSize
+                        );
+
+                    ctx.fillText(
+                        number,
+                        rowRect.x +
+                        nameWidth +
+                        20,
+                        rowRect.y +
+                        numberFontSize * 0.82
+                    );
+
+                    ctx.restore();
+                }
 
 
 
@@ -3141,89 +3366,15 @@
                 /* =================================================
                    9. 앞표지 제목
 
-                   현재 두 색띠 사이의 실제 중앙 Y에 제목을 배치한다.
-                   제목의 폰트/크기/가로 위치는 기존 값을 유지.
+                   현재 화면에서 실제 줄바꿈된 위치를
+                   그대로 읽어서 그린다.
                 ================================================= */
 
-                const titleAreaRect =
-                    getExportRect(
-                        document.getElementById(
-                            'frontTitleArea'
-                        )
-                    );
-
-                const topBarRect =
-                    getExportRect(
-                        topBar
-                    );
-
-                const bottomBarRect =
-                    getExportRect(
-                        bottomBar
-                    );
-
-                const titleStyle =
-                    getComputedStyle(
-                        previewBookTitle
-                    );
-
-                const titleText =
-                    previewBookTitle.textContent.trim();
-
-                const fontSize =
-                    parseFloat(
-                        titleStyle.fontSize
-                    );
-
-                /*
-                 * 위 색띠의 아래쪽과 아래 색띠의 위쪽 사이의 정확한 중앙.
-                 */
-                const centerY =
-                    (
-                        topBarRect.y +
-                        topBarRect.height +
-                        bottomBarRect.y
-                    ) / 2;
-
-                ctx.save();
-
-                ctx.font =
-                    canvasFontFromElement(
-                        previewBookTitle
-                    );
-
-                ctx.fillStyle =
-                    getElementColor(
-                        previewBookTitle
-                    );
-
-                ctx.textAlign =
-                    'left';
-
-                ctx.textBaseline =
-                    'alphabetic';
-
-                const metrics =
-                    ctx.measureText(
-                        titleText
-                    );
-
-                const ascent =
-                    metrics.actualBoundingBoxAscent ||
-                    fontSize * 0.75;
-
-                const descent =
-                    metrics.actualBoundingBoxDescent ||
-                    fontSize * 0.25;
-
-                ctx.fillText(
-                    titleText,
-                    titleAreaRect.x,
-                    centerY +
-                    (ascent - descent) / 2
+                drawTextElement(
+                    ctx,
+                    previewBookTitle
                 );
 
-                ctx.restore();
 
 
                 /* =================================================
