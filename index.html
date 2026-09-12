@@ -59,7 +59,7 @@
             /* 앞표지 사진 45% */
             --image-h: 774px;
 
-            /* 앞표지 투명/텍스트 영역 55% */
+            /* 앞표지 투명/텍스트 영역 */
             --transparent-h: 946px;
 
             /* 기본 컬러 */
@@ -69,7 +69,6 @@
 
         /* =========================================================
            실제 출력 캔버스
-
            ★ 전체 배경 투명
         ========================================================= */
 
@@ -125,7 +124,8 @@
         /* =========================================================
            책등 세로쓰기
 
-           ★ 절대 2열로 넘어가지 않음
+           ★ 한 열로 유지
+           ★ 두 열로 넘어가지 않음
         ========================================================= */
 
         .spine-vertical {
@@ -353,6 +353,8 @@
 
             <!-- =====================================================
                  저자 / 역자
+
+                 ★ 제작자 정보 삭제됨
             ====================================================== -->
 
             <div class="grid grid-cols-2 gap-3">
@@ -494,7 +496,9 @@
         </div>
 
 
-        <!-- 다운로드 -->
+        <!-- =========================================================
+             다운로드
+        ========================================================== -->
 
         <button
             id="downloadBtn"
@@ -539,10 +543,6 @@
 
                 <!-- =================================================
                      ★★★★★ 책등 ★★★★★
-
-                     97 × 1720
-
-                     상하단 흰색 부분은 투명
                 ================================================== -->
 
                 <div
@@ -556,6 +556,8 @@
                         flex-shrink:0;
 
                         background:transparent;
+
+                        border-right:1px solid #000000;
                     "
                 >
 
@@ -563,10 +565,11 @@
                     <!-- =================================================
                          책등 상단
 
-                         ★ 흰색 배경 제거
                          ★ 완전 투명
-
-                         번호와 봉산삼오전집만 표시
+                         ★ 번호 + 봉산삼오전집
+                         ★ 우하단 정렬
+                         ★ 번호 68px
+                         ★ 전집명 52px
                     ================================================== -->
 
                     <div
@@ -576,39 +579,46 @@
                             top:0;
                             left:0;
 
-                            width:97px;
-                            height:170px;
+                            width:96px;
+                            height:260px;
 
                             background:transparent;
+
+                            display:flex;
+
+                            flex-direction:column;
+
+                            justify-content:flex-end;
+
+                            align-items:flex-end;
+
+                            padding-right:4px;
+
+                            padding-bottom:8px;
+
+                            overflow:visible;
                         "
                     >
 
 
-                        <!-- =================================================
-                             번호
-
-                             기존보다 2배
-                        ================================================== -->
+                        <!-- 전집 번호 -->
 
                         <div
                             class="font-sans-kr"
                             style="
-                                position:absolute;
+                                width:100%;
 
-                                top:25px;
-                                left:0;
+                                text-align:right;
 
-                                width:97px;
+                                font-size:68px;
 
-                                text-align:center;
-
-                                font-size:34px;
-
-                                line-height:1;
+                                line-height:0.95;
 
                                 font-weight:700;
 
                                 color:#111111;
+
+                                white-space:nowrap;
                             "
                         >
 
@@ -619,37 +629,30 @@
                         </div>
 
 
-                        <!-- =================================================
-                             봉산삼오전집
-
-                             기존보다 2배
-                        ================================================== -->
+                        <!-- 봉산삼오전집 -->
 
                         <div
                             class="font-sans-kr"
                             style="
-                                position:absolute;
+                                width:100%;
 
-                                top:76px;
-                                left:0;
+                                text-align:right;
 
-                                width:97px;
+                                font-size:52px;
 
-                                text-align:center;
-
-                                font-size:26px;
-
-                                line-height:1.05;
+                                line-height:1.02;
 
                                 font-weight:700;
 
                                 color:#111111;
+
+                                white-space:nowrap;
                             "
                         >
 
-                            봉산<br>
-                            삼오<br>
-                            전집
+                            <span>봉산</span><br>
+                            <span>삼오</span><br>
+                            <span>전집</span>
 
                         </div>
 
@@ -661,20 +664,17 @@
                     <!-- =================================================
                          ★★★★★ 작가 사진 ★★★★★
 
-                         170px ~ 320px
-
-                         사진 바로 다음에 컬러 영역
-                         → 중간 흰색 여백 없음
+                         260px ~ 410px
                     ================================================== -->
 
                     <div
                         style="
                             position:absolute;
 
-                            top:170px;
+                            top:260px;
                             left:0;
 
-                            width:97px;
+                            width:96px;
                             height:150px;
 
                             overflow:hidden;
@@ -708,10 +708,10 @@
                     <!-- =================================================
                          ★★★★★ 책등 컬러 영역 ★★★★★
 
-                         ★ 사진 끝 = 320px
-                         ★ 컬러 시작 = 320px
+                         ★ 사진 바로 아래
+                         ★ 흰색 여백 0px
 
-                         → 흰색 틈 0px
+                         410px ~ 1460px
                     ================================================== -->
 
                     <div
@@ -719,11 +719,11 @@
                         style="
                             position:absolute;
 
-                            top:320px;
+                            top:410px;
                             left:0;
 
-                            width:97px;
-                            height:1140px;
+                            width:96px;
+                            height:1050px;
 
                             background:#A61D4B;
 
@@ -733,11 +733,11 @@
 
 
                         <!-- =================================================
-                             큰 제목
+                             큰 책 제목
 
-                             ★ 기존보다 1.5배
-                             30px → 45px
-                             ★ 세로 한 열
+                             ★ 기존 45px → 90px
+                             ★ 2배 확대
+                             ★ 한 열
                         ================================================== -->
 
                         <div
@@ -745,16 +745,20 @@
                             style="
                                 position:absolute;
 
-                                top:45px;
+                                top:35px;
                                 left:0;
 
-                                width:97px;
+                                width:96px;
+
+                                height:auto;
 
                                 display:flex;
 
                                 justify-content:center;
 
                                 align-items:flex-start;
+
+                                overflow:visible;
                             "
                         >
 
@@ -764,17 +768,19 @@
                                 style="
                                     color:#ffffff;
 
-                                    font-size:45px;
+                                    font-size:90px;
 
                                     font-weight:700;
 
-                                    line-height:1;
+                                    line-height:0.95;
 
-                                    letter-spacing:0.01em;
+                                    letter-spacing:0;
 
                                     white-space:nowrap !important;
 
                                     max-height:none !important;
+
+                                    max-width:none !important;
                                 "
                             >
                                 오만과 편견
@@ -787,10 +793,9 @@
                         <!-- =================================================
                              작은 저자
 
-                             ★ 기존보다 1.5배
-                             16px → 24px
-
-                             제목 바로 아래
+                             ★ 기존 24px → 48px
+                             ★ 2배 확대
+                             ★ 제목 아래
                         ================================================== -->
 
                         <div
@@ -801,13 +806,15 @@
                                 top:720px;
                                 left:0;
 
-                                width:97px;
+                                width:96px;
 
                                 display:flex;
 
                                 justify-content:center;
 
                                 align-items:flex-start;
+
+                                overflow:visible;
                             "
                         >
 
@@ -817,17 +824,19 @@
                                 style="
                                     color:#ffffff;
 
-                                    font-size:24px;
+                                    font-size:48px;
 
                                     font-weight:500;
 
-                                    line-height:1;
+                                    line-height:0.95;
 
-                                    letter-spacing:0.04em;
+                                    letter-spacing:0;
 
                                     white-space:nowrap !important;
 
                                     max-height:none !important;
+
+                                    max-width:none !important;
                                 "
                             >
                                 제인 오스틴
@@ -841,11 +850,12 @@
 
 
                     <!-- =================================================
-                         책등 하단
+                         ★★★★★ 책등 하단 ★★★★★
 
-                         ★ 흰색 배경 없음
                          ★ 완전 투명
-                         ★ 민음사 PNG만 표시
+                         ★ 민음사 로고만 존재
+                         ★ 앞표지와 구분하기 위한 검은 선은
+                           spine 전체의 오른쪽 경계선으로 처리
                     ================================================== -->
 
                     <div
@@ -855,7 +865,7 @@
                             left:0;
                             bottom:0;
 
-                            width:97px;
+                            width:96px;
                             height:260px;
 
                             background:transparent;
@@ -909,13 +919,12 @@
 
 
                     <!-- =================================================
-                         ★★★★★ 일러스트 ★★★★★
+                         ★ 일러스트 45%
 
-                         1720 × 45%
+                         1720 × 0.45
                          = 774px
 
-                         ★ 앞표지에서만 존재
-                         ★ 책등 침범 없음
+                         ★ 앞표지에만 표시
                     ================================================== -->
 
                     <div
@@ -960,6 +969,7 @@
                                 display:flex;
 
                                 align-items:center;
+
                                 justify-content:center;
 
                                 background:#f8fafc;
@@ -981,7 +991,7 @@
 
                          946px
 
-                         ★ 전체 투명
+                         ★ 배경 투명
                     ================================================== -->
 
                     <div
@@ -1010,27 +1020,32 @@
                                 left:59px;
                                 top:42px;
 
-                                width:700px;
+                                width:900px;
                             "
                         >
 
 
-                            <!-- ---------------------------------------------
-                                 봉산삼오전집
-                            ---------------------------------------------- -->
+                            <!-- =================================================
+                                 봉산삼오전집 + 번호
+
+                                 ★ 기존 22px → 33px
+                                 ★ 1.5배
+                            ================================================== -->
 
                             <div
                                 class="font-sans-kr"
                                 style="
                                     margin-left:17px;
 
-                                    font-size:22px;
+                                    font-size:33px;
 
                                     line-height:1;
 
                                     font-weight:700;
 
                                     color:#111111;
+
+                                    white-space:nowrap;
                                 "
                             >
 
@@ -1047,9 +1062,7 @@
                             <!-- =================================================
                                  위쪽 색띠
 
-                                 ★ 제목 길이에 따라 JS로 조절
-                                 ★ 기본 길이는 기존의 1.4배
-                                   500 × 1.4 = 700px
+                                 ★ 700px
                             ================================================== -->
 
                             <div
@@ -1071,10 +1084,12 @@
                             <!-- =================================================
                                  앞표지 제목
 
-                                 ★ 짧으면 1줄
-                                 ★ 길면 글자 크기 축소
-                                 ★ 그래도 안 되면 2줄
-                                 ★ 2줄 줄간격 매우 좁게
+                                 ★ 기본 69px → 83px
+                                 ★ 약 1.2배
+                                 ★ Bold
+
+                                 ★ 긴 제목 자동 축소
+                                 ★ 필요하면 2줄
                             ================================================== -->
 
                             <div
@@ -1086,11 +1101,11 @@
                                     margin-top:28px;
                                     margin-bottom:29px;
 
-                                    font-size:69px;
+                                    font-size:83px;
 
-                                    line-height:0.98;
+                                    line-height:1;
 
-                                    font-weight:400;
+                                    font-weight:700;
 
                                     letter-spacing:-0.055em;
 
@@ -1111,7 +1126,7 @@
                             <!-- =================================================
                                  아래쪽 색띠
 
-                                 ★ 위쪽과 항상 동일 길이
+                                 ★ 위쪽 색띠와 항상 동일
                             ================================================== -->
 
                             <div
@@ -1217,7 +1232,7 @@
                         <!-- =================================================
                              앞표지 하단 민음사
 
-                             ★ 주변은 투명
+                             ★ 투명 배경
                         ================================================== -->
 
                         <div
@@ -1422,34 +1437,16 @@
 
 
     /* =============================================================
-       제목 자동 맞춤
-
-       ★ 중요
-
-       제목이 길어지면:
-
-       1단계:
-       글자 크기를 줄인다.
-
-       2단계:
-       그래도 안 들어가면 2줄로 바꾼다.
-
-       3단계:
-       2줄에서도 줄간격을 아주 좁게 한다.
-
-       4단계:
-       색띠보다 제목이 절대 길어지지 않는다.
+       앞표지 제목 + 색띠 자동 조정
     ============================================================= */
 
     function fitTitleAndBars() {
 
         const MAX_WIDTH = 700;
 
-        const MIN_FONT_SIZE = 38;
+        const MIN_FONT_SIZE = 42;
 
-        const NORMAL_FONT_SIZE = 69;
-
-        const BAR_PADDING = 0;
+        const NORMAL_FONT_SIZE = 83;
 
 
         let fontSize =
@@ -1457,11 +1454,17 @@
 
 
         /*
-         * 우선 1줄로 시작
+         * 우선 한 줄
          */
 
         previewBookTitle.style.whiteSpace =
             'nowrap';
+
+        previewBookTitle.style.display =
+            'block';
+
+        previewBookTitle.style.webkitLineClamp =
+            'unset';
 
         previewBookTitle.style.width =
             MAX_WIDTH + 'px';
@@ -1475,8 +1478,8 @@
 
 
         /*
-         * 1줄로 들어갈 때까지
-         * 글자를 줄인다.
+         * 700px 안에 들어올 때까지
+         * 글자 크기를 줄임
          */
 
         while (
@@ -1494,7 +1497,7 @@
 
 
         /*
-         * 그래도 안 들어가는 아주 긴 제목이면
+         * 최소 크기까지 줄여도 길면
          * 2줄 허용
          */
 
@@ -1505,19 +1508,6 @@
             previewBookTitle.style.whiteSpace =
                 'normal';
 
-            previewBookTitle.style.width =
-                MAX_WIDTH + 'px';
-
-            previewBookTitle.style.lineHeight =
-                '0.88';
-
-            previewBookTitle.style.overflow =
-                'hidden';
-
-            /*
-             * 두 줄 이상은 만들지 않음
-             */
-
             previewBookTitle.style.display =
                 '-webkit-box';
 
@@ -1526,6 +1516,15 @@
 
             previewBookTitle.style.webkitLineClamp =
                 '2';
+
+            previewBookTitle.style.lineHeight =
+                '0.88';
+
+            previewBookTitle.style.width =
+                MAX_WIDTH + 'px';
+
+            previewBookTitle.style.overflow =
+                'hidden';
 
         }
 
@@ -1548,7 +1547,7 @@
 
 
         /*
-         * 제목의 실제 표시 폭을 측정
+         * 제목 실제 폭 측정
          */
 
         const titleWidth =
@@ -1562,25 +1561,18 @@
 
 
         /*
-         * 색띠 길이
-
-         * 기본은 700px.
-         *
-         * 짧은 제목이어도
-         * 700px보다 줄어들지 않게 함.
-         *
-         * 긴 제목이면 제목까지 늘어남.
+         * 색띠 최소 700px
          */
 
         const barWidth =
             Math.max(
                 700,
-                titleWidth + BAR_PADDING
+                titleWidth
             );
 
 
         /*
-         * 앞표지 최대 폭
+         * 앞표지 안전 최대 폭
          */
 
         const finalBarWidth =
@@ -1591,7 +1583,7 @@
 
 
         /*
-         * 위 / 아래 색띠 동일 길이
+         * 위/아래 동일 길이
          */
 
         topBar.style.width =
@@ -1601,8 +1593,10 @@
             finalBarWidth + 'px';
 
 
+
         /*
-         * 영문 제목도 띠 밖으로 나가지 않도록
+         * 영문 제목도 띠 밖으로
+         * 나오지 않도록 제한
          */
 
         previewEngTitle.style.maxWidth =
@@ -1616,15 +1610,17 @@
 
 
     /* =============================================================
-       책등 제목/저자 위치
+       책등 저자 위치 자동 계산
 
-       제목 아래에 작은 저자가 붙도록
+       ★ 제목 바로 아래
+       ★ 단, 너무 아래로 가지 않게 제한
     ============================================================= */
 
     function fitSpineAuthor() {
 
         /*
-         * 실제 세로 제목 높이를 가져옴
+         * 책등 제목은 세로쓰기이므로
+         * 실제 렌더링 높이를 측정
          */
 
         const titleRect =
@@ -1640,11 +1636,11 @@
 
 
         /*
-         * 제목 시작 위치
+         * 컬러 영역 안에서의 제목 시작점
          */
 
         const titleTop =
-            45;
+            35;
 
 
         /*
@@ -1652,12 +1648,8 @@
          */
 
         const gap =
-            35;
+            45;
 
-
-        /*
-         * 저자 위치
-         */
 
         let authorTop =
             titleTop +
@@ -1666,13 +1658,13 @@
 
 
         /*
-         * 너무 아래로 내려가지 않도록
+         * 너무 아래로 밀리지 않도록 제한
          */
 
         authorTop =
             Math.min(
                 authorTop,
-                850
+                760
             );
 
 
@@ -1684,7 +1676,7 @@
 
 
     /* =============================================================
-       제목 입력
+       제목 변경
     ============================================================= */
 
     commonTitleInput.addEventListener(
@@ -1696,9 +1688,17 @@
                 '오만과 편견';
 
 
+            /*
+             * 앞표지 제목
+             */
+
             previewBookTitle.textContent =
                 value;
 
+
+            /*
+             * 책등 제목
+             */
 
             previewSpineTitle.textContent =
                 value;
@@ -1904,8 +1904,7 @@
 
 
                 /*
-                 * 미리보기 확대를 제거하고
-                 * 실제 1080 × 1720으로 캡처
+                 * 미리보기 확대 제거
                  */
 
                 captureArea.style.transform =
@@ -1950,7 +1949,7 @@
 
 
                 /*
-                 * 실제 PNG 생성
+                 * 실제 1080 × 1720 캡처
                  */
 
                 const canvas =
@@ -1963,12 +1962,6 @@
                             height:1720,
 
                             scale:1,
-
-                            /*
-                             * ★★★ 핵심 ★★★
-                             *
-                             * null = 투명
-                             */
 
                             backgroundColor:null,
 
@@ -1991,7 +1984,7 @@
 
 
                 /*
-                 * PNG 저장
+                 * PNG 다운로드
                  */
 
                 const link =
