@@ -145,6 +145,7 @@
             transform: scale(1.1);
         }
 
+
     </style>
 </head>
 
@@ -650,7 +651,18 @@
                     >
 
 
-                        <!-- 책등 제목 -->
+                        <!-- =================================================
+                             책등 제목
+
+                             짧은 제목:
+                             1열 세로쓰기
+
+                             긴 제목:
+                             제목만 2열 세로쓰기
+
+                             제목 영역은 35px~645px까지 고정.
+                             저자는 700px부터 별도 영역.
+                        ================================================== -->
 
                         <div
                             id="spineTitleBox"
@@ -659,13 +671,16 @@
                                 top:35px;
                                 left:0;
                                 width:96px;
-                                height:auto;
+                                height:610px;
                                 display:flex;
                                 justify-content:center;
                                 align-items:flex-start;
-                                overflow:visible;
+                                overflow:hidden;
+                                gap:3px;
                             "
                         >
+
+                            <!-- 첫 번째 제목 열 -->
 
                             <span
                                 id="previewSpineTitle"
@@ -677,6 +692,8 @@
                                     line-height:1;
                                     letter-spacing:0;
                                     white-space:nowrap !important;
+                                    width:auto;
+                                    height:auto;
                                     max-height:none !important;
                                     max-width:none !important;
                                 "
@@ -684,17 +701,44 @@
                                 오만과 편견
                             </span>
 
+
+                            <!-- 긴 제목일 때 사용하는 두 번째 열 -->
+
+                            <span
+                                id="previewSpineTitle2"
+                                class="spine-vertical font-batang"
+                                style="
+                                    display:none;
+                                    color:#ffffff;
+                                    font-size:42px;
+                                    font-weight:700;
+                                    line-height:1;
+                                    letter-spacing:0;
+                                    white-space:nowrap !important;
+                                    width:43px;
+                                    height:570px;
+                                    overflow:hidden;
+                                    max-height:none !important;
+                                    max-width:none !important;
+                                "
+                            ></span>
+
                         </div>
 
 
 
-                        <!-- 책등 저자 -->
+                        <!-- =================================================
+                             책등 저자
+
+                             제목과 완전히 독립된 영역.
+                             긴 제목이어도 저자 위치는 변하지 않는다.
+                        ================================================== -->
 
                         <div
                             id="spineAuthorBox"
                             style="
                                 position:absolute;
-                                top:400px;
+                                top:700px;
                                 left:0;
                                 width:96px;
                                 display:flex;
@@ -1350,36 +1394,228 @@
 
 
     /* =============================================================
+       책등 제목 1열 / 2열 자동 처리
+
+       ① 우선 64px 1열로 시작
+       ② 610px 안에 들어오면 1열 유지
+       ③ 42px까지 줄여도 너무 길면 2열 전환
+       ④ 2열에서는 제목을 반으로 나누어 표시
+       ⑤ 두 열 모두 570px 안에 들어오도록 자동 축소
+    ============================================================= */
+
+    function splitSpineTitle(value) {
+
+        const clean =
+            String(value || '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+        if (!clean) {
+            return ['', ''];
+        }
+
+        const chars =
+            Array.from(clean);
+
+        const middle =
+            Math.ceil(chars.length / 2);
+
+        return [
+            chars.slice(0, middle).join(''),
+            chars.slice(middle).join('')
+        ];
+    }
+
+
+
+    function fitSpineTitle() {
+
+        const title =
+            commonTitleInput.value ||
+            '오만과 편견';
+
+        const titleBox =
+            document.getElementById(
+                'spineTitleBox'
+            );
+
+        const title2 =
+            document.getElementById(
+                'previewSpineTitle2'
+            );
+
+
+        const MAX_HEIGHT_SINGLE =
+            610;
+
+        const MIN_FONT_SINGLE =
+            42;
+
+        const MAX_FONT_SINGLE =
+            64;
+
+
+        /* ---------------------------------------------------------
+           우선 1열로 맞춘다.
+        --------------------------------------------------------- */
+
+        titleBox.style.flexDirection =
+            'row';
+
+        title2.style.display =
+            'none';
+
+        previewSpineTitle.style.display =
+            'block';
+
+        previewSpineTitle.textContent =
+            title;
+
+        previewSpineTitle.style.fontSize =
+            MAX_FONT_SINGLE + 'px';
+
+        previewSpineTitle.style.width =
+            'auto';
+
+        previewSpineTitle.style.height =
+            'auto';
+
+        previewSpineTitle.style.overflow =
+            'visible';
+
+
+        let singleFont =
+            MAX_FONT_SINGLE;
+
+
+        while (
+            previewSpineTitle.getBoundingClientRect().height >
+                MAX_HEIGHT_SINGLE &&
+            singleFont >
+                MIN_FONT_SINGLE
+        ) {
+
+            singleFont -= 1;
+
+            previewSpineTitle.style.fontSize =
+                singleFont + 'px';
+        }
+
+
+
+        /* ---------------------------------------------------------
+           42px에서도 610px를 넘으면 2열.
+        --------------------------------------------------------- */
+
+        if (
+            previewSpineTitle.getBoundingClientRect().height >
+            MAX_HEIGHT_SINGLE
+        ) {
+
+            const parts =
+                splitSpineTitle(title);
+
+            const first =
+                parts[0];
+
+            const second =
+                parts[1];
+
+
+            previewSpineTitle.textContent =
+                first;
+
+            title2.textContent =
+                second;
+
+
+            previewSpineTitle.style.fontSize =
+                '42px';
+
+            title2.style.fontSize =
+                '42px';
+
+
+            previewSpineTitle.style.width =
+                '43px';
+
+            previewSpineTitle.style.height =
+                '570px';
+
+            previewSpineTitle.style.overflow =
+                'hidden';
+
+
+            title2.style.width =
+                '43px';
+
+            title2.style.height =
+                '570px';
+
+            title2.style.overflow =
+                'hidden';
+
+
+            title2.style.display =
+                'block';
+
+
+            /* -----------------------------------------------------
+               두 열의 실제 높이를 확인하면서
+               같은 크기로 함께 줄인다.
+            ----------------------------------------------------- */
+
+            let twoColumnFont =
+                42;
+
+
+            while (
+                (
+                    previewSpineTitle.scrollHeight > 570 ||
+                    title2.scrollHeight > 570
+                ) &&
+                twoColumnFont > 25
+            ) {
+
+                twoColumnFont -= 1;
+
+                previewSpineTitle.style.fontSize =
+                    twoColumnFont + 'px';
+
+                title2.style.fontSize =
+                    twoColumnFont + 'px';
+            }
+
+
+            /* -----------------------------------------------------
+               세로쓰기에서는 첫 번째 열이 오른쪽에 오도록 한다.
+            ----------------------------------------------------- */
+
+            titleBox.style.flexDirection =
+                'row-reverse';
+
+        } else {
+
+            titleBox.style.flexDirection =
+                'row';
+
+        }
+
+    }
+
+
+
+    /* =============================================================
        책등 저자 위치
+
+       제목과 완전히 독립.
+       긴 제목이어도 저자는 항상 700px에서 시작한다.
     ============================================================= */
 
     function fitSpineAuthor() {
 
-        const titleHeight =
-            previewSpineTitle.offsetHeight;
-
-        const titleTop =
-            35;
-
-        const gap =
-            35;
-
-
-        let authorTop =
-            titleTop +
-            titleHeight +
-            gap;
-
-
-        authorTop =
-            Math.min(
-                authorTop,
-                650
-            );
-
-
         spineAuthorBox.style.top =
-            authorTop + 'px';
+            '700px';
     }
 
 
@@ -1400,11 +1636,14 @@
             previewBookTitle.textContent =
                 value;
 
+
             previewSpineTitle.textContent =
                 value;
 
 
             fitTitleAndBars();
+
+            fitSpineTitle();
 
             fitSpineAuthor();
 
@@ -1445,6 +1684,7 @@
 
             previewAuthor.textContent =
                 value;
+
 
             previewSpineAuthor.textContent =
                 value;
@@ -1643,19 +1883,8 @@
 
        ★★★★★ 핵심 ★★★★★
 
-       기존:
-       1080×1720 원본 DOM을 새로 만들어 캡처
-
-       문제:
-       미리보기와 저장 레이아웃이 달라짐
-
-       현재:
-       미리보기 프레임 자체를 캡처
-
-       즉 화면에 보이는 46.5% 레이아웃을
-       그대로 이미지화한 뒤
-
-       마지막에 1080×1720으로 확대한다.
+       미리보기 프레임 자체를 캡처하여
+       화면에 보이는 레이아웃을 그대로 저장한다.
     ============================================================= */
 
     downloadBtn.addEventListener(
@@ -1664,6 +1893,7 @@
 
             downloadBtn.disabled =
                 true;
+
 
             downloadBtn.textContent =
                 '✨ PNG 생성 중...';
@@ -1736,9 +1966,6 @@
 
                 /* -----------------------------------------
                    실제 미리보기 크기
-
-                   1080 / 1720 비율에 맞춰
-                   502×800 대신 정확한 비율로 캡처
                 ----------------------------------------- */
 
                 const previewWidth =
@@ -1752,11 +1979,7 @@
                 /* -----------------------------------------
                    미리보기 프레임의
                    체크무늬 배경을 없애고
-                   투명으로 캡처하기 위해
-                   임시 스타일 적용
-
-                   ★ 실제 디자인 캔버스에는
-                     손대지 않음
+                   투명으로 캡처
                 ----------------------------------------- */
 
                 const oldBackground =
@@ -1776,10 +1999,6 @@
 
                 /* -----------------------------------------
                    고해상도로 미리보기 캡처
-
-                   4배로 캡처한 뒤
-                   1080×1720으로 축소하면
-                   글자 가장자리가 조금 더 깨끗해짐
                 ----------------------------------------- */
 
                 const renderScale =
@@ -1866,10 +2085,6 @@
                  * 체크무늬가 아닌
                  * 실제 투명 배경 위의 디자인만
                  * 확대해서 넣는다.
-                 *
-                 * preview-frame 자체의 배경을
-                 * transparent로 바꿨기 때문에
-                 * 빈 영역은 투명하다.
                  */
 
                 ctx.drawImage(
@@ -1888,8 +2103,6 @@
 
                 /* -----------------------------------------
                    Blob 방식으로 다운로드
-
-                   ★ 파일명 확실히 지정
                 ----------------------------------------- */
 
                 const blob =
@@ -1912,6 +2125,13 @@
                 }
 
 
+
+                /* -----------------------------------------
+                   파일명
+
+                   예:
+                   북커버_088.png
+                ----------------------------------------- */
 
                 const fileName =
                     '북커버_' +
@@ -1961,9 +2181,11 @@
 
                 setTimeout(
                     function() {
+
                         URL.revokeObjectURL(
                             url
                         );
+
                     },
                     1000
                 );
@@ -2017,6 +2239,8 @@
 
         fitTitleAndBars();
 
+        fitSpineTitle();
+
         fitSpineAuthor();
 
     }
@@ -2027,7 +2251,10 @@
         initialize
     );
 
+
 </script>
+
+
 
 </body>
 </html>
