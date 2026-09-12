@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>민음사 스타일 투명 책갈피 제작소</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        .font-batang { font-family: 'Gowun Batang', serif; }
+        .font-sans-kr { font-family: 'Noto Sans KR', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+        
+        <!-- 입력 폼 영역 -->
+        <div class="p-6 md:p-8 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200">
+            <div class="space-y-4">
+                <h1 class="text-2xl font-bold text-slate-800">📚 민음사 투명 책갈피</h1>
+                <p class="text-xs text-slate-500">제목 하나만 입력하면 책등과 앞표지에 동시 적용됩니다!</p>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">제작자 정보 (예: 3학년 5반 김민수)</label>
+                    <input type="text" id="studentInfoInput" placeholder="3학년 5반 홍길동" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">앞표지 일러스트 이미지</label>
+                    <input type="file" id="imageInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">전집 번호</label>
+                        <input type="text" id="seriesNoInput" value="501" maxlength="4" class="w-full px-3 py-2 border rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">책등 인물 선택</label>
+                        <select id="authorImageSelect" class="w-full px-3 py-2 border rounded-lg outline-none bg-white text-sm">
+                            <option value="han">한강 작가</option>
+                            <option value="sejong">세종대왕</option>
+                            <option value="shakespeare">셰익스피어</option>
+                            <option value="austen">제인 오스틴</option>
+                            <option value="hwang">황석영 작가</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-sm font-semibold text-slate-700">책 제목 (통합 입력)</label>
+                        <span id="titleCharCount" class="text-xs text-slate-400">0/15자</span>
+                    </div>
+                    <input type="text" id="commonTitleInput" maxlength="15" placeholder="예: 밀회" class="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1">공통 포인트 색상 (띠 및 책등)</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="bg-red-800" checked class="accent-red-800"> 레드</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="bg-blue-900" class="accent-blue-900"> 네이비</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="bg-emerald-800" class="accent-emerald-800"> 그린</label>
+                        <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="themeColor" value="bg-amber-800" class="accent-amber-800"> 브라운</label>
+                    </div>
+                </div>
+            </div>
+
+            <button id="downloadBtn" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition shadow-md">
+                ✨ 고화질 투명 PNG 다운로드
+            </button>
+        </div>
+
+        <!-- 미리보기 영역 -->
+        <div class="p-6 md:p-8 bg-slate-50 flex flex-col items-center justify-center">
+            <p class="text-xs font-medium text-slate-400 mb-3">민음사 책갈피 실시간 미리보기</p>
+            
+            <!-- 책갈피 본체 (54mm x 86mm 비율) -->
+            <div id="captureArea" class="w-[319px] h-[508px] bg-white rounded-3xl shadow-lg border border-slate-200 relative overflow-hidden flex select-none">
+                
+                <!-- 1. 왼쪽 책등 영역 -->
+                <div class="w-[45px] h-full bg-white border-r border-slate-300 flex flex-col justify-between items-center py-3">
+                    <!-- 상단: 전집번호 및 세계문학전집 -->
+                    <div class="flex flex-col items-center text-[8px] font-sans-kr tracking-tighter text-slate-700 leading-tight">
+                        <span id="previewSeriesNo" class="font-bold">501</span>
+                        <span class="text-[6px] scale-90">세계문학전집</span>
+                        <!-- 흑백 초상화 아이콘 -->
+                        <div id="spinePortrait" class="w-6 h-7 bg-slate-200 mt-1 rounded-sm overflow-hidden grayscale contrast-125">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="w-full h-full object-cover" id="portraitImg">
+                        </div>
+                    </div>
+
+                    <!-- 중단: 컬러 책등 제목 영역 (자동 연동) -->
+                    <div id="spineColorBox" class="w-full py-3 bg-red-800 flex items-center justify-center transition-colors duration-300">
+                        <div id="previewSpineTitle" class="text-xs tracking-widest font-batang font-bold text-white uppercase truncate" style="writing-mode: vertical-rl;">책 제목</div>
+                    </div>
+
+                    <!-- 하단: 공식 민음사 CI 이미지 -->
+                    <div class="w-7 pb-1">
+                        <img src="minumsa.png" alt="민음사" class="w-full object-contain">
+                    </div>
+                </div>
+
+                <!-- 2. 오른쪽 메인 영역 (북커버 스타일) -->
+                <div class="flex-1 flex flex-col h-full bg-white">
+                    <!-- 상단 이미지 영역 (비율 유지) -->
+                    <div class="h-[52%] w-full bg-slate-100 relative overflow-hidden flex items-center justify-center border-b border-slate-300">
+                        <img id="previewImage" src="" alt="" class="w-full h-full object-cover hidden">
+                        <span id="imagePlaceholder" class="text-xs text-slate-400 font-sans-kr">상단 일러스트</span>
+                    </div>
+
+                    <!-- 하단 정보 영역 -->
+                    <div class="h-[48%] w-full flex flex-col justify-between p-4 bg-white font-batang">
+                        <!-- 세계문학전집 정보 -->
+                        <div class="text-[10px] font-sans-kr font-bold text-slate-800 tracking-tight">
+                            세계문학전집 <span id="previewSubSeriesNo">501</span>
+                        </div>
+
+                        <!-- 중앙 타이틀 및 상하단 대칭 띠 구조 -->
+                        <div class="flex flex-col justify-center items-center my-auto w-full">
+                            <!-- 상단 띠 -->
+                            <div id="topBar" class="w-full h-[7px] bg-red-800 transition-colors duration-300 mb-2"></div>
+                            
+                            <!-- 명조체 제목 (자동 연동 및 글자 크기 조절) -->
+                            <div id="previewBookTitle" class="font-bold text-slate-900 text-center tracking-wide w-full truncate px-1" style="font-size: 20px; word-break: keep-all;">책 제목</div>
+                            
+                            <!-- 하단 띠 -->
+                            <div id="bottomBar" class="w-full h-[7px] bg-red-800 transition-colors duration-300 mt-2"></div>
+                        </div>
+
+                        <!-- 저자명 / 학번 이름 (고딕체) -->
+                        <div class="flex justify-between items-end font-sans-kr pt-1">
+                            <span id="previewStudentInfo" class="text-xs text-slate-700 font-medium">3학년 5반 홍길동</span>
+                            <div class="w-6">
+                                <img src="minumsa.png" alt="민음사" class="w-full object-contain">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <p class="text-[11px] text-slate-400 mt-4 text-center">※ 투명 포토카드 맞춤형 투명 배경 PNG로 저장됩니다.</p>
+        </div>
+
+    </div>
+
+    <!-- 스크립트 로직 -->
+    <script>
+        const studentInfoInput = document.getElementById('studentInfoInput');
+        const seriesNoInput = document.getElementById('seriesNoInput');
+        const commonTitleInput = document.getElementById('commonTitleInput');
+        const imageInput = document.getElementById('imageInput');
+        const authorImageSelect = document.getElementById('authorImageSelect');
+
+        const previewSeriesNo = document.getElementById('previewSeriesNo');
+        const previewSubSeriesNo = document.getElementById('previewSubSeriesNo');
+        const previewSpineTitle = document.getElementById('previewSpineTitle');
+        const previewBookTitle = document.getElementById('previewBookTitle');
+        const previewStudentInfo = document.getElementById('previewStudentInfo');
+        const previewImage = document.getElementById('previewImage');
+        const imagePlaceholder = document.getElementById('imagePlaceholder');
+        const titleCharCount = document.getElementById('titleCharCount');
+        const portraitImg = document.getElementById('portraitImg');
+
+        const spineColorBox = document.getElementById('spineColorBox');
+        const topBar = document.getElementById('topBar');
+        const bottomBar = document.getElementById('bottomBar');
+        const themeColors = document.querySelectorAll('input[name="themeColor"]');
+        
+        const downloadBtn = document.getElementById('downloadBtn');
+        const captureArea = document.getElementById('captureArea');
+
+        // 초상화 샘플 매핑
+        const portraits = {
+            han: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
+            sejong: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
+            shakespeare: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
+            austen: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+            hwang: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100"
+        };
+
+        authorImageSelect.addEventListener('change', (e) => {
+            portraitImg.src = portraits[e.target.value];
+        });
+
+        seriesNoInput.addEventListener('input', (e) => {
+            const val = e.target.value || '501';
+            previewSeriesNo.innerText = val;
+            previewSubSeriesNo.innerText = val;
+        });
+
+        // 제목 하나만 입력하면 책등과 앞표지에 동시에 반영되도록 설정
+        commonTitleInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            titleCharCount.innerText = `${val.length}/15자`;
+            
+            const displayText = val || '책 제목';
+            previewBookTitle.innerText = displayText;
+            previewSpineTitle.innerText = displayText;
+
+            // 글자 수에 따른 동적 크기 조절 (외톨이 글자 방지)
+            if (val.length > 10) {
+                previewBookTitle.style.fontSize = '15px';
+            } else if (val.length > 6) {
+                previewBookTitle.style.fontSize = '18px';
+            } else {
+                previewBookTitle.style.fontSize = '20px';
+            }
+        });
+
+        studentInfoInput.addEventListener('input', (e) => {
+            previewStudentInfo.innerText = e.target.value || '3학년 5반 홍길동';
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImage.src = event.target.result;
+                    previewImage.classList.remove('hidden');
+                    imagePlaceholder.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        themeColors.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const colorClass = e.target.value;
+                spineColorBox.className = `w-full py-3 flex items-center justify-center transition-colors duration-300 ${colorClass}`;
+                topBar.className = `w-full h-[7px] transition-colors duration-300 mb-2 ${colorClass}`;
+                bottomBar.className = `w-full h-[7px] transition-colors duration-300 mt-2 ${colorClass}`;
+            });
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            const info = studentInfoInput.value.trim() || '학생';
+            downloadBtn.innerText = '✨ 고화질 변환 중...';
+            downloadBtn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(captureArea, {
+                    scale: 3, // 고해상도 300 DPI 유지
+                    backgroundColor: null, // 배경 투명 유지
+                    useCORS: true
+                });
+
+                const link = document.createElement('a');
+                link.download = `민음사책갈피_${info}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                alert('다운로드 중 오류가 발생했습니다.');
+            } finally {
+                downloadBtn.innerText = '✨ 고화질 투명 PNG 다운로드';
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
