@@ -2695,9 +2695,13 @@
              * 현재 미리보기의 위치를 유지하는 것이 목적이다.
              */
 
+            /*
+             * Canvas는 이미 실제 1080×1720 출력 좌표계입니다.
+             * 따라서 글자 크기는 preview의 CSS px 값을 그대로 사용합니다.
+             * 좌표(x/y)만 PREVIEW_SCALE을 역산하고, fontSize는 절대 나누지 않습니다.
+             */
             const fontSize =
-                parseFloat(style.fontSize)
-                / PREVIEW_SCALE;
+                parseFloat(style.fontSize);
 
 
             ctx.textAlign =
