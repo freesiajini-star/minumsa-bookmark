@@ -979,6 +979,7 @@
                                     display:flex;
                                     align-items:baseline;
                                     justify-content:flex-start;
+                                    text-align:left;
                                 "
                             >
 
@@ -988,7 +989,9 @@
 
                                 <span
                                     id="previewSubSeriesNo"
-                                    style="margin-left:20px;"
+                                    style="
+                                        margin-left:20px;
+                                    "
                                 >
                                     088
                                 </span>
@@ -1215,9 +1218,6 @@
 
     const previewBookTitle =
         document.getElementById('previewBookTitle');
-
-    const frontTitleArea =
-        document.getElementById('frontTitleArea');
 
     const previewEngTitle =
         document.getElementById('previewEngTitle');
@@ -2327,8 +2327,7 @@
 
     function drawTextElement(
         ctx,
-        element,
-        verticalCenterElement = null
+        element
     ) {
 
         if (!element) {
@@ -2650,46 +2649,107 @@
         );
 
 
-        let verticalCenterShift = 0;
+        /*
+         * 앞표지 제목은 위/아래 색띠 사이의
+         * 실제 제목 영역 정중앙에 배치한다.
+         */
+        if (element.id === 'previewBookTitle') {
 
-        if (
-            verticalCenterElement &&
-            lineGroups.length
-        ) {
-            const areaRect =
-                getExportRect(
-                    verticalCenterElement
+            const titleArea =
+                document.getElementById(
+                    'frontTitleArea'
                 );
 
-            const firstLine =
-                lineGroups[0];
+            const titleAreaRect =
+                getExportRect(titleArea);
 
-            const lastLine =
-                lineGroups[lineGroups.length - 1];
-
-            const blockTop =
-                firstLine.top;
-
-            const blockBottom =
-                lastLine.top +
-                Math.max.apply(
-                    null,
-                    lastLine.chars.map(
-                        function(item) {
-                            return item.height;
-                        }
-                    )
+            const totalLineHeight =
+                lineGroups.reduce(
+                    function(total, line) {
+                        return total +
+                            Math.max.apply(
+                                null,
+                                line.chars.map(
+                                    function(item) {
+                                        return item.height;
+                                    }
+                                )
+                            );
+                    },
+                    0
                 );
 
-            const blockCenter =
-                (blockTop + blockBottom) / 2;
+            const availableGap =
+                Math.max(
+                    0,
+                    titleAreaRect.height -
+                    totalLineHeight
+                );
 
-            const areaCenter =
-                areaRect.y +
-                areaRect.height / 2;
+            const lineGap =
+                lineGroups.length > 1
+                    ? availableGap /
+                      (lineGroups.length - 1)
+                    : 0;
 
-            verticalCenterShift =
-                areaCenter - blockCenter;
+            let currentY =
+                titleAreaRect.y +
+                availableGap / 2;
+
+            for (const line of lineGroups) {
+
+                if (!line.chars.length) {
+                    continue;
+                }
+
+                line.chars.sort(
+                    function(a,b) {
+                        return a.index - b.index;
+                    }
+                );
+
+                const lineText =
+                    line.chars
+                        .map(
+                            function(item) {
+                                return item.char;
+                            }
+                        )
+                        .join('');
+
+                const first =
+                    line.chars[0];
+
+                const lineHeight =
+                    Math.max.apply(
+                        null,
+                        line.chars.map(
+                            function(item) {
+                                return item.height;
+                            }
+                        )
+                    );
+
+                ctx.textAlign =
+                    'left';
+
+                ctx.textBaseline =
+                    'middle';
+
+                ctx.fillText(
+                    lineText,
+                    first.left,
+                    currentY +
+                    lineHeight / 2
+                );
+
+                currentY +=
+                    lineHeight +
+                    lineGap;
+            }
+
+            ctx.restore();
+            return;
         }
 
 
@@ -2770,7 +2830,6 @@
                 lineText,
                 x,
                 y +
-                verticalCenterShift +
                 Math.min(
                     lineHeight * 0.82,
                     fontSize * 0.82
@@ -3107,19 +3166,26 @@
                 spineHeaderTexts.forEach(
                     function(element) {
 
-                        const textSpans =
+                        const spans =
                             element.querySelectorAll(
                                 ':scope > span'
                             );
 
-                        textSpans.forEach(
-                            function(span) {
-                                drawTextElement(
-                                    ctx,
-                                    span
-                                );
-                            }
-                        );
+                        if (spans.length) {
+                            spans.forEach(
+                                function(span) {
+                                    drawTextElement(
+                                        ctx,
+                                        span
+                                    );
+                                }
+                            );
+                        } else {
+                            drawTextElement(
+                                ctx,
+                                element
+                            );
+                        }
 
                     }
                 );
@@ -3176,10 +3242,6 @@
                     );
 
 
-                const frontSeries =
-                    frontTextContainer.children[0];
-
-
                 const frontSeriesName =
                     document.getElementById(
                         'previewSubSeriesName'
@@ -3224,8 +3286,7 @@
 
                 drawTextElement(
                     ctx,
-                    previewBookTitle,
-                    frontTitleArea
+                    previewBookTitle
                 );
 
 
