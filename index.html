@@ -999,7 +999,8 @@
                                     width:700px;
                                     height:55px;
                                     margin-top:28px;
-                                    transform:translateY(20px);
+                                    position:relative;
+                                    top:60px;
                                     background:#A61D4B;
                                 "
                             ></div>
@@ -3151,95 +3152,10 @@
                    제목의 폰트/크기/가로 위치는 기존 값을 그대로 사용.
                 ------------------------------------------------- */
 
-                const frontTitleArea =
-                    document.getElementById(
-                        'frontTitleArea'
-                    );
-
-                if (frontTitleArea) {
-
-                    /*
-                     * 제목은 '상단 색띠의 아래쪽'과
-                     * '하단 색띠의 위쪽' 사이의 정확한 Y 중앙에 놓는다.
-                     * 상단 색띠는 이번에 20px만 위로 이동했으므로
-                     * 그 실제 위치를 기준으로 다시 계산한다.
-                     */
-
-                    const topBarRect =
-                        getExportRect(
-                            topBar
-                        );
-
-                    const bottomBarRect =
-                        getExportRect(
-                            bottomBar
-                        );
-
-                    const titleStyle =
-                        getComputedStyle(
-                            previewBookTitle
-                        );
-
-                    const titleText =
-                        previewBookTitle.textContent.trim();
-
-                    const centerY =
-                        (
-                            topBarRect.y +
-                            topBarRect.height +
-                            bottomBarRect.y
-                        ) / 2;
-
-                    ctx.save();
-
-                    ctx.font =
-                        canvasFontFromElement(
-                            previewBookTitle
-                        );
-
-                    ctx.fillStyle =
-                        getElementColor(
-                            previewBookTitle
-                        );
-
-                    ctx.textAlign =
-                        'left';
-
-                    const metrics =
-                        ctx.measureText(
-                            titleText
-                        );
-
-                    const fontSize =
-                        parseFloat(
-                            titleStyle.fontSize
-                        );
-
-                    const ascent =
-                        metrics.actualBoundingBoxAscent ||
-                        fontSize * 0.75;
-
-                    const descent =
-                        metrics.actualBoundingBoxDescent ||
-                        fontSize * 0.25;
-
-                    const baselineY =
-                        centerY +
-                        (ascent - descent) / 2;
-
-                    ctx.textBaseline =
-                        'alphabetic';
-
-                    ctx.fillText(
-                        titleText,
-                        getExportRect(
-                            frontTitleArea
-                        ).x,
-                        baselineY
-                    );
-
-                    ctx.restore();
-                }
+                drawTextElement(
+                    ctx,
+                    previewBookTitle
+                );
 
 
                 /* =================================================
