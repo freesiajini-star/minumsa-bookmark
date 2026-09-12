@@ -2107,8 +2107,16 @@
         const fontWeight =
             style.fontWeight || '400';
 
+        /*
+         * 중요: Canvas는 최종 1080×1720 좌표계로 직접 그린다.
+         * getComputedStyle()의 fontSize는 이미 실제 디자인 기준(px)이므로
+         * PREVIEW_SCALE로 다시 나누면 안 된다.
+         *
+         * 예: 64px → 그대로 64px
+         * 기존: 64 / 0.465 = 약 138px → 저장 시 글자가 폭발적으로 커짐
+         */
         const fontSize =
-            parseFloat(style.fontSize) / PREVIEW_SCALE;
+            parseFloat(style.fontSize);
 
 
         const fontFamily =
@@ -2352,10 +2360,11 @@
          * letter-spacing은 px 단위로 계산한다.
          */
 
+        /* fontSize와 마찬가지로 letter-spacing도 이미 최종 px 값이다. */
         const letterSpacing =
             parseFloat(
                 style.letterSpacing
-            ) / PREVIEW_SCALE;
+            );
 
 
         /*
