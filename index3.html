@@ -1885,62 +1885,88 @@
     async function openCamera() {
 
         cameraMessage.textContent =
-            '얼굴이 타원 안에 들어오도록 맞춘 뒤 촬영하세요.';
+            '카메라 권한을 확인하고 있습니다...';
 
         cameraModal.style.display =
             'flex';
 
-        /*
-         * 카메라 기능을 지원하지 않는 환경에서는
-         * 기존 파일 선택창으로 즉시 대체한다.
-         */
         if (
             !navigator.mediaDevices ||
             !navigator.mediaDevices.getUserMedia
         ) {
-
             cameraMessage.textContent =
-                '페이지 내 카메라를 사용할 수 없습니다. 아래의 ‘갤러리에서 선택’을 눌러 사진을 불러오세요.';
-
+                '이 브라우저에서는 페이지 카메라를 사용할 수 없습니다. ‘갤러리에서 선택’을 이용해 주세요.';
             return;
         }
 
-        try {
+        // 이전에 열린 스트림이 있다면 먼저 완전히 종료합니다.
+        stopCamera();
 
+        try {
+            // Windows/Chrome에서는 facingMode를 강제로 지정하면
+            // 내장 카메라 선택이 꼬이는 경우가 있어 사용하지 않습니다.
+            // 브라우저가 현재 PC의 기본 카메라를 선택하도록 합니다.
             cameraStream =
                 await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'user',
-                        width: {
-                            ideal: 1280
-                        },
-                        height: {
-                            ideal: 960
-                        }
-                    },
+                    video: true,
                     audio: false
                 });
 
-            cameraVideo.srcObject =
-                cameraStream;
+            cameraVideo.srcObject = cameraStream;
+
+            // 영상 메타데이터가 준비된 뒤 재생합니다.
+            if (cameraVideo.readyState < 1) {
+                await new Promise(function(resolve) {
+                    cameraVideo.addEventListener(
+                        'loadedmetadata',
+                        resolve,
+                        { once: true }
+                    );
+                });
+            }
 
             await cameraVideo.play();
 
+            cameraMessage.textContent =
+                '얼굴이 타원 안에 들어오도록 맞춘 뒤 촬영하세요.';
+
         } catch (error) {
 
-            /*
-             * 비동기 카메라 권한 요청이 끝난 뒤에는
-             * 브라우저가 파일 선택창을 자동으로 여는 것을
-             * 막을 수 있다. 따라서 모달은 유지하고,
-             * 사용자가 직접 ‘갤러리에서 선택’을 누르게 한다.
-             */
             stopCamera();
 
+            let message =
+                '카메라를 열 수 없습니다.';
+
+            // 브라우저가 알려주는 실제 원인에 맞춰 안내합니다.
+            if (error && error.name === 'NotAllowedError') {
+                message =
+                    '카메라 권한이 차단되어 있습니다. 주소창 왼쪽의 사이트 설정에서 ‘카메라’를 허용한 뒤 다시 눌러 주세요.';
+            } else if (error && error.name === 'NotFoundError') {
+                message =
+                    '사용할 수 있는 카메라를 찾지 못했습니다. Windows 카메라 앱을 닫은 뒤 다시 시도해 주세요.';
+            } else if (
+                error &&
+                (error.name === 'NotReadableError' ||
+                 error.name === 'TrackStartError')
+            ) {
+                message =
+                    '카메라가 다른 프로그램에서 사용 중이거나 카메라 장치에 접근할 수 없습니다. Zoom, Teams, Windows 카메라 앱 등을 닫고 다시 시도해 주세요.';
+            } else if (error && error.name === 'OverconstrainedError') {
+                message =
+                    '현재 카메라 설정을 사용할 수 없습니다. 다른 카메라가 연결되어 있다면 기본 카메라로 다시 시도해 주세요.';
+            } else if (error && error.name === 'SecurityError') {
+                message =
+                    '브라우저 보안 설정 때문에 카메라에 접근할 수 없습니다. 주소가 https로 열려 있는지 확인해 주세요.';
+            } else if (error && error.message) {
+                message +=
+                    ' 브라우저 오류: ' + error.message;
+            }
+
             cameraMessage.textContent =
-                '카메라를 열 수 없습니다. 카메라 권한을 허용하거나 아래의 ‘갤러리에서 선택’을 눌러 주세요.';
+                message +
+                ' 그래도 안 되면 ‘갤러리에서 선택’을 이용해 주세요.';
         }
     }
-
 
     function stopCamera() {
 
@@ -3111,16 +3137,77 @@
         }
 
         /*
-           화면의 작가 사진에는 CSS filter가 적용되지만,
-           canvas의 filter 지원 여부는 브라우저마다 달라서
-           모바일에서 저장 결과에 반영되지 않을 수 있다.
+           작가 사진은 저장할 때도 전체 영역을 확실하게 흑백으로 만든다.
 
-           따라서 작가 사진은 먼저 canvas에 그린 다음
-           실제 픽셀값을 직접 흑백/대비 변환한다.
-           이 방식이면 갤럭시 태블릿/휴대폰에서도
-           저장 PNG 자체가 확실하게 흑백이 된다.
+           주의:
+           exportCanvas에는 먼저 SAFE_SCALE 변환이 적용되어 있기 때문에
+           메인 canvas에 사진을 그린 뒤 getImageData(rect.x, rect.y, ...)로
+           흑백 처리하면 실제 사진 위치와 픽셀 처리 위치가 어긋날 수 있다.
+
+           따라서 사진을 먼저 별도의 offscreen canvas에 원본 크기로 그린 뒤
+           그 offscreen canvas의 모든 픽셀을 흑백으로 변환하고,
+           완성된 흑백 이미지를 메인 canvas에 배치한다.
+           이렇게 하면 축소/이동 변환과 관계없이 사진 전체가 흑백이 된다.
         */
-        ctx.save();
+
+        if (usePortraitFilter) {
+            const offscreen = document.createElement('canvas');
+            offscreen.width = Math.max(1, Math.ceil(rect.width));
+            offscreen.height = Math.max(1, Math.ceil(rect.height));
+
+            const offCtx = offscreen.getContext('2d', { willReadFrequently: true });
+
+            offCtx.drawImage(
+                img,
+                crop.sx,
+                crop.sy,
+                crop.sw,
+                crop.sh,
+                0,
+                0,
+                offscreen.width,
+                offscreen.height
+            );
+
+            const imageData = offCtx.getImageData(
+                0,
+                0,
+                offscreen.width,
+                offscreen.height
+            );
+            const data = imageData.data;
+
+            // CSS의 grayscale(100%) + contrast(115%)와 비슷한 효과를
+            // 저장 PNG의 실제 픽셀에 직접 적용한다.
+            const contrast = 1.15;
+            const intercept = 128 * (1 - contrast);
+
+            for (let i = 0; i < data.length; i += 4) {
+                const gray =
+                    0.299 * data[i] +
+                    0.587 * data[i + 1] +
+                    0.114 * data[i + 2];
+
+                const value =
+                    Math.max(0, Math.min(255, gray * contrast + intercept));
+
+                data[i] = value;
+                data[i + 1] = value;
+                data[i + 2] = value;
+            }
+
+            offCtx.putImageData(imageData, 0, 0);
+
+            ctx.drawImage(
+                offscreen,
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height
+            );
+
+            return;
+        }
 
         ctx.drawImage(
             img,
@@ -3133,40 +3220,6 @@
             rect.width,
             rect.height
         );
-
-        ctx.restore();
-
-        if (usePortraitFilter) {
-            const x = Math.max(0, Math.floor(rect.x));
-            const y = Math.max(0, Math.floor(rect.y));
-            const w = Math.min(ctx.canvas.width - x, Math.ceil(rect.width));
-            const h = Math.min(ctx.canvas.height - y, Math.ceil(rect.height));
-
-            if (w > 0 && h > 0) {
-                const imageData = ctx.getImageData(x, y, w, h);
-                const data = imageData.data;
-
-                // CSS contrast(115%)과 비슷한 대비를 픽셀에 직접 적용
-                const contrast = 1.15;
-                const intercept = 128 * (1 - contrast);
-
-                for (let i = 0; i < data.length; i += 4) {
-                    const gray =
-                        0.299 * data[i] +
-                        0.587 * data[i + 1] +
-                        0.114 * data[i + 2];
-
-                    const value =
-                        Math.max(0, Math.min(255, gray * contrast + intercept));
-
-                    data[i] = value;
-                    data[i + 1] = value;
-                    data[i + 2] = value;
-                }
-
-                ctx.putImageData(imageData, x, y);
-            }
-        }
 
     }
 
