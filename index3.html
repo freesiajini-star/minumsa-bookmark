@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>봉산삼오전집 투명 책갈피 제작소</title>
+    <title>민음사 투명 책갈피 제작소 (내 얼굴이 바로 작가 얼굴!) </title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -394,8 +394,8 @@
 
                     <p class="text-[11px] text-slate-400 mt-1">
                         ※ ‘내 사진 사용’을 누르면 페이지 안에서 전면 카메라가
-                        열립니다. 얼굴을 가이드 안에 맞춰 촬영하면 자동 흑백 처리되어
-                        책등 사진에 적용됩니다.
+                        열립니다. 얼굴을 가이드 안에 맞춰 촬영하세요.
+                        카메라를 사용할 수 없는 환경에서는 사진 선택으로 전환됩니다.
                     </p>
 
                 </div>
@@ -1247,8 +1247,7 @@
     const cameraMessage =
         document.getElementById('cameraMessage');
 
-    let cameraStream =
-        null;
+    let cameraStream = null;
 
 
     const previewSeriesNo =
@@ -1785,7 +1784,7 @@
 
     authorImageSelect.addEventListener(
         'change',
-        function(e) {
+        async function(e) {
 
             const value =
                 e.target.value;
@@ -1795,19 +1794,9 @@
                 '__custom__'
             ) {
 
-                previousPortraitValue =
-                    previousPortraitValue ===
-                    '__custom__'
-                        ? 'Jane.png'
-                        : previousPortraitValue;
-
                 openCamera();
-
                 return;
             }
-
-            previousPortraitValue =
-                value;
 
             resetPortraitPosition();
 
@@ -1826,13 +1815,22 @@
         cameraModal.style.display =
             'flex';
 
+        /*
+         * 카메라 기능을 지원하지 않는 환경에서는
+         * 기존 파일 선택창으로 즉시 대체한다.
+         */
         if (
             !navigator.mediaDevices ||
             !navigator.mediaDevices.getUserMedia
         ) {
 
-            cameraMessage.textContent =
-                '이 브라우저에서는 페이지 내 카메라를 사용할 수 없습니다. HTTPS 주소에서 Safari/Chrome/삼성 인터넷으로 접속해 주세요.';
+            cameraModal.style.display =
+                'none';
+
+            customPortraitInput.value =
+                '';
+
+            customPortraitInput.click();
 
             return;
         }
@@ -1842,8 +1840,12 @@
             cameraStream =
                 await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: {
-                            ideal: 'user'
+                        facingMode: 'user',
+                        width: {
+                            ideal: 1280
+                        },
+                        height: {
+                            ideal: 960
                         }
                     },
                     audio: false
@@ -1856,10 +1858,19 @@
 
         } catch (error) {
 
-            cameraMessage.textContent =
-                '카메라를 사용할 수 없습니다. 브라우저의 카메라 권한을 허용해 주세요.';
-
+            /*
+             * 권한 거부/브라우저 제한 등으로 카메라가 안 열리면
+             * 갤러리 선택으로 바로 전환한다.
+             */
             stopCamera();
+
+            cameraModal.style.display =
+                'none';
+
+            customPortraitInput.value =
+                '';
+
+            customPortraitInput.click();
         }
     }
 
@@ -1885,15 +1896,23 @@
     }
 
 
-    function closeCamera() {
+    function closeCamera(
+        restoreSelection = true
+    ) {
 
         stopCamera();
 
         cameraModal.style.display =
             'none';
 
-        authorImageSelect.value =
-            previousPortraitValue;
+        if (
+            restoreSelection &&
+            authorImageSelect.value ===
+            '__custom__'
+        ) {
+            authorImageSelect.value =
+                previousPortraitValue || 'Jane.png';
+        }
     }
 
 
@@ -1907,43 +1926,40 @@
                 !cameraVideo.videoHeight
             ) {
                 cameraMessage.textContent =
-                    '카메라가 아직 준비되지 않았습니다.';
+                    '카메라가 아직 준비되지 않았습니다. 잠시만 기다려 주세요.';
                 return;
             }
 
-            /*
-             * 화면에 보이는 타원 가이드와 같은 비율로
-             * 카메라 프레임을 잘라 저장한다.
-             *
-             * 미러링은 화면에서만 적용한다.
-             * 실제 저장 이미지는 정상 방향으로 저장한다.
-             */
             const videoWidth =
                 cameraVideo.videoWidth;
 
             const videoHeight =
                 cameraVideo.videoHeight;
 
+            const targetRatio =
+                3 / 4;
+
+            let sw =
+                videoWidth;
+
+            let sh =
+                videoHeight;
+
+            let sx = 0;
+            let sy = 0;
+
             const videoRatio =
                 videoWidth /
                 videoHeight;
 
-            const guideRatio =
-                3 / 4;
-
-            let sx = 0;
-            let sy = 0;
-            let sw = videoWidth;
-            let sh = videoHeight;
-
             if (
                 videoRatio >
-                guideRatio
+                targetRatio
             ) {
 
                 sw =
                     videoHeight *
-                    guideRatio;
+                    targetRatio;
 
                 sx =
                     (videoWidth - sw) /
@@ -1953,34 +1969,26 @@
 
                 sh =
                     videoWidth /
-                    guideRatio;
+                    targetRatio;
+
+                /*
+                 * 화면 가이드 중심이 44% 지점이므로
+                 * 그 위치가 crop 중심이 되도록 한다.
+                 */
+                sy =
+                    videoHeight *
+                    0.44 -
+                    sh / 2;
 
                 sy =
-                    (videoHeight - sh) /
-                    2;
+                    Math.max(
+                        0,
+                        Math.min(
+                            sy,
+                            videoHeight - sh
+                        )
+                    );
             }
-
-            /*
-             * 가이드가 화면 중앙보다 약간 위(44%)에 있으므로
-             * 저장 crop도 얼굴 영역이 자연스럽게 위쪽에 오도록
-             * 세로 위치를 살짝 올린다.
-             */
-            const guideCenterY =
-                0.44;
-
-            const desiredSy =
-                videoHeight *
-                guideCenterY -
-                sh / 2;
-
-            sy =
-                Math.max(
-                    0,
-                    Math.min(
-                        desiredSy,
-                        videoHeight - sh
-                    )
-                );
 
             const canvas =
                 document.createElement('canvas');
@@ -1999,8 +2007,8 @@
             }
 
             /*
-             * 화면의 미러링과 반대로
-             * 실제 사진은 정상 방향으로 저장한다.
+             * video 자체는 화면에서만 좌우 반전되어 있고,
+             * canvas에는 정상 방향으로 저장한다.
              */
             ctx.drawImage(
                 cameraVideo,
@@ -2024,7 +2032,6 @@
 
             portraitImg.onload =
                 function() {
-
                     detectPortraitFace();
                 };
 
@@ -2034,20 +2041,24 @@
             authorImageSelect.value =
                 '__custom__';
 
-            closeCamera();
+            closeCamera(false);
         }
     );
 
 
     cameraCloseBtn.addEventListener(
         'click',
-        closeCamera
+        function() {
+            closeCamera(true);
+        }
     );
 
 
     cameraCancelBtn.addEventListener(
         'click',
-        closeCamera
+        function() {
+            closeCamera(true);
+        }
     );
 
 
@@ -2059,7 +2070,7 @@
                 e.target ===
                 cameraModal
             ) {
-                closeCamera();
+                closeCamera(true);
             }
         }
     );
@@ -2067,7 +2078,9 @@
 
     window.addEventListener(
         'pagehide',
-        stopCamera
+        function() {
+            stopCamera();
+        }
     );
 
 
@@ -4080,179 +4093,65 @@ canvas.toBlob(
 
 
 <!-- =============================================================
-     셀카 카메라
-     모바일/태블릿 브라우저에서 페이지 안에서 전면 카메라를 사용한다.
+     페이지 내 셀카 카메라
 ============================================================== -->
-<div
-    id="cameraModal"
-    style="
-        display:none;
-        position:fixed;
-        inset:0;
-        z-index:100000;
-        background:#111827;
-        align-items:center;
-        justify-content:center;
-        padding:20px;
-    "
->
-    <div
-        style="
-            width:min(100%,520px);
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            gap:14px;
-        "
-    >
-        <div
-            style="
-                width:100%;
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                color:white;
-            "
-        >
-            <strong style="font-size:18px;">
-                셀카 촬영
-            </strong>
-
-            <button
-                type="button"
-                id="cameraCloseBtn"
-                style="
-                    border:0;
-                    background:transparent;
-                    color:white;
-                    font-size:28px;
-                    line-height:1;
-                    cursor:pointer;
-                "
-                aria-label="카메라 닫기"
-            >
-                ×
-            </button>
+<div id="cameraModal"
+     style="display:none;position:fixed;inset:0;z-index:100000;
+            background:#111827;align-items:center;justify-content:center;
+            padding:20px;box-sizing:border-box;">
+    <div style="width:min(100%,520px);display:flex;flex-direction:column;
+                align-items:center;gap:14px;">
+        <div style="width:100%;display:flex;justify-content:space-between;
+                    align-items:center;color:white;">
+            <strong style="font-size:18px;">셀카 촬영</strong>
+            <button type="button" id="cameraCloseBtn"
+                    aria-label="카메라 닫기"
+                    style="border:0;background:transparent;color:white;
+                           font-size:28px;line-height:1;cursor:pointer;">×</button>
         </div>
 
-        <div
-            id="cameraViewport"
-            style="
-                position:relative;
-                width:min(100%,360px);
-                aspect-ratio:3 / 4;
-                overflow:hidden;
-                border-radius:18px;
-                background:#000;
-                box-shadow:0 10px 30px rgba(0,0,0,.35);
-            "
-        >
-            <video
-                id="cameraVideo"
-                autoplay
-                playsinline
-                muted
-                style="
-                    width:100%;
-                    height:100%;
-                    object-fit:cover;
-                    transform:scaleX(-1);
-                "
-            ></video>
+        <div id="cameraViewport"
+             style="position:relative;width:min(100%,360px);
+                    aspect-ratio:3/4;overflow:hidden;border-radius:18px;
+                    background:#000;box-shadow:0 10px 30px rgba(0,0,0,.35);">
+            <video id="cameraVideo"
+                   autoplay playsinline muted
+                   style="width:100%;height:100%;object-fit:cover;
+                          transform:scaleX(-1);"></video>
 
-            <!-- 얼굴 위치 가이드 -->
-            <div
-                aria-hidden="true"
-                style="
-                    position:absolute;
-                    inset:0;
-                    pointer-events:none;
-                "
-            >
-                <div
-                    style="
-                        position:absolute;
-                        left:50%;
-                        top:44%;
-                        width:54%;
-                        aspect-ratio:3 / 4;
-                        transform:translate(-50%,-50%);
-                        border:3px solid rgba(255,255,255,.9);
-                        border-radius:50%;
-                        box-shadow:
-                            0 0 0 9999px rgba(0,0,0,.18);
-                    "
-                ></div>
-
-                <div
-                    style="
-                        position:absolute;
-                        left:0;
-                        right:0;
-                        bottom:24px;
-                        text-align:center;
-                        color:white;
-                        font-size:14px;
-                        font-weight:600;
-                        text-shadow:0 1px 4px #000;
-                    "
-                >
+            <div style="position:absolute;inset:0;pointer-events:none;">
+                <div style="position:absolute;left:50%;top:44%;
+                            width:54%;aspect-ratio:3/4;
+                            transform:translate(-50%,-50%);
+                            border:3px solid rgba(255,255,255,.92);
+                            border-radius:50%;
+                            box-shadow:0 0 0 9999px rgba(0,0,0,.18);">
+                </div>
+                <div style="position:absolute;left:0;right:0;bottom:24px;
+                            text-align:center;color:white;font-size:14px;
+                            font-weight:600;text-shadow:0 1px 4px #000;">
                     얼굴을 선 안에 맞춰 주세요
                 </div>
             </div>
         </div>
 
-        <p
-            id="cameraMessage"
-            style="
-                margin:0;
-                color:#d1d5db;
-                font-size:13px;
-                text-align:center;
-                line-height:1.5;
-            "
-        >
+        <p id="cameraMessage"
+           style="margin:0;color:#d1d5db;font-size:13px;
+                  text-align:center;line-height:1.5;">
             얼굴이 타원 안에 들어오도록 맞춘 뒤 촬영하세요.
         </p>
 
-        <div
-            style="
-                display:flex;
-                gap:10px;
-                width:min(100%,360px);
-            "
-        >
-            <button
-                type="button"
-                id="cameraCaptureBtn"
-                style="
-                    flex:1;
-                    border:0;
-                    border-radius:12px;
-                    padding:13px 16px;
-                    background:white;
-                    color:#111827;
-                    font-weight:700;
-                    font-size:16px;
-                    cursor:pointer;
-                "
-            >
+        <div style="display:flex;gap:10px;width:min(100%,360px);">
+            <button type="button" id="cameraCaptureBtn"
+                    style="flex:1;border:0;border-radius:12px;padding:13px 16px;
+                           background:white;color:#111827;font-weight:700;
+                           font-size:16px;cursor:pointer;">
                 촬영
             </button>
-
-            <button
-                type="button"
-                id="cameraCancelBtn"
-                style="
-                    border:1px solid #6b7280;
-                    border-radius:12px;
-                    padding:13px 18px;
-                    background:#374151;
-                    color:white;
-                    font-weight:600;
-                    cursor:pointer;
-                "
-            >
+            <button type="button" id="cameraCancelBtn"
+                    style="border:1px solid #6b7280;border-radius:12px;
+                           padding:13px 18px;background:#374151;color:white;
+                           font-weight:600;cursor:pointer;">
                 취소
             </button>
         </div>
