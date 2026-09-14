@@ -3092,7 +3092,8 @@
     function drawImageCover(
         ctx,
         img,
-        rect
+        rect,
+        usePortraitFilter = false
     ) {
 
         if (!imageReady(img)) {
@@ -3109,6 +3110,17 @@
             return;
         }
 
+        /*
+           화면의 작가 사진에는 CSS filter가 적용되지만,
+           canvas.drawImage()는 CSS filter를 가져오지 않는다.
+           따라서 저장할 때도 작가 사진에 동일한 흑백/대비 효과를 직접 적용한다.
+        */
+        ctx.save();
+
+        if (usePortraitFilter) {
+            ctx.filter = 'grayscale(100%) contrast(115%)';
+        }
+
         ctx.drawImage(
             img,
             crop.sx,
@@ -3120,6 +3132,8 @@
             rect.width,
             rect.height
         );
+
+        ctx.restore();
 
     }
 
