@@ -1,3 +1,77 @@
+Edit
+Today 8:37 AM
+스냅스 투명포토카드로 만들었을 경우, 작은 글자가 눈에 보일까?
+Pasted text(7).txt
+Document
+<책등부위>
+000-> 1.7배
+봉산-> 1.7배
+삼오-> 1.7배
+전집-> 1.7배
+민음사->1.2배
+
+<앞표지 부위>
+봉산삼오전집 000 -> 1.5배
+영문 원제 -> 1.7배
+저자 -> 2배
+역자명 -> 2.5배
+민음사 -> 2배
+
+
+
+
+
+
+네. 앞표지 큰 제목만 10% 키웠습니다.
+83px → 91.3px로 변경했고, 나머지는 그대로 두었습니다.
+
+수정된 HTML 파일 받기 
+
+미니어처_가독성확대_제목10퍼센트추가.html
+HTML
+민음사 로고는 어때보이니
+
+지금 방향이라면 앞표지 민음사 로고를 2배로 키운 건 괜찮아 보여요.
+
+오히려 이 미니어처 책갈피에서는 원래 크기보다 2배 정도가 더 귀엽고 ‘책 표지’ 느낌이 확실할 것 같아요.
+
+다만 제가 하나 구분해서 봐요.
+
+앞표지 민음사 로고 2배 → 좋음. 하단에 있으면서도 작은 책의 디테일을 살려줌.
+책등 민음사 로고 1.2배 → 이것도 적당함. 책등은 폭 자체가 좁아서 너무 키우면 답답해질 수 있음.
+
+특히 지금은 주변의 작은 글자들도 키웠기 때문에 로고 2배가 혼자 유난히 커 보이는 상황은 아닐 것 같아요. 전체가 ‘미니어처에서 디테일을 살린 디자인’으로 통일됩니다.
+
+다만 민음사 로고 자체의 비율은 절대 찌그러뜨리지 않는 게 중요하고, 현재 코드도 object-fit: contain이라 그 부분은 잘 되어 있습니다.
+
+제 취향으로는 지금 설정:
+
+책등 1.2배 / 앞표지 2배
+
+그대로 가겠습니다. 굳이 더 키울 필요는 없어 보여요.
+
+출력 위치가 이상해졌어.
+
+앞표지 제목이 안보여
+앞표지 저자와 역자 위치가 왼쪽정렬 되어야 하는데 자리가 많이 밀렸어.
+영문 원제도 왼쪽정렬 되어야 하는데 위치가 달라졌어.
+책등에 있는 제목이 우측에 쏠렸어.
+
+맞아요. 제가 앞서 글자 크기만 키우면서 PNG 출력 쪽의 위치 계산까지 영향을 받게 만든 게 문제였습니다.
+
+말씀하신 4가지를 기준으로 출력 로직만 수정했습니다.
+
+앞표지 큰 제목 → 다시 정상적으로 보이도록 수정
+앞표지 저자·역자 → 원래 왼쪽 기준점을 유지
+영문 원제 → 원래 왼쪽 기준점을 유지
+책등 제목 → 각 열의 정중앙에 오도록 수정
+
+그리고 이번에 키운 글자 크기와 기존 디자인, 93%×95% 안전여백은 그대로 유지했습니다. 원본의 PNG가 1080×1720이고 안전여백을 저장 시에만 적용하는 구조도 유지했습니다.
+
+출력 위치 수정 버전 HTML 받기
+
+이번에는 미리보기 디자인 자체를 건드린 게 아니라, 다운로드되는 PNG에서 글자를 그리는 방식만 바로잡은 것입니다.
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2330,517 +2404,143 @@
         element
     ) {
 
-        if (!element) {
-            return;
-        }
+        if (!element) return;
 
+        const text = element.textContent || '';
+        if (!text.trim()) return;
 
-        const text =
-            element.textContent || '';
-
-
-        if (!text.trim()) {
-            return;
-        }
-
-
-        const style =
-            getComputedStyle(element);
-
-
-        const rect =
-            getExportRect(element);
-
+        const style = getComputedStyle(element);
+        const rect = getExportRect(element);
+        const fontSize = parseFloat(style.fontSize) || 16;
 
         ctx.save();
+        ctx.font = canvasFontFromElement(element);
+        ctx.fillStyle = getElementColor(element);
 
+        /* -------------------------------------------------------------
+           책등 제목: Range의 glyph 위치를 사용하지 않는다.
+           확대된 글자가 43px 박스 밖으로 나가도 항상 열의 정중앙에
+           오도록 실제 column 위치를 기준으로 그린다.
+        ------------------------------------------------------------- */
+        if (element.classList.contains('spine-title-char')) {
+            const column = element.parentElement;
+            const columnRect = getExportRect(column);
+            const index = Array.from(column.children).indexOf(element);
 
-        ctx.font =
-            canvasFontFromElement(element);
-
-
-        ctx.fillStyle =
-            getElementColor(element);
-
-
-        ctx.textBaseline =
-            'alphabetic';
-
-
-        /*
-         * letter-spacing은 px 단위로 계산한다.
-         */
-
-        /* fontSize와 마찬가지로 letter-spacing도 이미 최종 px 값이다. */
-        const letterSpacing =
-            parseFloat(
-                style.letterSpacing
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(
+                text,
+                columnRect.x + columnRect.width / 2,
+                columnRect.y + index * fontSize + fontSize / 2
             );
 
-
-        /*
-         * 세로쓰기 저자처럼 writing-mode가 적용된 요소는
-         * 문자 하나씩 실제 위치에 맞춰 그린다.
-         */
-
-        const writingMode =
-            style.writingMode;
-
-
-        if (
-            writingMode &&
-            writingMode !== 'horizontal-tb'
-        ) {
-
-            const chars =
-                Array.from(text);
-
-
-            let characterOffset =
-                0;
-
-
-            for (const char of chars) {
-
-                if (char === '\n') {
-                    characterOffset += 1;
-                    continue;
-                }
-
-
-                const range =
-                    document.createRange();
-
-
-                const node =
-                    findTextNode(
-                        element,
-                        characterOffset
-                    );
-
-
-                if (!node) {
-                    characterOffset += char.length;
-                    continue;
-                }
-
-
-                const localOffset =
-                    node.offset;
-
-
-                try {
-
-                    range.setStart(
-                        node.node,
-                        localOffset
-                    );
-
-                    range.setEnd(
-                        node.node,
-                        localOffset + char.length
-                    );
-
-
-                    const r =
-                        range.getBoundingClientRect();
-
-
-                    const x =
-                        (
-                            r.left -
-                            captureArea.getBoundingClientRect().left
-                        )
-                        / PREVIEW_SCALE;
-
-                    const y =
-                        (
-                            r.top -
-                            captureArea.getBoundingClientRect().top
-                        )
-                        / PREVIEW_SCALE;
-
-
-                    const w =
-                        r.width /
-                        PREVIEW_SCALE;
-
-                    const h =
-                        r.height /
-                        PREVIEW_SCALE;
-
-
-                    ctx.save();
-
-
-                    ctx.translate(
-                        x + w / 2,
-                        y + h / 2
-                    );
-
-
-                    ctx.textAlign =
-                        'center';
-
-                    ctx.textBaseline =
-                        'middle';
-
-
-                    ctx.fillText(
-                        char,
-                        0,
-                        0
-                    );
-
-
-                    ctx.restore();
-
-                } catch (error) {
-                    /* 개별 문자 실패는 전체 저장을 중단하지 않는다. */
-                }
-
-
-                characterOffset +=
-                    char.length;
-
-            }
-
-
             ctx.restore();
-
             return;
-
         }
 
+        /* -------------------------------------------------------------
+           세로쓰기 저자: 기존 DOM의 실제 위치를 기준으로 하되,
+           Range의 glyph 폭 때문에 좌우로 밀리지 않도록
+           요소 자체의 중앙을 기준으로 그린다.
+        ------------------------------------------------------------- */
+        const writingMode = style.writingMode;
+        if (writingMode && writingMode !== 'horizontal-tb') {
+            const chars = Array.from(text);
+            const centerX = rect.x + rect.width / 2;
 
-        /*
-         * 가로쓰기 텍스트:
-         * Range로 실제 줄을 찾아서 줄 단위로 그린다.
-         */
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-        const textNodeInfo =
-            findTextNode(
-                element,
-                0
-            );
-
-
-        if (!textNodeInfo) {
+            chars.forEach(function(char, i) {
+                if (char === '\n') return;
+                ctx.fillText(
+                    char,
+                    centerX,
+                    rect.y + i * fontSize + fontSize / 2
+                );
+            });
 
             ctx.restore();
-
             return;
-
         }
 
+        /* -------------------------------------------------------------
+           앞표지 큰 제목:
+           현재 DOM의 Range glyph 위치 대신 제목 영역 자체를 기준으로
+           왼쪽 정렬하고, 세로로만 정중앙에 배치한다.
+           1줄/2줄 여부는 현재 미리보기의 줄바꿈을 그대로 따른다.
+        ------------------------------------------------------------- */
+        if (element.id === 'previewBookTitle') {
+            const titleArea = document.getElementById('frontTitleArea');
+            const titleRect = getExportRect(titleArea);
 
-        const node =
-            textNodeInfo.node;
+            const nodeInfo = findTextNode(element, 0);
+            let lines = [text];
 
-        const fullText =
-            node.textContent || '';
+            if (nodeInfo) {
+                const node = nodeInfo.node;
+                const groups = [];
 
-
-        const lineGroups =
-            [];
-
-
-        for (
-            let i = 0;
-            i < fullText.length;
-            i++
-        ) {
-
-            const char =
-                fullText[i];
-
-
-            if (char === '\n') {
-                continue;
-            }
-
-
-            const range =
-                document.createRange();
-
-
-            try {
-
-                range.setStart(
-                    node,
-                    i
-                );
-
-                range.setEnd(
-                    node,
-                    i + 1
-                );
-
-                const r =
-                    range.getBoundingClientRect();
-
-
-                const top =
-                    Math.round(
-                        (
-                            r.top -
-                            captureArea.getBoundingClientRect().top
-                        ) /
-                        PREVIEW_SCALE
-                    );
-
-
-                let line =
-                    lineGroups.find(
-                        function(item) {
-
-                            return Math.abs(
-                                item.top - top
-                            ) <= 2;
-
+                for (let i = 0; i < node.textContent.length; i++) {
+                    const range = document.createRange();
+                    try {
+                        range.setStart(node, i);
+                        range.setEnd(node, i + 1);
+                        const r = range.getBoundingClientRect();
+                        const top = Math.round(
+                            (r.top - captureArea.getBoundingClientRect().top) /
+                            PREVIEW_SCALE
+                        );
+                        let group = groups.find(function(g) {
+                            return Math.abs(g.top - top) <= 2;
+                        });
+                        if (!group) {
+                            group = { top: top, chars: [] };
+                            groups.push(group);
                         }
-                    );
-
-
-                if (!line) {
-
-                    line = {
-                        top: top,
-                        chars: []
-                    };
-
-                    lineGroups.push(
-                        line
-                    );
-
+                        group.chars.push(node.textContent[i]);
+                    } catch (e) {}
                 }
 
-
-                line.chars.push({
-                    index:i,
-                    char:char,
-                    left:
-                        (
-                            r.left -
-                            captureArea.getBoundingClientRect().left
-                        )
-                        / PREVIEW_SCALE,
-                    width:
-                        r.width /
-                        PREVIEW_SCALE,
-                    top:top,
-                    height:
-                        r.height /
-                        PREVIEW_SCALE
-                });
-
-
-            } catch (error) {
-                /* 무시 */
+                groups.sort(function(a,b) { return a.top - b.top; });
+                if (groups.length) {
+                    lines = groups.map(function(g) { return g.chars.join(''); });
+                }
             }
 
+            const lineHeight = fontSize;
+            const totalHeight = lines.length * lineHeight;
+            let y = titleRect.y + (titleRect.height - totalHeight) / 2 + lineHeight * 0.82;
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'alphabetic';
+
+            lines.forEach(function(line) {
+                ctx.fillText(line, titleRect.x, y);
+                y += lineHeight;
+            });
+
+            ctx.restore();
+            return;
         }
 
+        /* -------------------------------------------------------------
+           나머지 가로쓰기 텍스트:
+           Range의 첫 glyph 위치를 쓰지 않고 요소 자체의 왼쪽 좌표를
+           사용한다. 따라서 글자 크기를 키워도 왼쪽 정렬 기준점은
+           절대로 밀리지 않는다.
+        ------------------------------------------------------------- */
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
 
-        lineGroups.sort(
-            function(a,b) {
-                return a.top - b.top;
-            }
+        ctx.fillText(
+            text,
+            rect.x,
+            rect.y + Math.min(fontSize * 0.82, rect.height * 0.82)
         );
 
-
-        /*
-         * 앞표지 제목은 위/아래 색띠 사이의
-         * 실제 제목 영역 정중앙에 배치한다.
-         */
-        if (element.id === 'previewBookTitle') {
-
-            const titleArea =
-                document.getElementById(
-                    'frontTitleArea'
-                );
-
-            const titleAreaRect =
-                getExportRect(titleArea);
-
-            const totalLineHeight =
-                lineGroups.reduce(
-                    function(total, line) {
-                        return total +
-                            Math.max.apply(
-                                null,
-                                line.chars.map(
-                                    function(item) {
-                                        return item.height;
-                                    }
-                                )
-                            );
-                    },
-                    0
-                );
-
-            const availableGap =
-                Math.max(
-                    0,
-                    titleAreaRect.height -
-                    totalLineHeight
-                );
-
-            const lineGap =
-                lineGroups.length > 1
-                    ? availableGap /
-                      (lineGroups.length - 1)
-                    : 0;
-
-            let currentY =
-                titleAreaRect.y +
-                availableGap / 2;
-
-            for (const line of lineGroups) {
-
-                if (!line.chars.length) {
-                    continue;
-                }
-
-                line.chars.sort(
-                    function(a,b) {
-                        return a.index - b.index;
-                    }
-                );
-
-                const lineText =
-                    line.chars
-                        .map(
-                            function(item) {
-                                return item.char;
-                            }
-                        )
-                        .join('');
-
-                const first =
-                    line.chars[0];
-
-                const lineHeight =
-                    Math.max.apply(
-                        null,
-                        line.chars.map(
-                            function(item) {
-                                return item.height;
-                            }
-                        )
-                    );
-
-                ctx.textAlign =
-                    'left';
-
-                ctx.textBaseline =
-                    'middle';
-
-                ctx.fillText(
-                    lineText,
-                    first.left,
-                    currentY +
-                    lineHeight / 2
-                );
-
-                currentY +=
-                    lineHeight +
-                    lineGap;
-            }
-
-            ctx.restore();
-            return;
-        }
-
-
-        for (const line of lineGroups) {
-
-            if (!line.chars.length) {
-                continue;
-            }
-
-
-            line.chars.sort(
-                function(a,b) {
-                    return a.index - b.index;
-                }
-            );
-
-
-            const lineText =
-                line.chars
-                    .map(
-                        function(item) {
-                            return item.char;
-                        }
-                    )
-                    .join('');
-
-
-            const first =
-                line.chars[0];
-
-            const last =
-                line.chars[
-                    line.chars.length - 1
-                ];
-
-
-            const x =
-                first.left;
-
-
-            const y =
-                line.top;
-
-
-            const lineHeight =
-                Math.max.apply(
-                    null,
-                    line.chars.map(
-                        function(item) {
-                            return item.height;
-                        }
-                    )
-                );
-
-
-            /*
-             * CSS text baseline에 맞춘 근사값.
-             * 현재 미리보기의 위치를 유지하는 것이 목적이다.
-             */
-
-            /*
-             * Canvas는 이미 실제 1080×1720 출력 좌표계입니다.
-             * 따라서 글자 크기는 preview의 CSS px 값을 그대로 사용합니다.
-             * 좌표(x/y)만 PREVIEW_SCALE을 역산하고, fontSize는 절대 나누지 않습니다.
-             */
-            const fontSize =
-                parseFloat(style.fontSize);
-
-
-            ctx.textAlign =
-                'left';
-
-            ctx.textBaseline =
-                'alphabetic';
-
-
-            ctx.fillText(
-                lineText,
-                x,
-                y +
-                Math.min(
-                    lineHeight * 0.82,
-                    fontSize * 0.82
-                )
-            );
-
-        }
-
-
         ctx.restore();
-
     }
 
 
@@ -3681,3 +3381,9 @@ canvas.toBlob(
 
 </body>
 </html>
+미니어처_가독성확대_제목10퍼센트추가_출력위치수정.html
+HTML
+Meet Codex in the desktop app
+A coding agent that helps you build and ship with AI, included for free in your ChatGPT plan.
+Download the app
+Learn more
