@@ -3112,14 +3112,15 @@
 
         /*
            화면의 작가 사진에는 CSS filter가 적용되지만,
-           canvas.drawImage()는 CSS filter를 가져오지 않는다.
-           따라서 저장할 때도 작가 사진에 동일한 흑백/대비 효과를 직접 적용한다.
+           canvas의 filter 지원 여부는 브라우저마다 달라서
+           모바일에서 저장 결과에 반영되지 않을 수 있다.
+
+           따라서 작가 사진은 먼저 canvas에 그린 다음
+           실제 픽셀값을 직접 흑백/대비 변환한다.
+           이 방식이면 갤럭시 태블릿/휴대폰에서도
+           저장 PNG 자체가 확실하게 흑백이 된다.
         */
         ctx.save();
-
-        if (usePortraitFilter) {
-            ctx.filter = 'grayscale(100%) contrast(115%)';
-        }
 
         ctx.drawImage(
             img,
@@ -3134,6 +3135,38 @@
         );
 
         ctx.restore();
+
+        if (usePortraitFilter) {
+            const x = Math.max(0, Math.floor(rect.x));
+            const y = Math.max(0, Math.floor(rect.y));
+            const w = Math.min(ctx.canvas.width - x, Math.ceil(rect.width));
+            const h = Math.min(ctx.canvas.height - y, Math.ceil(rect.height));
+
+            if (w > 0 && h > 0) {
+                const imageData = ctx.getImageData(x, y, w, h);
+                const data = imageData.data;
+
+                // CSS contrast(115%)과 비슷한 대비를 픽셀에 직접 적용
+                const contrast = 1.15;
+                const intercept = 128 * (1 - contrast);
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const gray =
+                        0.299 * data[i] +
+                        0.587 * data[i + 1] +
+                        0.114 * data[i + 2];
+
+                    const value =
+                        Math.max(0, Math.min(255, gray * contrast + intercept));
+
+                    data[i] = value;
+                    data[i + 1] = value;
+                    data[i + 2] = value;
+                }
+
+                ctx.putImageData(imageData, x, y);
+            }
+        }
 
     }
 
