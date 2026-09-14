@@ -2123,9 +2123,20 @@
 
             resetPortraitPosition();
 
+            /*
+             * 카메라 촬영본은 이미 화면의 얼굴 가이드에 맞춰
+             * 3:4 영역으로 잘라 저장했으므로,
+             * 촬영 후 다시 얼굴 자동검출로 위치를 움직이지 않는다.
+             * 가이드의 중앙 = 실제 책등 사진의 중앙이 되도록 한다.
+             */
+            portraitFaceCenter = null;
+            resetPortraitPosition();
+
             portraitImg.onload =
                 function() {
-                    detectPortraitFace();
+                    /* 카메라 가이드 기준으로 그대로 표시 */
+                    portraitFaceCenter = null;
+                    resetPortraitPosition();
                 };
 
             portraitImg.src =
